@@ -1104,14 +1104,71 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 /* ── DESKTOP ENHANCEMENTS ── */
 @media(min-width:768px){
-  .content { max-width: 680px; margin: 0 auto; }
-  .tab { padding: 20px 24px 40px; }
-  .ac { border-radius: 16px; }
+  /* App shell full width */
+  #s-app { flex-direction: column; }
+  .topbar { padding: 12px 32px; }
+
+  /* Two-column layout: nav sidebar + content */
+  .app-body { display: flex; flex: 1; overflow: hidden; }
+  .content { flex: 1; max-width: 100%; overflow-y: auto; }
+  .tab { padding: 28px 40px 48px; max-width: 960px; margin: 0 auto; }
+
+  /* Stats 4 cols */
   .sg4 { grid-template-columns: repeat(4,1fr) !important; }
-  .modal { border-radius: 20px !important; margin: auto auto 0 !important; max-height: 80dvh; }
-  .overlay { align-items: center !important; }
-  .bnav { max-width: 680px; margin: 0 auto; }
-  .login-content { gap: 36px; }
+  .sg2 { grid-template-columns: repeat(4,1fr) !important; }
+
+  /* Bottom nav becomes top nav on desktop */
+  .bnav {
+    order: -1;
+    border-top: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+    padding-top: 0;
+    justify-content: center;
+    gap: 4px;
+  }
+  .nb { min-height: 44px; padding: 8px 18px; flex-direction: row; gap: 6px; font-size: 13px; min-width: auto; }
+  .nb .ni { font-size: 16px; }
+  .nb-tooltip { display: none; }
+
+  /* Modal centered */
+  .modal { border-radius: 20px !important; max-height: 85dvh; max-width: 560px; }
+  .overlay { align-items: center !important; padding: 24px; }
+  .overlay .modal { margin: 0 auto; }
+
+  /* Alumno cards grid on desktop */
+  #tab-a .ac { display: grid; grid-template-columns: 1fr auto; gap: 0; }
+  #tab-a .ac-top { grid-column: 1; }
+  #tab-a .ac-b { grid-column: 1; }
+  #tab-a .ac-a { grid-column: 1 / -1; }
+
+  /* Finance tabs horizontal */
+  .fin-tabs { gap: 6px; }
+  .fin-tab { font-size: 13px; padding: 9px 16px; }
+
+  /* Login desktop centered */
+  .login-content { max-width: 480px; margin: 0 auto; width: 100%; }
+  .login-card-ceo { max-width: 100%; }
+
+  /* Toolbar */
+  .toolbar { flex-wrap: nowrap; }
+  .srch { min-width: 200px !important; }
+
+  /* FAB hide on desktop - nav is visible */
+  .btn-ia-fab { bottom: 24px; right: 24px; }
+
+  /* IA screen */
+  #s-ia .ia-msgs { max-width: 760px; margin: 0 auto; width: 100%; }
+  .ia-inp-wrap { max-width: 760px; margin: 0 auto; width: 100%; padding-left: 0; padding-right: 0; }
+  .ia-quick { max-width: 760px; margin: 0 auto; }
+}
+
+@media(min-width:1024px){
+  .tab { max-width: 1080px; padding: 32px 48px 56px; }
+  .sg4 { gap: 14px; }
+  .sg2 { gap: 14px; }
+  .nb { padding: 8px 24px; font-size: 13px; }
+  .topbar { padding: 12px 48px; }
 }
 
 
@@ -1149,6 +1206,81 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 /* Alumno card info extra line */
 .ac-s + .ac-s {
   margin-top: 0;
+}
+
+
+/* ── DESKTOP NAV HORIZONTAL ── */
+@media(min-width:768px){
+  .nb.on::after {
+    bottom: 0; left: 50%;
+    width: 30px; height: 2px;
+    transform: translateX(-50%);
+  }
+  .nb.on .ni {
+    transform: scale(1.05) !important;
+  }
+  .btn-ia-fab { width: 46px; height: 46px; font-size: 20px; }
+}
+
+/* ── LOGIN LOGO EDIT BADGE ── */
+.login-logo-wrap { transition: transform .2s ease; }
+.login-logo-wrap:hover { transform: scale(1.05); }
+.login-logo-wrap:active { transform: scale(.95); }
+
+/* ── DESKTOP CARD GRID ── */
+@media(min-width:900px){
+  #tab-a > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  #tab-a > div:last-child .ac { margin-bottom: 0; }
+  #tab-a .empty { grid-column: 1/-1; }
+}
+
+/* ── RESPONSIVE TOOLBAR FILTERS ── */
+@media(min-width:600px){
+  #tab-a .toolbar:last-of-type {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) auto;
+    flex-wrap: nowrap;
+  }
+  #tab-a .toolbar:last-of-type .ssel { width: 100%; }
+}
+
+/* ── DESKTOP STATS ── */
+@media(min-width:768px){
+  .stat { padding: 16px 18px; }
+  .stat-v { font-size: 28px; }
+  .stat-l { font-size: 11px; }
+  .dash-hero { padding: 22px 24px; }
+  .dash-hero-val { font-size: 44px; }
+}
+
+/* ── DESKTOP ALUMNO CARD ── */
+@media(min-width:600px){
+  .ac { display: flex; flex-direction: column; }
+  .ac-top { margin-bottom: 8px; }
+}
+
+/* ── LOGIN DESKTOP FULL ── */
+@media(min-width:768px){
+  #s-login {
+    flex-direction: row !important;
+    align-items: stretch;
+  }
+  .login-bg { width: 50%; }
+  .login-content {
+    width: 50%;
+    background: #000;
+    border-left: 1px solid rgba(200,168,75,.12);
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login-brand { margin-bottom: 8px; }
+  .login-card-ceo { max-width: 380px; }
 }
 
 </style>
@@ -1195,12 +1327,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
   <div class="login-content">
     <!-- Top brand -->
-    <div class="login-brand" onclick="goHome()">
-      <div class="login-logo-wrap">
+    <div class="login-brand">
+      <div class="login-logo-wrap" onclick="$('login-logo-file').click()" title="Cambiar logo" style="cursor:pointer;position:relative">
         <img id="ll-img" src="" alt="">
         <div id="ll-box">PC</div>
+        <div style="position:absolute;bottom:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:700;box-shadow:0 1px 6px rgba(0,0,0,.4)">✎</div>
+        <input type="file" id="login-logo-file" accept="image/*" style="display:none" onchange="loginUploadLogo(event)">
       </div>
-      <div>
+      <div onclick="goHome()" style="cursor:pointer">
         <div class="login-title" id="login-title">ProClub</div>
         <div class="login-sub">Sistema de gestión</div>
       </div>
@@ -1742,6 +1876,7 @@ function renderAlumnos(){
     <div class="stabs">${subH}</div>
     <div class="toolbar">
       <input class="srch" id="srch-a" type="text" placeholder="🔍 Buscar..." oninput="renderAlumnos()" value="${q}" style="min-width:0;flex:1">
+      <button class="btn sm pri" onclick="openAlumno()" style="flex-shrink:0">+ Nuevo</button>
     </div>
     <div class="toolbar" style="gap:6px;margin-bottom:11px;flex-wrap:wrap">
       <select class="ssel" id="f-sort" onchange="renderAlumnos()" style="flex:1;min-width:0">
@@ -2218,6 +2353,18 @@ $('ia-inp').addEventListener('input',function(){this.style.height='auto';this.st
 function openM(id){$(id).classList.add('on');}
 function closeM(id){$(id).classList.remove('on');}
 document.querySelectorAll('.overlay').forEach(ov=>{ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});});
+
+
+function loginUploadLogo(e){
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    CFG.logoB64 = ev.target.result;
+    saveCFG(); applyTheme();
+    toast('Logo actualizado ✓');
+  };
+  r.readAsDataURL(f);
+}
 
 init();
 

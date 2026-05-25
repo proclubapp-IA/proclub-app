@@ -65,11 +65,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .btn-out{background:transparent;border:1px solid var(--border2);border-radius:8px;padding:5px 10px;font-size:12px;color:var(--text3);cursor:pointer;font-family:inherit}
 
 /* BOTTOM NAV */
-.bnav{display:flex;background:rgba(28,28,30,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:var(--safe-b);overflow-x:auto}
+.bnav{display:flex;background:rgba(28,28,30,.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid var(--border);flex-shrink:0;padding-bottom:var(--safe-b);overflow-x:auto;padding-top:4px}
 .bnav::-webkit-scrollbar{display:none}
-.nb{flex:1;min-width:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 2px;background:transparent;border:none;cursor:pointer;font-family:inherit;color:var(--text3);font-size:9px;letter-spacing:-.1px;min-height:50px;transition:color .15s}
+.nb{flex:1;min-width:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px 2px 6px;background:transparent;border:none;cursor:pointer;font-family:inherit;color:var(--text3);font-size:8.5px;letter-spacing:-.1px;min-height:46px;transition:color .15s;position:relative}
 .nb.on{color:var(--accent)}
-.ni{font-size:20px;line-height:1.2}
+.ni{font-size:18px;line-height:1.2}
+/* Tooltip */
+.nb-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) scale(.8);background:var(--bg2);border:1px solid var(--border2);color:var(--text);font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:all .2s cubic-bezier(.34,1.56,.64,1);letter-spacing:-.2px;box-shadow:0 4px 16px rgba(0,0,0,.4)}
+.nb-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--border2)}
+.nb:active .nb-tooltip,.nb.show-tip .nb-tooltip{opacity:1;transform:translateX(-50%) scale(1)}
 
 /* CONTENT */
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
@@ -526,6 +530,115 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   flex-shrink: 0;
 }
 
+
+/* ══ CEO DESIGN UPGRADE ══ */
+
+/* Premium gradient topbar */
+.topbar {
+  background: linear-gradient(180deg, rgba(28,28,30,.98) 0%, rgba(22,22,24,.95) 100%) !important;
+  box-shadow: 0 1px 0 rgba(200,168,75,.1), 0 4px 20px rgba(0,0,0,.3);
+}
+
+/* Gold accent line on active nav */
+.nb.on::after {
+  content:'';
+  position:absolute;
+  bottom:0;left:50%;
+  transform:translateX(-50%);
+  width:20px;height:2.5px;
+  border-radius:2px;
+  background:var(--accent);
+  box-shadow:0 0 8px rgba(200,168,75,.6);
+}
+
+/* Premium stat cards */
+.stat {
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+}
+
+/* Alumno card premium border */
+.ac {
+  border-left: 3px solid transparent;
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.ac:hover {
+  border-left-color: var(--accent);
+}
+
+/* Alert card premium */
+.alert {
+  box-shadow: 0 2px 12px rgba(255,69,58,.1);
+}
+
+/* Button premium */
+.btn.pri {
+  background: linear-gradient(135deg, #D4AA52, #C8A84B) !important;
+  box-shadow: 0 2px 12px rgba(200,168,75,.3) !important;
+}
+
+/* Dashboard hero premium */
+.dash-hero {
+  background: linear-gradient(135deg, #1f1c0e 0%, #181818 70%) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(200,168,75,.15);
+}
+
+/* Online card avatar glow */
+.onl-av {
+  box-shadow: 0 0 0 2px var(--bg2), 0 0 0 3px rgba(200,168,75,.3);
+  transition: box-shadow .2s ease;
+}
+.onl-av:hover {
+  box-shadow: 0 0 0 2px var(--bg2), 0 0 0 3px var(--accent);
+}
+
+/* Badge premium */
+.badge {
+  font-weight: 700;
+}
+
+/* Content smooth scroll */
+.content {
+  scroll-behavior: smooth;
+}
+
+/* Input premium focus */
+.inp:focus, .field input:focus, .field select:focus, .field textarea:focus {
+  box-shadow: 0 0 0 3px rgba(200,168,75,.15);
+}
+
+/* Fab premium */
+.btn-ia-fab {
+  box-shadow: 0 4px 20px rgba(191,90,242,.5), 0 0 0 1px rgba(191,90,242,.2) !important;
+}
+
+/* Section title premium */
+.sec {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sec::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background:linear-gradient(90deg, var(--border), transparent);
+}
+
+/* Pago card hover */
+.pgc {
+  transition: transform .15s ease, border-color .15s ease;
+}
+.pgc:hover {
+  border-color: rgba(200,168,75,.2);
+}
+
+/* Nav label smaller and cleaner */
+.nb span:last-child {
+  font-size: 8px;
+  letter-spacing: .2px;
+  font-weight: 500;
+}
+
 </style>
 </head>
 <body>
@@ -829,7 +942,24 @@ const ini=n=>(n||'?').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCas
 const fmtM=n=>'$'+Number(n||0).toLocaleString('es-AR');
 function dias(v){if(!v)return null;const h=new Date();h.setHours(0,0,0,0);const d=new Date(v);d.setHours(0,0,0,0);return Math.round((d-h)/864e5);}
 function waLink(tel,msg){const n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;return`https://wa.me/${n}?text=${encodeURIComponent(msg)}`;}
-function waMsg(a){const d=dias(a.venc),nom=a.nombre.split(' ')[0];if(d===null)return`Hola ${nom}! 👋 Te escribimos desde ProClub. ¿Renovamos tu plan?`;if(d<=0)return`Hola ${nom}! 👋 Tu membresía venció el ${fd(a.venc)}. ¡Hablemos para renovar! 💪`;return`Hola ${nom}! 👋 Tu membresía vence en ${d} día${d!==1?'s':''}. ¡Coordinamos la renovación! 💪`;}
+function waMsg(a){
+  const d=dias(a.venc),nom=a.nombre.split(' ')[0];
+  const msgRenovacion=`PRO AI • ProClub
+Hola ${nom}! Tu membresía está próxima a vencer. Para continuar con tu acceso activo y beneficios del club, realizá la renovación mediante transferencia:
+💳 proclubarg
+👤 Franco Nicolás Meloni
+🏦 Brubank
+Luego envianos el comprobante y tu plan será habilitado automáticamente. Gracias por ser parte de ProClub 💛`;
+  const msgVencido=`PRO AI • ProClub
+Hola ${nom}! Tu membresía venció el ${fd(a.venc)}. Para reactivar tu acceso y continuar con todos tus beneficios, realizá la renovación mediante transferencia:
+💳 proclubarg
+👤 Franco Nicolás Meloni
+🏦 Brubank
+Envianos el comprobante y tu plan será habilitado automáticamente. ¡Te esperamos! 💛`;
+  if(d===null)return`Hola ${nom}! 👋 Te escribimos desde ProClub. ¿Renovamos tu plan?`;
+  if(d<=0)return msgVencido;
+  return msgRenovacion;
+}
 function toast(msg,t='ok'){const el=$('toast');el.textContent=msg;el.className=`toast ${t} show`;clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',2400);}
 function setBtn(b,on){if(!b)return;b.disabled=on;if(on){b._t=b.textContent;b.textContent='…';}else b.textContent=b._t||b.textContent;}
 function goHome(){if(CU)showTab('d');else showS('s-login');}
@@ -837,7 +967,16 @@ function goHome(){if(CU)showTab('d');else showS('s-login');}
 function mBadge(m){const map={presencial:['b-pre','Presencial'],online:['b-onl','Online'],personal:['b-per','Plan Black'],transformacion:['b-tra','Transform.']};const[c,l]=map[m]||['b-pri',m];return`<span class="badge ${c}">${l}</span>`;}
 function eBadge(e){return`<span class="badge ${e==='activo'?'b-act':'b-ina'}">${e==='activo'?'Activo':'Inactivo'}</span>`;}
 function nBadge(n){const c=n==='principiante'?'b-pri':n==='intermedio'?'b-med':'b-adv';return`<span class="badge ${c}">${n.charAt(0).toUpperCase()+n.slice(1)}</span>`;}
-function vBadge(a){if(!a.venc||a.estado==='inactivo')return'';const d=dias(a.venc);if(d<=0)return`<span class="badge b-vr">Vencido</span>`;if(d<=7)return`<span class="badge b-vr">Vence en ${d}d</span>`;return`<span class="badge b-ok">OK ${fd(a.venc)}</span>`;}
+function vBadge(a){
+  if(!a.venc||a.estado==='inactivo')return'';
+  const d=dias(a.venc);
+  if(d<=0)return`<span class="badge b-vr">⚠ Vencido</span>`;
+  if(d===1)return`<span class="badge b-vr">⚡ Vence mañana</span>`;
+  if(d<=3)return`<span class="badge b-vr">🔴 Vence en ${d} días</span>`;
+  if(d<=7)return`<span class="badge b-vr">🟡 Vence en ${d} días</span>`;
+  if(d<=15)return`<span class="badge" style="background:rgba(255,159,10,.1);color:var(--orange);border:1px solid rgba(255,159,10,.2)">📅 ${fd(a.venc)}</span>`;
+  return`<span class="badge b-ok">✓ ${fd(a.venc)}</span>`;
+}
 
 function saveCFG(){try{localStorage.setItem('pc_cfg4',JSON.stringify(CFG));}catch(e){}}
 function loadCFG(){try{const c=localStorage.getItem('pc_cfg4');if(c)CFG={...CFG,...JSON.parse(c)};}catch(e){}}
@@ -906,15 +1045,23 @@ const NAVS=[
   {id:'c',icon:'⚙',label:'Config',roles:['admin']},
 ];
 
+const NAV_LABELS={d:'Inicio',a:'Alumnos',p:'Pagos',f:'Finanzas',v:'Ventas',m:'Marketing',o:'Online',c:'Configuración'};
+
 function buildNav(){
   const nb=$('bnav');nb.innerHTML='';
   NAVS.filter(t=>t.roles.includes(CU.rol)).forEach(t=>{
     const b=document.createElement('button');
     b.className='nb';b.dataset.id=t.id;
-    b.innerHTML=`<span class="ni">${t.icon}</span><span>${t.label}</span>`;
+    b.innerHTML=`<div class="nb-tooltip">${NAV_LABELS[t.id]||t.label}</div><span class="ni">${t.icon}</span><span>${t.label}</span>`;
     b.onclick=()=>showTab(t.id);
+    // Show tooltip on touch
+    b.addEventListener('touchstart',()=>{
+      b.classList.add('show-tip');
+      setTimeout(()=>b.classList.remove('show-tip'),800);
+    },{passive:true});
     nb.appendChild(b);
   });
+  addIAFab();
 }
 
 function showTab(id){

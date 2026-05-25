@@ -640,46 +640,81 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 }
 
 
-/* ══ LOGIN CEO DESIGN ══ */
+/* ══ LOGIN CEO DESIGN - NEGRO CON DESTELLOS DORADOS ══ */
 #s-login {
   padding: 0 !important;
   position: relative;
   overflow: hidden;
+  background: #000 !important;
 }
 .login-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #0d0d0f 0%, #1a1208 40%, #0d0d0f 100%);
+  background: #000;
   z-index: 0;
 }
 .login-bg-gradient {
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(200,168,75,.08) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 60% at 80% 30%, rgba(200,168,75,.05) 0%, transparent 70%);
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(200,168,75,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 15% 50%, rgba(200,168,75,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 85% 50%, rgba(200,168,75,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 30% at 50% 100%, rgba(200,168,75,.12) 0%, transparent 60%);
 }
-.login-bg-shapes { position: absolute; inset: 0; overflow: hidden; }
+/* Particles de luz dorada */
+.login-bg-shapes { position:absolute;inset:0;overflow:hidden; }
 .shape {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(200,168,75,.08);
-  animation: rotShape 20s linear infinite;
+  background: radial-gradient(circle, rgba(200,168,75,.9) 0%, transparent 70%);
+  animation: floatParticle linear infinite;
+  pointer-events: none;
 }
-.s1 { width:400px;height:400px;top:-100px;right:-100px;animation-duration:25s; }
-.s2 { width:250px;height:250px;bottom:-50px;left:-80px;animation-direction:reverse;animation-duration:18s; }
-.s3 { width:180px;height:180px;top:40%;right:10%;animation-duration:30s; }
-@keyframes rotShape { to { transform: rotate(360deg); } }
+.s1{width:3px;height:3px;top:20%;left:15%;animation-duration:8s;animation-delay:0s;}
+.s2{width:2px;height:2px;top:40%;left:75%;animation-duration:12s;animation-delay:-3s;}
+.s3{width:4px;height:4px;top:60%;left:30%;animation-duration:10s;animation-delay:-6s;}
+.s4{width:2px;height:2px;top:75%;left:60%;animation-duration:9s;animation-delay:-2s;}
+.s5{width:3px;height:3px;top:15%;left:85%;animation-duration:11s;animation-delay:-5s;}
+.s6{width:2px;height:2px;top:55%;left:10%;animation-duration:7s;animation-delay:-1s;}
+.s7{width:5px;height:5px;top:85%;left:45%;animation-duration:14s;animation-delay:-7s;opacity:.5;}
+.s8{width:2px;height:2px;top:30%;left:50%;animation-duration:13s;animation-delay:-4s;}
+.s9{width:3px;height:3px;top:10%;left:40%;animation-duration:9s;animation-delay:-8s;}
+.s10{width:2px;height:2px;top:70%;left:80%;animation-duration:10s;animation-delay:-3s;}
+.s11{width:4px;height:4px;top:45%;left:25%;animation-duration:16s;animation-delay:-9s;opacity:.6;}
+.s12{width:2px;height:2px;top:90%;left:15%;animation-duration:8s;animation-delay:-2s;}
+@keyframes floatParticle {
+  0%{transform:translateY(0) scale(1);opacity:0;}
+  10%{opacity:1;}
+  90%{opacity:.6;}
+  100%{transform:translateY(-120vh) scale(0.5);opacity:0;}
+}
+/* Líneas doradas horizontales sutiles */
+.login-bg::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 80px,
+    rgba(200,168,75,.025) 80px,
+    rgba(200,168,75,.025) 81px
+  );
+  pointer-events:none;
+}
 .silhouettes {
   position: absolute;
-  inset: 0;
+  bottom: 0;
+  left: 0; right: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 0 5%;
+  padding: 0 2%;
+  pointer-events: none;
 }
-.sil-m { width: 140px; height: auto; }
-.sil-f { width: 110px; height: auto; }
+.sil-m { width: 160px; height: auto; opacity: .04; filter: brightness(3); }
+.sil-f { width: 120px; height: auto; opacity: .04; filter: brightness(3); }
 .login-content {
   position: relative;
   z-index: 1;
@@ -699,19 +734,27 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   gap: 14px;
   cursor: pointer;
   animation: slideDown .6s cubic-bezier(.34,1.2,.64,1) both;
+  position: relative;
+}
+.login-brand::after {
+  content:'';
+  position:absolute;
+  bottom:-16px;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(200,168,75,.4), transparent);
 }
 @keyframes slideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
 .login-logo-wrap {
-  width: 56px;
-  height: 56px;
+  width: 58px;
+  height: 58px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(200,168,75,.2), rgba(200,168,75,.08));
-  border: 1px solid rgba(200,168,75,.3);
+  background: linear-gradient(135deg, rgba(200,168,75,.15) 0%, rgba(0,0,0,.8) 100%);
+  border: 1px solid rgba(200,168,75,.35);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 0 20px rgba(200,168,75,.15);
+  box-shadow: 0 0 30px rgba(200,168,75,.2), inset 0 1px 0 rgba(200,168,75,.3);
 }
 .login-logo-wrap img { width:100%;height:100%;object-fit:cover;display:none; }
 #ll-box {
@@ -735,17 +778,30 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .login-card-ceo {
   width: 100%;
   max-width: 340px;
-  background: rgba(28,28,30,.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(10,10,10,.8);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(200,168,75,.2);
   border-radius: 20px;
-  padding: 26px 22px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  box-shadow: 0 24px 64px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+  box-shadow: 
+    0 0 0 1px rgba(200,168,75,.05),
+    0 24px 64px rgba(0,0,0,.8),
+    0 0 80px rgba(200,168,75,.08),
+    inset 0 1px 0 rgba(200,168,75,.15);
   animation: slideUp2 .7s .1s cubic-bezier(.34,1.2,.64,1) both;
+  position: relative;
+  overflow: hidden;
+}
+.login-card-ceo::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(200,168,75,.6), transparent);
 }
 @keyframes slideUp2 { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 .login-card-title {
@@ -765,15 +821,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(58,58,60,.6);
-  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(200,168,75,.12);
   border-radius: 12px;
   padding: 0 14px;
-  transition: border-color .2s;
+  transition: all .2s ease;
 }
 .login-field-wrap:focus-within {
-  border-color: rgba(200,168,75,.4);
-  box-shadow: 0 0 0 3px rgba(200,168,75,.1);
+  border-color: rgba(200,168,75,.5);
+  background: rgba(200,168,75,.05);
+  box-shadow: 0 0 0 3px rgba(200,168,75,.08), 0 0 20px rgba(200,168,75,.1);
 }
 .login-field-icon { font-size: 16px; flex-shrink: 0; }
 .inp-ceo {
@@ -834,6 +891,240 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   to { opacity:1; transform:translateY(0); }
 }
 
+
+/* ══════════════════════════════════
+   UX UPGRADE — Mobile First + Interactions
+   ══════════════════════════════════ */
+
+/* Safe area fix global */
+* { -webkit-tap-highlight-color: transparent; }
+
+/* Better mobile scrolling */
+.content { 
+  overscroll-behavior: contain;
+  scroll-snap-type: none;
+}
+
+/* ── RESPONSIVE GRID ── */
+@media(max-width:480px){
+  .sg4 { grid-template-columns: 1fr 1fr !important; }
+  .toolbar { flex-wrap: wrap; }
+  .toolbar .srch { min-width: 100%; order: -1; }
+  .stabs { padding-bottom: 4px; }
+  .tab { padding: 12px 12px 28px; }
+  .ac-a { gap: 5px; }
+  .btn.xs { height: 30px; padding: 0 10px; font-size: 11px; }
+}
+
+/* ── CARD INTERACTIONS ── */
+.ac, .pgc, .prc, .mkt-card, .onl-card, .stat {
+  will-change: transform;
+  cursor: pointer;
+}
+.ac { transition: transform .18s cubic-bezier(.34,1.4,.64,1), box-shadow .18s ease, border-color .18s ease; }
+.ac:active { transform: scale(.985) !important; }
+
+/* ── BUTTON STATES ── */
+.btn { 
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+}
+.btn:active { transform: scale(.94) !important; }
+.btn.pri:hover { box-shadow: 0 6px 24px rgba(200,168,75,.35) !important; }
+
+/* ── STAT CARD HOVER ── */
+.stat {
+  transition: transform .2s cubic-bezier(.34,1.4,.64,1), border-color .2s ease;
+  cursor: default;
+}
+.stat:hover { 
+  transform: translateY(-2px) scale(1.02);
+  border-color: rgba(200,168,75,.25);
+}
+
+/* ── DASH HERO GLOW ── */
+.dash-hero {
+  position: relative;
+  overflow: hidden;
+}
+.dash-hero::after {
+  content: '';
+  position: absolute;
+  top: -50%;left: -50%;
+  width: 200%;height: 200%;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(200,168,75,.03) 60deg, transparent 120deg);
+  animation: heroSpin 12s linear infinite;
+  pointer-events: none;
+}
+@keyframes heroSpin { to { transform: rotate(360deg); } }
+
+/* ── SUBTAB ANIMATION ── */
+.stab {
+  transition: all .2s cubic-bezier(.34,1.3,.64,1);
+  transform: translateZ(0);
+}
+.stab:active { transform: scale(.93) !important; }
+.stab.on { 
+  box-shadow: 0 2px 12px rgba(200,168,75,.2);
+  transform: translateY(-1px);
+}
+
+/* ── BOTTOM NAV ENHANCED ── */
+.nb { transition: color .15s ease; }
+.nb .ni { transition: transform .25s cubic-bezier(.34,1.56,.64,1), filter .25s ease; }
+.nb.on .ni {
+  transform: scale(1.2) translateY(-1px) !important;
+  filter: drop-shadow(0 0 5px var(--accent)) !important;
+}
+.nb:active .ni { transform: scale(.85) !important; }
+
+/* ── MODAL ENHANCED ── */
+.modal {
+  transform-origin: bottom center;
+}
+.overlay.on .modal {
+  animation: modalSpring .4s cubic-bezier(.34,1.15,.64,1) both !important;
+}
+@keyframes modalSpring {
+  0% { transform: translateY(100%) scale(.95); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* ── INPUT FOCUS ANIMATIONS ── */
+.field input, .field select, .field textarea {
+  transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  transform: translateY(-1px);
+}
+
+/* ── BADGE ANIMATIONS ── */
+.badge {
+  transition: transform .2s ease;
+}
+.b-vr {
+  animation: pulse-vr 2s ease-in-out infinite !important;
+}
+@keyframes pulse-vr {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,69,58,.4); }
+  50% { box-shadow: 0 0 0 4px rgba(255,69,58,0); }
+}
+
+/* ── ALERT CARD ENHANCED ── */
+.alert {
+  transition: transform .15s ease;
+  animation: alertSlide .4s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes alertSlide {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ── RECENT ITEMS ── */
+.ri {
+  transition: background .15s ease;
+  border-radius: 10px;
+  margin: 0 -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.ri:active { background: rgba(200,168,75,.05); }
+
+/* ── FAB ENHANCED ── */
+.btn-ia-fab {
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease !important;
+}
+.btn-ia-fab:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 8px 32px rgba(191,90,242,.6) !important;
+}
+
+/* ── SCROLLBAR HIDDEN MOBILE ── */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
+
+/* ── TOPBAR SCROLL EFFECT (JS will toggle) ── */
+.topbar.scrolled {
+  box-shadow: 0 4px 30px rgba(0,0,0,.5);
+}
+
+/* ── LOADING SKELETON ── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+/* ── PROGRESS INDICATOR ── */
+.progress-bar-wrap {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 999;
+  pointer-events: none;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold3), var(--accent), var(--gold2));
+  background: linear-gradient(90deg, #8B6914, #C8A84B, #E8C76B);
+  width: 0%;
+  transition: width .3s ease;
+  box-shadow: 0 0 8px rgba(200,168,75,.6);
+}
+
+/* ── SWIPE HINT ── */
+.swipe-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text3);
+  padding: 6px 0 2px;
+  letter-spacing: .5px;
+}
+
+/* ── ONLINE CARD FOTO ── */
+.foto-item {
+  transition: transform .2s cubic-bezier(.34,1.4,.64,1);
+}
+.foto-item:active { transform: scale(.92); }
+
+/* ── WA BUTTON GLOW ── */
+.btn-wa {
+  transition: transform .15s ease, box-shadow .15s ease !important;
+  box-shadow: 0 2px 12px rgba(37,211,102,.25);
+}
+.btn-wa:active { transform: scale(.93) !important; }
+
+/* ── RESPONSIVE MODAL ── */
+@media(max-width:480px) {
+  .modal { max-height: 85dvh; border-radius: 20px 20px 0 0; }
+  .mb { grid-template-columns: 1fr !important; gap: 9px; }
+  .full { grid-column: 1 !important; }
+  .mf { padding: 11px 15px; padding-bottom: calc(11px + var(--safe-b)); gap: 6px; }
+  .btn.xs { font-size: 11px; }
+}
+
+/* ── IA SCREEN MOBILE ── */
+@media(max-width:480px){
+  .ia-hdr { padding: 10px 14px; padding-top: calc(10px + var(--safe-t)); }
+  .msg { font-size: 13px; max-width: 92%; }
+  .qb { font-size: 11px; padding: 6px 10px; }
+}
+
+/* ── DESKTOP ENHANCEMENTS ── */
+@media(min-width:768px){
+  .content { max-width: 680px; margin: 0 auto; }
+  .tab { padding: 20px 24px 40px; }
+  .ac { border-radius: 16px; }
+  .sg4 { grid-template-columns: repeat(4,1fr) !important; }
+  .modal { border-radius: 20px !important; margin: auto auto 0 !important; max-height: 80dvh; }
+  .overlay { align-items: center !important; }
+  .bnav { max-width: 680px; margin: 0 auto; }
+  .login-content { gap: 36px; }
+}
+
 </style>
 </head>
 <body>
@@ -868,9 +1159,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   <div class="login-bg">
     <div class="login-bg-gradient"></div>
     <div class="login-bg-shapes">
-      <div class="shape s1"></div>
-      <div class="shape s2"></div>
-      <div class="shape s3"></div>
+      <div class="shape s1"></div><div class="shape s2"></div><div class="shape s3"></div>
+      <div class="shape s4"></div><div class="shape s5"></div><div class="shape s6"></div>
+      <div class="shape s7"></div><div class="shape s8"></div><div class="shape s9"></div>
+      <div class="shape s10"></div><div class="shape s11"></div><div class="shape s12"></div>
     </div>
     <!-- Silhouettes -->
     <div class="silhouettes">
@@ -1193,21 +1485,26 @@ function dias(v){if(!v)return null;const h=new Date();h.setHours(0,0,0,0);const 
 function waLink(tel,msg){const n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;return`https://wa.me/${n}?text=${encodeURIComponent(msg)}`;}
 function waMsg(a){
   const d=dias(a.venc),nom=a.nombre.split(' ')[0];
-  const msgRenovacion='PRO AI \u2022 ProClub\n'
-    +'Hola '+nom+'! Tu membres\u00eda est\u00e1 pr\u00f3xima a vencer. Para continuar con tu acceso activo y beneficios del club, realiz\u00e1 la renovaci\u00f3n mediante transferencia:\n\n'
-    +'\uD83D\uDCB3 proclubarg\n'
-    +'\uD83D\uDC64 Franco Nicol\u00e1s Meloni\n'
-    +'\uD83C\uDFE6 Brubank\n\n'
-    +'Luego envi\u00e1nos el comprobante y tu plan ser\u00e1 habilitado autom\u00e1ticamente. Gracias por ser parte de ProClub \uD83D\uDC9B';
-  const msgVencido='PRO AI \u2022 ProClub\n'
-    +'Hola '+nom+'! Tu membres\u00eda venci\u00f3 el '+fd(a.venc)+'. Para reactivar tu acceso y continuar con todos tus beneficios, realiz\u00e1 la renovaci\u00f3n mediante transferencia:\n\n'
-    +'\uD83D\uDCB3 proclubarg\n'
-    +'\uD83D\uDC64 Franco Nicol\u00e1s Meloni\n'
-    +'\uD83C\uDFE6 Brubank\n\n'
-    +'Envi\u00e1nos el comprobante y tu plan ser\u00e1 habilitado autom\u00e1ticamente. \u00a1Te esperamos! \uD83D\uDC9B';
-  if(d===null)return 'Hola '+nom+'! \uD83D\uDC4B Te escribimos desde ProClub. \u00bfRenovamos tu plan?';
-  if(d<=0)return msgVencido;
-  return msgRenovacion;
+  const msgR=`PRO AI • ProClub
+Hola ${nom}! Tu membresía está próxima a vencer. Para continuar con tu acceso activo y beneficios del club, realizá la renovación mediante transferencia:
+
+💳 proclubarg
+👤 Franco Nicolás Meloni
+🏦 Brubank
+
+Luego enviános el comprobante y tu plan será habilitado automáticamente. Gracias por ser parte de ProClub 💛`;
+  const msgV=`PRO AI • ProClub
+Hola ${nom}! Tu membresía venció el ${fd(a.venc)}. Para reactivar tu acceso y continuar con todos tus beneficios, realizá la renovación mediante transferencia:
+
+💳 proclubarg
+👤 Franco Nicolás Meloni
+🏦 Brubank
+
+Enviános el comprobante y tu plan será habilitado automáticamente. ¡Te esperamos! 💛`;
+  const msgG=`Hola ${nom}! 👋 Te escribimos desde ProClub. ¿Renovamos tu plan?`;
+  if(d===null)return msgG;
+  if(d<=0)return msgV;
+  return msgR;
 }
 function toast(msg,t='ok'){const el=$('toast');el.textContent=msg;el.className=`toast ${t} show`;clearTimeout(el._t);el._t=setTimeout(()=>el.className='toast',2400);}
 function setBtn(b,on){if(!b)return;b.disabled=on;if(on){b._t=b.textContent;b.textContent='…';}else b.textContent=b._t||b.textContent;}
@@ -1987,6 +2284,135 @@ rippleStyle.textContent = '@keyframes ripple{to{transform:scale(2);opacity:0}}';
 document.head.appendChild(rippleStyle);
 
 console.log('ProClub Visual Upgrade loaded ✓');
+
+
+// ── UX UPGRADES ──────────────────────────────────────────
+
+// Progress bar on load
+(function(){
+  const wrap = document.createElement('div');
+  wrap.className = 'progress-bar-wrap';
+  const bar = document.createElement('div');
+  bar.className = 'progress-bar';
+  bar.id = 'prog-bar';
+  wrap.appendChild(bar);
+  document.body.appendChild(wrap);
+})();
+
+function showProgress(pct){
+  const b = document.getElementById('prog-bar');
+  if(b){ b.style.width = pct+'%'; if(pct>=100) setTimeout(()=>b.style.width='0%',400); }
+}
+
+// Topbar scroll effect
+document.getElementById('content').addEventListener('scroll', function(){
+  const tb = document.querySelector('.topbar');
+  if(tb) tb.classList.toggle('scrolled', this.scrollTop > 10);
+}, {passive:true});
+
+// Enhanced showTab with progress
+const __origShowTab = showTab;
+showTab = function(id){
+  showProgress(30);
+  __origShowTab(id);
+  setTimeout(()=>showProgress(100), 150);
+  setTimeout(initReveal, 200);
+};
+
+// Enhanced doLogin with progress
+const __origDoLogin = doLogin;
+doLogin = async function(){
+  showProgress(20);
+  await __origDoLogin();
+  showProgress(100);
+};
+
+// Haptic feedback simulation (mobile)
+function haptic(){
+  if(navigator.vibrate) navigator.vibrate(8);
+}
+document.addEventListener('click', function(e){
+  const el = e.target.closest('.btn, .nb, .stab, .btn-login-ceo, .btn-wa, .btn-ia-fab');
+  if(el) haptic();
+}, {passive:true});
+
+// Swipe between tabs (mobile)
+(function(){
+  let startX=0, startY=0;
+  const content = document.getElementById('content');
+  if(!content) return;
+  content.addEventListener('touchstart', e=>{
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, {passive:true});
+  content.addEventListener('touchend', e=>{
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)*0.8) return;
+    if(content.scrollTop > 10) return; // only when at top
+    const tabs = Array.from(document.querySelectorAll('.nb')).map(b=>b.dataset.id);
+    const cur = tabs.indexOf(curTab);
+    if(dx < 0 && cur < tabs.length-1) showTab(tabs[cur+1]);
+    if(dx > 0 && cur > 0) showTab(tabs[cur-1]);
+  }, {passive:true});
+})();
+
+// Auto-animate numbers in stats when visible
+function animateStat(el){
+  const val = parseFloat(el.textContent.replace(/[^0-9.-]/g,''));
+  if(isNaN(val)||val===0) return;
+  const prefix = el.textContent.includes('$') ? '$' : '';
+  const suffix = el.textContent.includes('%') ? '%' : '';
+  let start = null;
+  const dur = 600;
+  function step(ts){
+    if(!start) start = ts;
+    const prog = Math.min((ts-start)/dur,1);
+    const ease = 1-Math.pow(1-prog,3);
+    const cur = Math.round(val*ease);
+    el.textContent = prefix ? '$'+cur.toLocaleString('es-AR') : cur+suffix;
+    if(prog<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Patch initReveal to also animate stat numbers
+const __origInitReveal = typeof initReveal !== 'undefined' ? initReveal : ()=>{};
+function initReveal(){
+  __origInitReveal();
+  document.querySelectorAll('.stat-v').forEach(el=>{
+    if(!el.dataset.animated){
+      el.dataset.animated='1';
+      animateStat(el);
+    }
+  });
+}
+
+// Pull to refresh hint
+let ptStartY = 0;
+document.getElementById('content')?.addEventListener('touchstart', e=>{
+  ptStartY = e.touches[0].clientY;
+},{passive:true});
+
+// Loading skeleton for tab transitions
+function showSkeleton(tabId){
+  const tab = document.getElementById('tab-'+tabId);
+  if(!tab) return;
+  tab.innerHTML = Array(4).fill(0).map((_,i)=>`
+    <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:8px">
+      <div class="skeleton" style="height:20px;width:${60+i*10}%"></div>
+      <div class="skeleton" style="height:80px;width:100%;border-radius:12px"></div>
+    </div>`).join('');
+}
+
+// Override tab renders to show skeleton briefly
+['a','p','f','v','m','o'].forEach(tabId=>{
+  const origFn = {a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline}[tabId];
+  if(!origFn) return;
+  const renders = {a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline};
+});
+
+console.log('UX Upgrade v2 loaded ✓');
 
 </script>
 </body>

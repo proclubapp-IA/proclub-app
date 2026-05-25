@@ -657,10 +657,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   position: absolute;
   inset: 0;
   background: 
-    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(200,168,75,.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 15% 50%, rgba(200,168,75,.07) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 50% at 85% 50%, rgba(200,168,75,.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 30% at 50% 100%, rgba(200,168,75,.12) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 35% at 50% 0%, rgba(200,168,75,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 100%, rgba(200,168,75,.07) 0%, transparent 60%);
 }
 /* Particles de luz dorada */
 .login-bg-shapes { position:absolute;inset:0;overflow:hidden; }
@@ -697,24 +695,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   background: repeating-linear-gradient(
     0deg,
     transparent,
-    transparent 80px,
-    rgba(200,168,75,.025) 80px,
-    rgba(200,168,75,.025) 81px
+    transparent 120px,
+    rgba(200,168,75,.015) 120px,
+    rgba(200,168,75,.015) 121px
   );
   pointer-events:none;
 }
-.silhouettes {
-  position: absolute;
-  bottom: 0;
-  left: 0; right: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 2%;
-  pointer-events: none;
-}
-.sil-m { width: 160px; height: auto; opacity: .04; filter: brightness(3); }
-.sil-f { width: 120px; height: auto; opacity: .04; filter: brightness(3); }
+
 .login-content {
   position: relative;
   z-index: 1;
@@ -805,15 +792,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 }
 @keyframes slideUp2 { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 .login-card-title {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -.4px;
-  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: .5px;
+  color: rgba(200,168,75,.9);
+  text-transform: uppercase;
 }
 .login-card-sub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text3);
-  letter-spacing: -.1px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   margin-top: -8px;
 }
 .login-fields { display:flex;flex-direction:column;gap:10px; }
@@ -1125,6 +1114,43 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   .login-content { gap: 36px; }
 }
 
+
+/* ── FILTROS ALUMNOS ── */
+.filtros-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.filtros-row .ssel {
+  flex: 1;
+  min-width: calc(50% - 4px);
+  font-size: 12px;
+  height: 34px;
+}
+@media(min-width:480px){
+  .filtros-row .ssel { min-width: 0; }
+}
+/* Count badge */
+.alumnos-count {
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* Sort icon */
+.sort-indicator {
+  font-size: 10px;
+  color: var(--accent);
+  margin-left: 4px;
+}
+/* Alumno card info extra line */
+.ac-s + .ac-s {
+  margin-top: 0;
+}
+
 </style>
 </head>
 <body>
@@ -1164,29 +1190,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       <div class="shape s7"></div><div class="shape s8"></div><div class="shape s9"></div>
       <div class="shape s10"></div><div class="shape s11"></div><div class="shape s12"></div>
     </div>
-    <!-- Silhouettes -->
-    <div class="silhouettes">
-      <svg class="sil-m" viewBox="0 0 120 280" xmlns="http://www.w3.org/2000/svg" opacity=".07">
-        <ellipse cx="60" cy="28" rx="22" ry="22" fill="white"/>
-        <path d="M30 70 Q60 55 90 70 L100 130 Q85 140 60 138 Q35 140 20 130 Z" fill="white"/>
-        <path d="M20 130 Q10 160 15 200 L35 200 Q38 165 45 145" fill="white"/>
-        <path d="M100 130 Q110 160 105 200 L85 200 Q82 165 75 145" fill="white"/>
-        <path d="M30 70 L5 110 L20 118 L42 82" fill="white"/>
-        <path d="M90 70 L115 110 L100 118 L78 82" fill="white"/>
-        <rect x="30" y="195" width="20" height="60" rx="10" fill="white"/>
-        <rect x="70" y="195" width="20" height="60" rx="10" fill="white"/>
-      </svg>
-      <svg class="sil-f" viewBox="0 0 100 280" xmlns="http://www.w3.org/2000/svg" opacity=".07">
-        <ellipse cx="50" cy="26" rx="18" ry="18" fill="white"/>
-        <path d="M28 65 Q50 52 72 65 L78 115 Q65 128 50 126 Q35 128 22 115 Z" fill="white"/>
-        <path d="M22 115 Q14 145 18 185 L36 185 Q38 152 44 132" fill="white"/>
-        <path d="M78 115 Q86 145 82 185 L64 185 Q62 152 56 132" fill="white"/>
-        <path d="M28 65 L8 100 L22 108 L38 76" fill="white"/>
-        <path d="M72 65 L92 100 L78 108 L62 76" fill="white"/>
-        <rect x="28" y="180" width="16" height="55" rx="8" fill="white"/>
-        <rect x="56" y="180" width="16" height="55" rx="8" fill="white"/>
-      </svg>
-    </div>
+
   </div>
 
   <div class="login-content">
@@ -1653,34 +1657,77 @@ function renderDash(){
 
 // ── ALUMNOS ──────────────────────────────────────────────
 function renderAlumnos(){
-  const q=($('srch-a')||{value:''}).value.toLowerCase();
-  const fe=($('f-est')||{value:''}).value;
-  let list=alumnos.filter(a=>{
-    if(curSub==='vence_pronto'){
-      const d=dias(a.venc);
-      if(a.estado!=='activo'||d===null||d>7)return false;
-    } else if(curSub==='vigente'){
-      const d=dias(a.venc);
-      if(a.estado!=='activo'||d===null||d<=7)return false;
-    } else if(curSub!=='todos'&&a.modal!==curSub){
-      return false;
-    }
-    if(fe&&a.estado!==fe)return false;
-    if(q&&!a.nombre.toLowerCase().includes(q))return false;
+  const q = ($('srch-a')||{value:''}).value.toLowerCase();
+  const fe = ($('f-est')||{value:''}).value;
+  const fsort = ($('f-sort')||{value:'nombre'}).value;
+  const fniv = ($('f-niv')||{value:''}).value;
+  const fsex = ($('f-sex')||{value:''}).value;
+
+  let list = alumnos.filter(a => {
+    if(curSub==='vence_pronto'){const d=dias(a.venc);if(a.estado!=='activo'||d===null||d>7)return false;}
+    else if(curSub==='vigente'){const d=dias(a.venc);if(a.estado!=='activo'||d===null||d<=7)return false;}
+    else if(curSub==='principiante'||curSub==='intermedio'||curSub==='avanzado'){if(a.nivel!==curSub)return false;}
+    else if(curSub!=='todos'&&a.modal!==curSub) return false;
+    if(fe&&a.estado!==fe) return false;
+    if(fniv&&a.nivel!==fniv) return false;
+    if(fsex&&a.sexo!==fsex) return false;
+    if(q&&!a.nombre.toLowerCase().includes(q)&&!(a.notas||'').toLowerCase().includes(q)) return false;
     return true;
   });
-  const subH=[
-    {k:'todos',l:'Todos'},{k:'presencial',l:'Presencial'},{k:'online',l:'Online'},
-    {k:'personal',l:'Plan Black'},{k:'transformacion',l:'Transform.'},
-    {k:'vence_pronto',l:'⚡ Vence pronto'},{k:'vigente',l:'✓ Vigentes'}
-  ].map(({k,l})=>`<button class="stab${curSub===k?' on':''}" onclick="setSub('${k}')">${l}</button>`).join('');
 
-  const listH=list.length?list.map(a=>{
-    const lk=waLink(a.tel,waMsg(a));
-    return`<div class="ac">
+  // Sort
+  list = [...list].sort((a,b) => {
+    switch(fsort){
+      case 'apellido': {
+        const pa = (a.nombre||'').trim().split(' ').pop()||'';
+        const pb = (b.nombre||'').trim().split(' ').pop()||'';
+        return pa.localeCompare(pb,'es');
+      }
+      case 'nombre': return (a.nombre||'').localeCompare(b.nombre||'','es');
+      case 'inicio_asc': return (a.inicio||'').localeCompare(b.inicio||'');
+      case 'inicio_desc': return (b.inicio||'').localeCompare(a.inicio||'');
+      case 'edad': {
+        const ya = a.nac ? new Date().getFullYear()-parseInt(a.nac.slice(0,4)) : 999;
+        const yb = b.nac ? new Date().getFullYear()-parseInt(b.nac.slice(0,4)) : 999;
+        return ya - yb;
+      }
+      case 'peso': return (Number(b.peso)||0) - (Number(a.peso)||0);
+      case 'altura': return (Number(b.altura)||0) - (Number(a.altura)||0);
+      case 'venc': return (a.venc||'9999').localeCompare(b.venc||'9999');
+      default: return 0;
+    }
+  });
+
+  const subH = [
+    {k:'todos',l:'Todos'},
+    {k:'presencial',l:'Presencial'},
+    {k:'online',l:'Online'},
+    {k:'personal',l:'Plan Black'},
+    {k:'transformacion',l:'Transform.'},
+    {k:'principiante',l:'⚪ Principiante'},
+    {k:'intermedio',l:'🟡 Intermedio'},
+    {k:'avanzado',l:'🟢 Avanzado'},
+    {k:'vence_pronto',l:'⚡ Vence pronto'},
+    {k:'vigente',l:'✓ Vigentes'},
+  ].map(({k,l}) => `<button class="stab${curSub===k?' on':''}" onclick="setSub('${k}')">${l}</button>`).join('');
+
+  const listH = list.length ? list.map(a => {
+    const lk = waLink(a.tel, waMsg(a));
+    const edad = a.nac ? (new Date().getFullYear()-parseInt(a.nac.slice(0,4))) : null;
+    const infoExtra = [
+      edad ? edad+'a' : null,
+      a.peso ? a.peso+'kg' : null,
+      a.altura ? a.altura+'cm' : null,
+      a.sexo || null
+    ].filter(Boolean).join(' · ');
+    return `<div class="ac reveal">
       <div class="ac-top">
         <div class="ac-av">${ini(a.nombre)}</div>
-        <div class="ac-i"><div class="ac-n">${a.nombre}</div><div class="ac-s">${a.plan} · ${fd(a.inicio)}</div></div>
+        <div class="ac-i">
+          <div class="ac-n">${a.nombre}</div>
+          <div class="ac-s">${a.plan}${infoExtra?' · '+infoExtra:''}</div>
+          <div class="ac-s" style="margin-top:1px;color:var(--text3);font-size:10px">Ingresó: ${fd(a.inicio)}</div>
+        </div>
       </div>
       <div class="ac-b">${mBadge(a.modal)} ${eBadge(a.estado)} ${nBadge(a.nivel)} ${vBadge(a)}</div>
       <div class="ac-a">
@@ -1689,21 +1736,54 @@ function renderAlumnos(){
         ${lk?`<a href="${lk}" target="_blank" class="btn xs wa3">💬 WA</a>`:''}
       </div>
     </div>`;
-  }).join(''):'<div class="empty">Sin alumnos que coincidan</div>';
+  }).join('') : '<div class="empty">Sin alumnos que coincidan</div>';
 
-  $('tab-a').innerHTML=`
+  $('tab-a').innerHTML = `
     <div class="stabs">${subH}</div>
     <div class="toolbar">
-      <input class="srch" id="srch-a" type="text" placeholder="🔍 Buscar..." oninput="renderAlumnos()" value="${q}">
-      <select class="ssel" id="f-est" onchange="renderAlumnos()">
-        <option value="">Estado</option>
+      <input class="srch" id="srch-a" type="text" placeholder="🔍 Buscar..." oninput="renderAlumnos()" value="${q}" style="min-width:0;flex:1">
+    </div>
+    <div class="toolbar" style="gap:6px;margin-bottom:11px;flex-wrap:wrap">
+      <select class="ssel" id="f-sort" onchange="renderAlumnos()" style="flex:1;min-width:0">
+        <option value="nombre" ${fsort==='nombre'?'selected':''}>A–Z nombre</option>
+        <option value="apellido" ${fsort==='apellido'?'selected':''}>A–Z apellido</option>
+        <option value="inicio_desc" ${fsort==='inicio_desc'?'selected':''}>Ingreso reciente</option>
+        <option value="inicio_asc" ${fsort==='inicio_asc'?'selected':''}>Ingreso antiguo</option>
+        <option value="venc" ${fsort==='venc'?'selected':''}>Próx. vencimiento</option>
+        <option value="edad" ${fsort==='edad'?'selected':''}>Por edad</option>
+        <option value="peso" ${fsort==='peso'?'selected':''}>Por peso</option>
+        <option value="altura" ${fsort==='altura'?'selected':''}>Por altura</option>
+      </select>
+      <select class="ssel" id="f-est" onchange="renderAlumnos()" style="flex:1;min-width:0">
+        <option value="" ${fe===''?'selected':''}>Estado</option>
         <option value="activo" ${fe==='activo'?'selected':''}>Activos</option>
         <option value="inactivo" ${fe==='inactivo'?'selected':''}>Inactivos</option>
       </select>
-      <button class="btn sm pri" onclick="openAlumno()">+ Nuevo</button>
+      <select class="ssel" id="f-niv" onchange="renderAlumnos()" style="flex:1;min-width:0">
+        <option value="" ${fniv===''?'selected':''}>Nivel</option>
+        <option value="principiante" ${fniv==='principiante'?'selected':''}>Principiante</option>
+        <option value="intermedio" ${fniv==='intermedio'?'selected':''}>Intermedio</option>
+        <option value="avanzado" ${fniv==='avanzado'?'selected':''}>Avanzado</option>
+      </select>
+      <select class="ssel" id="f-sex" onchange="renderAlumnos()" style="flex:1;min-width:0">
+        <option value="" ${fsex===''?'selected':''}>Sexo</option>
+        <option value="Femenino" ${fsex==='Femenino'?'selected':''}>Femenino</option>
+        <option value="Masculino" ${fsex==='Masculino'?'selected':''}>Masculino</option>
+      </select>
+      <button class="btn xs sec" onclick="resetFiltros()" style="flex-shrink:0">↺</button>
     </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:8px;letter-spacing:-.1px">${list.length} alumno${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}</div>
     ${listH}`;
+
+  setTimeout(initReveal, 80);
 }
+
+function resetFiltros(){
+  curSub='todos';
+  ['srch-a','f-sort','f-est','f-niv','f-sex'].forEach(id=>{const e=$(id);if(e)e.value=id==='f-sort'?'nombre':'';});
+  renderAlumnos();
+}
+
 
 function setSub(k){curSub=k;renderAlumnos();}
 

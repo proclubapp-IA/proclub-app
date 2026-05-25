@@ -639,6 +639,201 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
   font-weight: 500;
 }
 
+
+/* ══ LOGIN CEO DESIGN ══ */
+#s-login {
+  padding: 0 !important;
+  position: relative;
+  overflow: hidden;
+}
+.login-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #0d0d0f 0%, #1a1208 40%, #0d0d0f 100%);
+  z-index: 0;
+}
+.login-bg-gradient {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(200,168,75,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 30%, rgba(200,168,75,.05) 0%, transparent 70%);
+}
+.login-bg-shapes { position: absolute; inset: 0; overflow: hidden; }
+.shape {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(200,168,75,.08);
+  animation: rotShape 20s linear infinite;
+}
+.s1 { width:400px;height:400px;top:-100px;right:-100px;animation-duration:25s; }
+.s2 { width:250px;height:250px;bottom:-50px;left:-80px;animation-direction:reverse;animation-duration:18s; }
+.s3 { width:180px;height:180px;top:40%;right:10%;animation-duration:30s; }
+@keyframes rotShape { to { transform: rotate(360deg); } }
+.silhouettes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 5%;
+}
+.sil-m { width: 140px; height: auto; }
+.sil-f { width: 110px; height: auto; }
+.login-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 24px;
+  padding-top: calc(48px + var(--safe-t));
+  padding-bottom: calc(32px + var(--safe-b));
+  gap: 28px;
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  animation: slideDown .6s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes slideDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+.login-logo-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(200,168,75,.2), rgba(200,168,75,.08));
+  border: 1px solid rgba(200,168,75,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(200,168,75,.15);
+}
+.login-logo-wrap img { width:100%;height:100%;object-fit:cover;display:none; }
+#ll-box {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+.login-title {
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  letter-spacing: -1px !important;
+  color: var(--text) !important;
+}
+.login-sub {
+  font-size: 12px !important;
+  color: var(--text3) !important;
+  letter-spacing: .3px !important;
+  margin-top: 2px !important;
+}
+.login-card-ceo {
+  width: 100%;
+  max-width: 340px;
+  background: rgba(28,28,30,.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px;
+  padding: 26px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+  animation: slideUp2 .7s .1s cubic-bezier(.34,1.2,.64,1) both;
+}
+@keyframes slideUp2 { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.login-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.4px;
+  color: var(--text);
+}
+.login-card-sub {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: -.1px;
+  margin-top: -8px;
+}
+.login-fields { display:flex;flex-direction:column;gap:10px; }
+.login-field-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(58,58,60,.6);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 0 14px;
+  transition: border-color .2s;
+}
+.login-field-wrap:focus-within {
+  border-color: rgba(200,168,75,.4);
+  box-shadow: 0 0 0 3px rgba(200,168,75,.1);
+}
+.login-field-icon { font-size: 16px; flex-shrink: 0; }
+.inp-ceo {
+  flex: 1;
+  padding: 13px 0;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  letter-spacing: -.2px;
+  -webkit-appearance: none;
+}
+.inp-ceo::placeholder { color: var(--text3); }
+.btn-login-ceo {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #D4AA52, #C8A84B, #B8982B);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: -.2px;
+  box-shadow: 0 4px 20px rgba(200,168,75,.35);
+  transition: opacity .15s, transform .15s;
+  margin-top: 4px;
+}
+.btn-login-ceo:active { opacity:.85; transform:scale(.98); }
+.btn-login-ceo:disabled { opacity:.4; }
+.login-footer {
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  animation: fadeIn2 1s .3s both;
+}
+@keyframes fadeIn2 { from{opacity:0} to{opacity:1} }
+
+/* App entrance animation */
+#s-app.on {
+  animation: appEnter .5s cubic-bezier(.34,1.1,.64,1) both;
+}
+@keyframes appEnter {
+  from { opacity:0; transform:scale(.97); }
+  to { opacity:1; transform:scale(1); }
+}
+
+/* Tab content entrance */
+.tab.on {
+  animation: tabEnter .35s cubic-bezier(.34,1.1,.64,1) both;
+}
+@keyframes tabEnter {
+  from { opacity:0; transform:translateY(10px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
 </style>
 </head>
 <body>
@@ -669,17 +864,73 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 
 <!-- LOGIN -->
 <div class="screen" id="s-login">
-  <div class="login-logo" onclick="goHome()">
-    <img id="ll-img" src="" alt="">
-    <div id="ll-box">PC</div>
-    <div class="login-title" id="login-title">ProClub</div>
-    <div class="login-sub">Sistema de gestión</div>
+  <!-- Background fitness -->
+  <div class="login-bg">
+    <div class="login-bg-gradient"></div>
+    <div class="login-bg-shapes">
+      <div class="shape s1"></div>
+      <div class="shape s2"></div>
+      <div class="shape s3"></div>
+    </div>
+    <!-- Silhouettes -->
+    <div class="silhouettes">
+      <svg class="sil-m" viewBox="0 0 120 280" xmlns="http://www.w3.org/2000/svg" opacity=".07">
+        <ellipse cx="60" cy="28" rx="22" ry="22" fill="white"/>
+        <path d="M30 70 Q60 55 90 70 L100 130 Q85 140 60 138 Q35 140 20 130 Z" fill="white"/>
+        <path d="M20 130 Q10 160 15 200 L35 200 Q38 165 45 145" fill="white"/>
+        <path d="M100 130 Q110 160 105 200 L85 200 Q82 165 75 145" fill="white"/>
+        <path d="M30 70 L5 110 L20 118 L42 82" fill="white"/>
+        <path d="M90 70 L115 110 L100 118 L78 82" fill="white"/>
+        <rect x="30" y="195" width="20" height="60" rx="10" fill="white"/>
+        <rect x="70" y="195" width="20" height="60" rx="10" fill="white"/>
+      </svg>
+      <svg class="sil-f" viewBox="0 0 100 280" xmlns="http://www.w3.org/2000/svg" opacity=".07">
+        <ellipse cx="50" cy="26" rx="18" ry="18" fill="white"/>
+        <path d="M28 65 Q50 52 72 65 L78 115 Q65 128 50 126 Q35 128 22 115 Z" fill="white"/>
+        <path d="M22 115 Q14 145 18 185 L36 185 Q38 152 44 132" fill="white"/>
+        <path d="M78 115 Q86 145 82 185 L64 185 Q62 152 56 132" fill="white"/>
+        <path d="M28 65 L8 100 L22 108 L38 76" fill="white"/>
+        <path d="M72 65 L92 100 L78 108 L62 76" fill="white"/>
+        <rect x="28" y="180" width="16" height="55" rx="8" fill="white"/>
+        <rect x="56" y="180" width="16" height="55" rx="8" fill="white"/>
+      </svg>
+    </div>
   </div>
-  <div class="login-form">
-    <input class="inp" id="lu" type="text" placeholder="Usuario" autocomplete="off" autocapitalize="none">
-    <input class="inp" id="lp" type="password" placeholder="Contraseña">
-    <div class="lerr" id="lerr"></div>
-    <button class="btn-login" id="lbtn" onclick="doLogin()">Ingresar</button>
+
+  <div class="login-content">
+    <!-- Top brand -->
+    <div class="login-brand" onclick="goHome()">
+      <div class="login-logo-wrap">
+        <img id="ll-img" src="" alt="">
+        <div id="ll-box">PC</div>
+      </div>
+      <div>
+        <div class="login-title" id="login-title">ProClub</div>
+        <div class="login-sub">Sistema de gestión</div>
+      </div>
+    </div>
+
+    <!-- Card -->
+    <div class="login-card-ceo">
+      <div class="login-card-title">Acceso exclusivo</div>
+      <div class="login-card-sub">Panel de administración ProClub</div>
+      <div class="login-fields">
+        <div class="login-field-wrap">
+          <span class="login-field-icon">👤</span>
+          <input class="inp-ceo" id="lu" type="text" placeholder="Usuario" autocomplete="off" autocapitalize="none">
+        </div>
+        <div class="login-field-wrap">
+          <span class="login-field-icon">🔒</span>
+          <input class="inp-ceo" id="lp" type="password" placeholder="Contraseña">
+        </div>
+      </div>
+      <div class="lerr" id="lerr"></div>
+      <button class="btn-login-ceo" id="lbtn" onclick="doLogin()">
+        <span id="lbtn-txt">Ingresar →</span>
+      </button>
+    </div>
+
+    <div class="login-footer">PRO AI • Powered by ProClub</div>
   </div>
 </div>
 
@@ -751,15 +1002,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       <div class="field"><label>Peso (kg)</label><input id="a-peso" type="number" placeholder="68" inputmode="decimal"></div>
       <div class="field"><label>Altura (cm)</label><input id="a-alt" type="number" placeholder="165" inputmode="decimal"></div>
       <div class="slbl">Modalidad y plan</div>
-      <div class="field"><label>Modalidad</label>
+      <div class="field"><label>Tipo de plan</label>
         <select id="a-modal" onchange="updatePlanes()">
-          <option value="presencial">Presencial</option>
-          <option value="online">Online</option>
-          <option value="personal">Plan Black (1 a 1)</option>
-          <option value="transformacion">Transformación</option>
+          <option value="presencial">📍 Presencial / Online</option>
+          <option value="transformacion">🔥 Transformación (3 meses)</option>
+          <option value="personal">⭐ Plan Black (1 a 1)</option>
         </select>
       </div>
-      <div class="field"><label>Plan</label><select id="a-plan"></select></div>
+      <div class="field"><label>Plan específico</label><select id="a-plan"></select></div>
       <div class="field"><label>Nivel</label><select id="a-nivel"><option value="principiante">Principiante</option><option value="intermedio">Intermedio</option><option value="avanzado">Avanzado</option></select></div>
       <div class="field"><label>Estado</label><select id="a-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select></div>
       <div class="slbl">Salud</div>
@@ -916,7 +1166,6 @@ const sbD=async(t,id)=>{const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{me
 // ── PLANES POR MODALIDAD ──────────────────────────────────
 const PLANES={
   presencial:['Plan Start','Plan Plus','Plan Prime','Plan Elite'],
-  online:['Plan Start','Plan Plus','Plan Prime','Plan Elite'],
   personal:['Plan Black · 2 clases/semana','Plan Black · 3 clases/semana','Plan Black · 4 clases/semana'],
   transformacion:['Transformación GAP · 3 meses','Transformación Masa Muscular · 3 meses','Transformación Descenso de Peso · 3 meses']
 };
@@ -944,19 +1193,19 @@ function dias(v){if(!v)return null;const h=new Date();h.setHours(0,0,0,0);const 
 function waLink(tel,msg){const n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;return`https://wa.me/${n}?text=${encodeURIComponent(msg)}`;}
 function waMsg(a){
   const d=dias(a.venc),nom=a.nombre.split(' ')[0];
-  const msgRenovacion=`PRO AI • ProClub
-Hola ${nom}! Tu membresía está próxima a vencer. Para continuar con tu acceso activo y beneficios del club, realizá la renovación mediante transferencia:
-💳 proclubarg
-👤 Franco Nicolás Meloni
-🏦 Brubank
-Luego envianos el comprobante y tu plan será habilitado automáticamente. Gracias por ser parte de ProClub 💛`;
-  const msgVencido=`PRO AI • ProClub
-Hola ${nom}! Tu membresía venció el ${fd(a.venc)}. Para reactivar tu acceso y continuar con todos tus beneficios, realizá la renovación mediante transferencia:
-💳 proclubarg
-👤 Franco Nicolás Meloni
-🏦 Brubank
-Envianos el comprobante y tu plan será habilitado automáticamente. ¡Te esperamos! 💛`;
-  if(d===null)return`Hola ${nom}! 👋 Te escribimos desde ProClub. ¿Renovamos tu plan?`;
+  const msgRenovacion='PRO AI \u2022 ProClub\n'
+    +'Hola '+nom+'! Tu membres\u00eda est\u00e1 pr\u00f3xima a vencer. Para continuar con tu acceso activo y beneficios del club, realiz\u00e1 la renovaci\u00f3n mediante transferencia:\n\n'
+    +'\uD83D\uDCB3 proclubarg\n'
+    +'\uD83D\uDC64 Franco Nicol\u00e1s Meloni\n'
+    +'\uD83C\uDFE6 Brubank\n\n'
+    +'Luego envi\u00e1nos el comprobante y tu plan ser\u00e1 habilitado autom\u00e1ticamente. Gracias por ser parte de ProClub \uD83D\uDC9B';
+  const msgVencido='PRO AI \u2022 ProClub\n'
+    +'Hola '+nom+'! Tu membres\u00eda venci\u00f3 el '+fd(a.venc)+'. Para reactivar tu acceso y continuar con todos tus beneficios, realiz\u00e1 la renovaci\u00f3n mediante transferencia:\n\n'
+    +'\uD83D\uDCB3 proclubarg\n'
+    +'\uD83D\uDC64 Franco Nicol\u00e1s Meloni\n'
+    +'\uD83C\uDFE6 Brubank\n\n'
+    +'Envi\u00e1nos el comprobante y tu plan ser\u00e1 habilitado autom\u00e1ticamente. \u00a1Te esperamos! \uD83D\uDC9B';
+  if(d===null)return 'Hola '+nom+'! \uD83D\uDC4B Te escribimos desde ProClub. \u00bfRenovamos tu plan?';
   if(d<=0)return msgVencido;
   return msgRenovacion;
 }
@@ -1021,14 +1270,14 @@ async function doLogin(){
   const u=$('lu').value.trim().toLowerCase(),p=$('lp').value;
   $('lerr').textContent='';
   if(!u||!p){$('lerr').textContent='Ingresá usuario y contraseña';return;}
-  const b=$('lbtn');setBtn(b,true);
+  const b=$('lbtn');if(b){b.disabled=true;const t=$('lbtn-txt');if(t)t.textContent='Ingresando...';}
   try{
     const res=await sbG('app_usuarios',`username=eq.${u}&password=eq.${p}&select=*`);
     if(!res||!res.length){$('lerr').textContent='Usuario o contraseña incorrectos';return;}
     CU={...res[0]};$('tb-dot').textContent=ini(CU.nombre);
     buildNav();showS('s-app');showTab('d');
   }catch(e){$('lerr').textContent='Error de conexión. Verificá internet.';}
-  finally{setBtn(b,false);}
+  finally{if(b){b.disabled=false;const t=$('lbtn-txt');if(t)t.textContent='Ingresar →';}}
 }
 $('lp').onkeydown=e=>{if(e.key==='Enter')doLogin();};
 $('lu').onkeydown=e=>{if(e.key==='Enter')$('lp').focus();};
@@ -1110,14 +1359,23 @@ function renderAlumnos(){
   const q=($('srch-a')||{value:''}).value.toLowerCase();
   const fe=($('f-est')||{value:''}).value;
   let list=alumnos.filter(a=>{
-    if(curSub!=='todos'&&a.modal!==curSub)return false;
+    if(curSub==='vence_pronto'){
+      const d=dias(a.venc);
+      if(a.estado!=='activo'||d===null||d>7)return false;
+    } else if(curSub==='vigente'){
+      const d=dias(a.venc);
+      if(a.estado!=='activo'||d===null||d<=7)return false;
+    } else if(curSub!=='todos'&&a.modal!==curSub){
+      return false;
+    }
     if(fe&&a.estado!==fe)return false;
     if(q&&!a.nombre.toLowerCase().includes(q))return false;
     return true;
   });
   const subH=[
     {k:'todos',l:'Todos'},{k:'presencial',l:'Presencial'},{k:'online',l:'Online'},
-    {k:'personal',l:'Plan Black'},{k:'transformacion',l:'Transform.'}
+    {k:'personal',l:'Plan Black'},{k:'transformacion',l:'Transform.'},
+    {k:'vence_pronto',l:'⚡ Vence pronto'},{k:'vigente',l:'✓ Vigentes'}
   ].map(({k,l})=>`<button class="stab${curSub===k?' on':''}" onclick="setSub('${k}')">${l}</button>`).join('');
 
   const listH=list.length?list.map(a=>{
@@ -1199,7 +1457,7 @@ async function guardarAlumno(){
     else{const res=await sbP('alumnos',obj);alumnos.push(res[0]);alumnos.sort((a,b)=>a.nombre.localeCompare(b.nombre));toast('Alumno creado ✓');}
     closeM('m-a');renderAlumnos();renderDash();
   }catch(e){toast('Error al guardar','err');}
-  finally{setBtn(b,false);}
+  finally{if(b){b.disabled=false;const t=$('lbtn-txt');if(t)t.textContent='Ingresar →';}}
 }
 
 async function darBaja(){
@@ -1239,7 +1497,7 @@ async function guardarPago(){
   const b=$('btn-gp');setBtn(b,true);
   try{const res=await sbP('pagos',{aid,monto,fecha,concepto:concepto||'Pago'});pagos.unshift(res[0]);if(venc){await sbU('alumnos',aid,{venc});const a=alumnos.find(x=>x.id===aid);if(a)a.venc=venc;}closeM('m-p');renderPagos();renderDash();toast('Pago registrado ✓');}
   catch(e){toast('Error','err');}
-  finally{setBtn(b,false);}
+  finally{if(b){b.disabled=false;const t=$('lbtn-txt');if(t)t.textContent='Ingresar →';}}
 }
 
 async function elimPago(id){

@@ -2557,3 +2557,179 @@ $('ia-inp').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){ e
 $('ia-inp').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,80)+'px'; });
 
 
+
+
+// ── MODAL ─────────────────────────────────────────────────
+function openM(id){ const el=document.getElementById(id); if(el) el.classList.add('on'); }
+function closeM(id){ const el=document.getElementById(id); if(el) el.classList.remove('on'); }
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('on'); });
+});
+
+// ── LOGIN LOGO ────────────────────────────────────────────
+function loginUploadLogo(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{ CFG.logoB64=ev.target.result; saveCFG(); applyTheme(); toast('Logo actualizado ✓'); };
+  r.readAsDataURL(f);
+}
+
+// ── ONLINE FOTOS Y PROGRESO ───────────────────────────────
+function saveProgresos(){ try{ localStorage.setItem('pc_prog', JSON.stringify(progresos)); }catch(e){} }
+function saveFotos(){ try{ localStorage.setItem('pc_fotos', JSON.stringify(fotos)); }catch(e){} }
+function addFoto(aid){ const el=document.getElementById('foto-file-'+aid); if(el) el.click(); }
+function processFoto(e, aid){
+  Array.from(e.target.files).forEach(f=>{
+    const r=new FileReader();
+    r.onload=ev=>{
+      if(!fotos[aid]) fotos[aid]=[];
+      fotos[aid].push(ev.target.result);
+      saveFotos(); renderOnline(); toast('Foto agregada ✓');
+    };
+    r.readAsDataURL(f);
+  });
+}
+function openProgreso(aid){
+  progAlumnoId=aid;
+  const a=alumnos.find(x=>x.id===aid);
+  const el=document.getElementById('mprog-t');
+  if(el) el.textContent='Nuevo progreso'+(a?' · '+a.nombre.split(' ')[0]:'');
+  const pf=document.getElementById('prog-f'); if(pf) pf.value=new Date().toISOString().split('T')[0];
+  const pt=document.getElementById('prog-tipo'); if(pt) pt.value='reporte';
+  const px=document.getElementById('prog-txt'); if(px) px.value='';
+  const pp=document.getElementById('prog-peso'); if(pp) pp.value='';
+  openM('m-prog');
+}
+function guardarProgreso(){
+  const txt=document.getElementById('prog-txt')?.value.trim();
+  if(!txt){ toast('El contenido es obligatorio','err'); return; }
+  if(!progresos[progAlumnoId]) progresos[progAlumnoId]=[];
+  progresos[progAlumnoId].push({
+    fecha:document.getElementById('prog-f')?.value,
+    tipo:document.getElementById('prog-tipo')?.value||'reporte',
+    txt, peso:parseFloat(document.getElementById('prog-peso')?.value)||null, ts:Date.now()
+  });
+  saveProgresos(); closeM('m-prog'); renderOnline(); toast('Progreso guardado ✓');
+}
+
+// ── CONFIG ────────────────────────────────────────────────
+function renderConfig(){
+  const usersH=usuarios.map(u=>`<div class="user-row">
+    <div><div class="u-name">${u.nombre}</div><div class="u-sub">@${u.username}${u.id===CU?.id?' · (vos)':''}</div></div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="role-tag ${u.rol==='admin'?'rt-admin':'rt-coach'}">${u.rol==='admin'?'Admin':'Coach'}</span>
+      <button class="btn xs sec" onclick="editUsuario(${u.id})">✎</button>
+    </div>
+  </div>`).join('');
+
+  document.getElementById('tab-c').innerHTML=`
+    <div class="cfg-s">
+      <div class="cfg-hdr">🖼 Logo del negocio</div>
+      <div class="logo-area">
+        <div class="logo-pick" onclick="document.getElementById('cfg-logo-file').click()">
+          <img id="cfg-logo-prev" src="${CFG.logoB64||''}" alt="" style="${CFG.logoB64?'display:block':'display:none'}">
+          ${!CFG.logoB64?'<div style="font-size:22px">🏋️</div><div style="font-size:11px;color:var(--text3)">Tocar para subir</div>':''}
+          <input type="file" id="cfg-logo-file" accept="image/*" onchange="cfgLogo(event)">
+        </div>
+        ${CFG.logoB64?'<button class="btn xs red" onclick="quitarLogo()">Quitar logo</button>':''}
+      </div>
+    </div>
+    <div class="cfg-s">
+      <div class="cfg-hdr">✏ Nombre del negocio</div>
+      <div class="cfg-row">
+        <input class="srch" id="cfg-nombre" type="text" value="${CFG.nombre}" placeholder="ProClub" style="height:36px;flex:1">
+        <button class="btn sm pri" onclick="guardarNombre()" style="flex-shrink:0">Guardar</button>
+      </div>
+    </div>
+    <div class="cfg-s">
+      <div class="cfg-hdr">🎨 Color de acento</div>
+      <div class="cfg-row">
+        <div><div class="cfg-l">Color principal</div><div class="cfg-s2">Botones y elementos destacados</div></div>
+        <input type="color" class="color-inp" value="${CFG.colorAccent||'#C8A84B'}" onchange="cambiarColor(this.value)">
+      </div>
+      <div class="cfg-row" style="border:none;padding-top:6px">
+        <button class="btn sm sec" onclick="resetColor()">↺ Restaurar dorado</button>
+      </div>
+    </div>
+    <div class="cfg-s">
+      <div class="cfg-hdr">👥 Usuarios del sistema</div>
+      ${usersH}
+      <div style="padding:12px 15px;border-top:1px solid var(--border)">
+        <button class="btn pri full" onclick="openUsuario()">+ Nuevo usuario</button>
+      </div>
+    </div>
+    <div class="cfg-s">
+      <div class="cfg-hdr">🤖 Asistente IA</div>
+      <div class="cfg-row">
+        <div><div class="cfg-l">Contador · Estratega · Coach</div><div class="cfg-s2">Reportes financieros y estrategia de crecimiento</div></div>
+        <button class="btn sm pur" onclick="openIA()">Abrir</button>
+      </div>
+    </div>`;
+}
+function cfgLogo(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{ CFG.logoB64=ev.target.result; saveCFG(); applyTheme(); renderConfig(); toast('Logo actualizado ✓'); };
+  r.readAsDataURL(f);
+}
+function quitarLogo(){ CFG.logoB64=''; saveCFG(); applyTheme(); renderConfig(); toast('Logo quitado'); }
+function guardarNombre(){
+  const n=document.getElementById('cfg-nombre')?.value.trim();
+  if(!n){ toast('Ingresá un nombre','err'); return; }
+  CFG.nombre=n; saveCFG(); applyTheme(); toast('Nombre actualizado ✓');
+}
+function cambiarColor(v){ CFG.colorAccent=v; saveCFG(); applyTheme(); }
+function resetColor(){ CFG.colorAccent='#C8A84B'; saveCFG(); applyTheme(); renderConfig(); toast('Color restaurado'); }
+function openUsuario(){
+  editUid=null;
+  document.getElementById('mu-t').textContent='Nuevo usuario';
+  document.getElementById('btn-du').style.display='none';
+  ['u-nombre','u-user','u-pass'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('u-rol').value='coach';
+  openM('m-u');
+}
+function editUsuario(id){
+  editUid=id; const u=usuarios.find(x=>x.id===id); if(!u) return;
+  document.getElementById('mu-t').textContent='Editar usuario';
+  document.getElementById('btn-du').style.display=u.id===CU?.id?'none':'flex';
+  document.getElementById('u-nombre').value=u.nombre||'';
+  document.getElementById('u-user').value=u.username||'';
+  document.getElementById('u-pass').value=u.password||'';
+  document.getElementById('u-rol').value=u.rol||'coach';
+  openM('m-u');
+}
+async function guardarUsuario(){
+  const nombre=document.getElementById('u-nombre').value.trim();
+  const username=document.getElementById('u-user').value.trim().toLowerCase();
+  const password=document.getElementById('u-pass').value.trim();
+  const rol=document.getElementById('u-rol').value;
+  if(!nombre||!username||!password){ toast('Todos los campos son obligatorios','err'); return; }
+  if(password.length<4){ toast('Contraseña mínimo 4 caracteres','err'); return; }
+  try{
+    if(editUid){
+      const res=await sbU('app_usuarios',editUid,{nombre,username,password,rol});
+      const i=usuarios.findIndex(x=>x.id===editUid);
+      if(i>-1) usuarios[i]={...usuarios[i],...(res[0]||{nombre,username,password,rol})};
+      if(CU&&editUid===CU.id){ CU.nombre=nombre; document.getElementById('tb-dot').textContent=ini(nombre); }
+      toast('Usuario actualizado ✓');
+    } else {
+      const res=await sbP('app_usuarios',{nombre,username,password,rol});
+      usuarios.push(res[0]); toast('Usuario creado ✓');
+    }
+    closeM('m-u'); renderConfig();
+  }catch(e){ toast('Error — ese usuario ya puede existir','err'); }
+}
+async function elimUsuario(){
+  if(!confirm('¿Eliminar este usuario?')) return;
+  try{
+    await sbD('app_usuarios',editUid);
+    const i=usuarios.findIndex(x=>x.id===editUid); if(i>-1) usuarios.splice(i,1);
+    closeM('m-u'); renderConfig(); toast('Eliminado');
+  }catch(e){ toast('Error','err'); }
+}
+
+// ── ARRANGE ───────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

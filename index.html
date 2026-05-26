@@ -120,10 +120,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .ri-m{font-size:14px;font-weight:700;color:var(--green);flex-shrink:0;letter-spacing:-.3px}
 
 /* SUBTABS */
-.stabs{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.stabs{display:flex;gap:5px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;position:relative;z-index:1}
 .stabs::-webkit-scrollbar{display:none}
-.stab{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:6px 13px;font-size:12px;cursor:pointer;color:var(--text3);font-family:inherit;white-space:nowrap;flex-shrink:0;letter-spacing:-.1px}
-.stab.on{background:var(--a2);color:var(--accent);border-color:rgba(200,168,75,.3)}
+.stab{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:6px 13px;font-size:12px;cursor:pointer;color:var(--text3);font-family:inherit;white-space:nowrap;flex-shrink:0;letter-spacing:-.1px;position:relative;z-index:1}
+.stab.on{background:var(--a2);color:var(--accent);border-color:rgba(200,168,75,.3);z-index:2}
 
 /* TOOLBAR */
 .toolbar{display:flex;gap:7px;margin-bottom:11px;align-items:center;flex-wrap:wrap}
@@ -193,9 +193,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 .prc-a{display:flex;gap:6px;padding-top:9px;border-top:1px solid var(--border)}
 
 /* FINANZAS */
-.fin-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:11px;padding:3px;border:1px solid var(--border)}
-.fin-tab{flex:1;padding:7px 3px;border:none;background:transparent;color:var(--text3);font-size:11px;font-family:inherit;cursor:pointer;border-radius:9px;font-weight:500;text-align:center}
-.fin-tab.on{background:var(--bg3);color:var(--text);font-weight:600}
+.fin-tabs{display:flex;gap:3px;margin-bottom:14px;background:var(--bg2);border-radius:11px;padding:3px;border:1px solid var(--border);position:relative;z-index:2}
+.fin-tab{flex:1;padding:7px 3px;border:none;background:transparent;color:var(--text3);font-size:11px;font-family:inherit;cursor:pointer;border-radius:9px;font-weight:500;text-align:center;position:relative;z-index:1}
+.fin-tab.on{background:var(--bg3);color:var(--text);font-weight:600;z-index:2}
+.fin-panel{position:relative;z-index:1}
 .fin-panel{display:none}
 .fin-panel.on{display:block}
 .fin-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
@@ -1300,6 +1301,65 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 /* Force show all content */
 .tab.on > * { opacity: 1; transform: none; }
 
+
+/* ── ONLINE MODULE ── */
+.onl-av { position: relative !important; overflow: visible !important; }
+.foto-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-top: 8px; }
+.foto-item { aspect-ratio:1; border-radius:8px; overflow:hidden; background:var(--bg3); display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:transform .15s ease; }
+.foto-item:active { transform:scale(.93); }
+.foto-item img { width:100%; height:100%; object-fit:cover; }
+.add-foto-btn { border:2px dashed var(--border2); background:transparent; }
+.add-foto-btn:hover { border-color:var(--accent); }
+.prog-section { border-top:1px solid var(--border); padding-top:10px; margin-top:10px; }
+.prog-title { font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px; }
+.prog-item { background:var(--bg3); border-radius:9px; padding:10px 12px; margin-bottom:6px; }
+.prog-date { font-size:11px; color:var(--text3); }
+.prog-txt { font-size:13px; color:var(--text2); line-height:1.5; margin-top:4px; }
+
+/* ── TAB OVERLAP FIX ── */
+.tab { isolation: isolate; }
+.toolbar { position: relative; z-index: 1; }
+.card { position: relative; z-index: 0; }
+
+/* ── PAGOS / VENTAS layout fix ── */
+#tab-p .toolbar, #tab-v .toolbar { position:sticky; top:0; background:var(--bg); padding:10px 0 8px; z-index:10; margin-bottom:4px; }
+
+/* ── ALUMNO CARD more info ── */
+.ac-extra { font-size:10px; color:var(--text3); margin-top:2px; letter-spacing:-.1px; }
+
+/* ── ONLINE RESPONSIVE ── */
+@media(min-width:768px){
+  .foto-grid { grid-template-columns: repeat(6,1fr); }
+  .onl-card { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .onl-top { grid-column:1/-1; }
+  .onl-actions { grid-column:1/-1; }
+}
+
+/* ── DOWNLOAD BUTTON (app icon) ── */
+.app-download-banner {
+  display:none; /* shown only when needed */
+  position:fixed;
+  bottom:calc(70px + var(--safe-b));
+  left:16px;
+  background:var(--bg2);
+  border:1px solid rgba(200,168,75,.3);
+  border-radius:14px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  z-index:49;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  cursor:pointer;
+  text-decoration:none;
+  animation:slideIn .4s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes slideIn { from{transform:translateX(-120%)} to{transform:translateX(0)} }
+.app-icon { width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#C8A84B,#8B6914);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000;letter-spacing:1px;overflow:hidden; }
+.app-icon img { width:100%;height:100%;object-fit:cover; }
+.app-dl-info .app-dl-title { font-size:12px;font-weight:700;color:var(--text); }
+.app-dl-info .app-dl-sub { font-size:10px;color:var(--text3);margin-top:1px; }
+
 </style>
 </head>
 <body>
@@ -1434,6 +1494,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- App install banner -->
+<div class="app-download-banner" id="app-banner" style="display:none" onclick="installApp()">
+  <div class="app-icon" id="banner-icon">PC<img id="banner-logo" src="" alt="" style="display:none"></div>
+  <div class="app-dl-info">
+    <div class="app-dl-title">Agregar ProClub</div>
+    <div class="app-dl-sub">Instalá la app en tu dispositivo</div>
+  </div>
+  <span style="font-size:18px">📲</span>
+</div>
+
 <!-- MODAL ALUMNO -->
 <div class="overlay" id="m-a">
   <div class="modal">
@@ -1449,9 +1519,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-
       <div class="field"><label>Peso (kg)</label><input id="a-peso" type="number" placeholder="68" inputmode="decimal"></div>
       <div class="field"><label>Altura (cm)</label><input id="a-alt" type="number" placeholder="165" inputmode="decimal"></div>
       <div class="slbl">Modalidad y plan</div>
-      <div class="field"><label>Tipo de plan</label>
+      <div class="field"><label>Modalidad</label>
         <select id="a-modal" onchange="updatePlanes()">
-          <option value="presencial">📍 Presencial / Online</option>
+          <option value="presencial">📍 Presencial</option>
+          <option value="online">🌐 Online</option>
           <option value="transformacion">🔥 Transformación (3 meses)</option>
           <option value="personal">⭐ Plan Black (1 a 1)</option>
         </select>
@@ -1613,6 +1684,7 @@ const sbD=async(t,id)=>{const r=await fetch(`${SB}/rest/v1/${t}?id=eq.${id}`,{me
 // ── PLANES POR MODALIDAD ──────────────────────────────────
 const PLANES={
   presencial:['Plan Start','Plan Plus','Plan Prime','Plan Elite'],
+  online:['Plan Start Online','Plan Plus Online','Plan Prime Online','Plan Elite Online'],
   personal:['Plan Black · 2 clases/semana','Plan Black · 3 clases/semana','Plan Black · 4 clases/semana'],
   transformacion:['Transformación GAP · 3 meses','Transformación Masa Muscular · 3 meses','Transformación Descenso de Peso · 3 meses']
 };
@@ -2131,167 +2203,296 @@ function saveProgresos(){try{localStorage.setItem('pc_prog',JSON.stringify(progr
 function saveFotos(){try{localStorage.setItem('pc_fotos',JSON.stringify(fotos));}catch(e){}}
 
 function renderOnline(){
-  const onlineAlumnos=alumnos.filter(a=>a.modal==='online');
-  if(!onlineAlumnos.length){$('tab-o').innerHTML='<div class="empty">No hay alumnos online registrados.<br><br><button class="btn pri" onclick="showTab(\'a\')">Ir a Alumnos</button></div>';return;}
+  const onlineAlumnos = alumnos.filter(a => a.modal === 'online');
+  if(!onlineAlumnos.length){
+    $('tab-o').innerHTML = `<div class="empty">No hay alumnos online.<br><br>
+      <button class="btn pri" onclick="showTab('a')">Ir a Alumnos</button></div>`;
+    return;
+  }
 
-  const cards=onlineAlumnos.map(a=>{
-    const progs=progresos[a.id]||[];
-    const fts=fotos[a.id]||[];
-    const lk=waLink(a.tel,waMsg(a));
-    const ultimoProg=progs.length?progs[progs.length-1]:null;
-    const tipoIcon={reporte:'📋',consejo:'💡',medicion:'📏',nota:'📝'};
-    const ftGrid=fts.slice(0,6).map(f=>`<div class="foto-item"><img src="${f}" alt="foto"></div>`).join('');
-    const addFotoBtn=`<div class="foto-item" onclick="addFoto(${a.id})" style="border:2px dashed var(--border2);cursor:pointer"><input type="file" id="foto-file-${a.id}" accept="image/*" onchange="processFoto(event,${a.id})" style="display:none"><span style="font-size:13px;color:var(--text3)">+ Foto</span></div>`;
+  const cards = onlineAlumnos.map(a => {
+    const progs = (progresos[a.id]||[]).slice().reverse();
+    const fts = fotos[a.id]||[];
+    const lk = waLink(a.tel, waMsg(a));
+    const edad = a.nac ? (new Date().getFullYear()-parseInt(a.nac.slice(0,4))) : null;
+    const tipoIcon = {reporte:'📋',consejo:'💡',medicion:'📏',nota:'📝'};
 
-    return`<div class="onl-card">
+    const fotosHtml = fts.slice(0,6).map((f,i) =>
+      `<div class="foto-item" onclick="verFoto('${a.id}',${i})"><img src="${f}" alt="foto ${i+1}" loading="lazy"></div>`
+    ).join('');
+
+    const progHtml = progs.slice(0,3).map(p =>
+      `<div class="prog-item">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:600;color:var(--accent)">${tipoIcon[p.tipo]||'📝'} ${p.tipo.charAt(0).toUpperCase()+p.tipo.slice(1)}</span>
+          <span class="prog-date">${fd(p.fecha)}${p.peso?' · '+p.peso+'kg':''}</span>
+        </div>
+        <div class="prog-txt">${p.txt}</div>
+      </div>`
+    ).join('');
+
+    const reporteWA = waLink(a.tel,
+      `📋 *Reporte ProClub — ${a.nombre}*
+
+` +
+      `📅 Fecha: ${fd(new Date().toISOString().split('T')[0])}
+` +
+      `🏋️ Plan: ${a.plan}
+` +
+      (a.peso?`⚖️ Peso actual: ${a.peso}kg
+`:'') +
+      (progs[0]?`
+📝 Último registro:
+${progs[0].txt}
+`:'') +
+      `
+💪 ¡Seguimos trabajando juntos! — ProClub 💛`
+    );
+
+    return `<div class="onl-card">
       <div class="onl-top">
-        <div class="onl-av" onclick="addFoto(${a.id})">${fts.length?`<img src="${fts[fts.length-1]}" alt="">`:''}${!fts.length?ini(a.nombre):''}</div>
+        <div class="onl-av" onclick="addFoto(${a.id})" title="Tocar para agregar foto">
+          ${fts.length?`<img src="${fts[fts.length-1]}" alt="">`:''}
+          ${!fts.length?`<span style="font-size:14px;font-weight:700">${ini(a.nombre)}</span>`:''}
+          <div style="position:absolute;bottom:-3px;right:-3px;width:18px;height:18px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:700">+</div>
+        </div>
         <div class="onl-info">
           <div class="onl-n">${a.nombre}</div>
-          <div class="onl-s">${a.plan} · ${vBadge(a)}</div>
+          <div class="onl-s">${a.plan}</div>
+          ${edad||a.peso||a.altura?`<div class="onl-s" style="margin-top:1px;font-size:10px;color:var(--text3)">${[edad?edad+'a':null,a.peso?a.peso+'kg':null,a.altura?a.altura+'cm':null,a.sexo].filter(Boolean).join(' · ')}</div>`:''}
+          ${vBadge(a)}
         </div>
       </div>
+
       <div class="onl-actions">
-        ${lk?`<a href="${lk}" target="_blank" class="btn xs wa3">💬 WhatsApp directo</a>`:''}
-        ${lk?`<a href="${waLink(a.tel,'📋 *Reporte semanal ProClub*\n\nHola '+a.nombre.split(' ')[0]+'! Acá va tu reporte de esta semana:\n\n✅ Progreso:\n📏 Mediciones:\n💪 Próximos objetivos:\n\n¡Seguimos! 💪')}" target="_blank" class="btn xs grn">📋 Enviar reporte</a>`:''}
-        ${lk?`<a href="${waLink(a.tel,'💡 *Consejo ProClub*\n\nHola '+a.nombre.split(' ')[0]+'! ')}" target="_blank" class="btn xs pur">💡 Enviar consejo</a>`:''}
+        ${lk?`<a href="${lk}" target="_blank" class="btn xs wa3">💬 Chat directo</a>`:''}
+        ${reporteWA?`<a href="${reporteWA}" target="_blank" class="btn xs grn">📋 Enviar reporte WA</a>`:''}
+        <button class="btn xs pur" onclick="generarPDF(${a.id})">📄 Ver PDF</button>
         <button class="btn xs" onclick="openProgreso(${a.id})">+ Progreso</button>
+        <button class="btn xs" onclick="editAlumno(${a.id})">✎ Editar</button>
       </div>
+
       ${fts.length||true?`<div class="prog-section">
-        <div class="prog-title">Fotos de progreso</div>
-        <div class="foto-grid">${ftGrid}${addFotoBtn}</div>
+        <div class="prog-title">Fotos de progreso (${fts.length})</div>
+        <div class="foto-grid">
+          ${fotosHtml}
+          <div class="foto-item add-foto-btn" onclick="addFoto(${a.id})">
+            <input type="file" id="foto-file-${a.id}" accept="image/*" multiple onchange="processFoto(event,${a.id})" style="display:none">
+            <span style="font-size:18px">📷</span>
+            <span style="font-size:10px;color:var(--text3);margin-top:2px">Agregar</span>
+          </div>
+        </div>
       </div>`:''}
+
       ${progs.length?`<div class="prog-section" style="margin-top:10px">
-        <div class="prog-title">Historial (${progs.length} registros)</div>
-        ${progs.slice(-3).reverse().map(p=>`<div class="prog-item"><div style="display:flex;justify-content:space-between"><span class="prog-date">${tipoIcon[p.tipo]||'📝'} ${fd(p.fecha)}${p.peso?' · '+p.peso+'kg':''}</span></div><div class="prog-txt">${p.txt}</div></div>`).join('')}
-      </div>`:''}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div class="prog-title">Historial (${progs.length})</div>
+          ${progs.length>3?`<button class="btn xs sec" onclick="verTodoProgreso(${a.id})">Ver todo</button>`:''}
+        </div>
+        ${progHtml}
+      </div>`:
+      `<div style="padding:12px 0;text-align:center;font-size:12px;color:var(--text3)">Sin registros aún · tocá "+ Progreso"</div>`}
     </div>`;
   }).join('');
 
-  $('tab-o').innerHTML=`
-    <div class="sec" style="margin-top:0">Alumnos online · ${onlineAlumnos.length}</div>
+  $('tab-o').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="sec" style="margin:0">Alumnos online · ${onlineAlumnos.length}</div>
+      <button class="btn xs pri" onclick="openAlumnoOnline()">+ Online</button>
+    </div>
     ${cards}`;
 }
 
-function addFoto(aid){$(`foto-file-${aid}`).click();}
-function processFoto(e,aid){
-  const f=e.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    if(!fotos[aid])fotos[aid]=[];
-    fotos[aid].push(ev.target.result);
-    saveFotos();renderOnline();toast('Foto agregada ✓');
-  };
-  r.readAsDataURL(f);
+function openAlumnoOnline(){
+  openAlumno();
+  setTimeout(()=>{ $('a-modal').value='online'; updatePlanes(); }, 50);
 }
 
-function openProgreso(aid){
-  progAlumnoId=aid;
-  $('mprog-t').textContent='Nuevo progreso';
-  $('prog-f').value=new Date().toISOString().split('T')[0];
-  $('prog-tipo').value='reporte';
-  $('prog-txt').value='';$('prog-peso').value='';
-  openM('m-prog');
-}
-function guardarProgreso(){
-  const txt=$('prog-txt').value.trim();
-  if(!txt){toast('El contenido es obligatorio','err');return;}
-  if(!progresos[progAlumnoId])progresos[progAlumnoId]=[];
-  progresos[progAlumnoId].push({fecha:$('prog-f').value,tipo:$('prog-tipo').value,txt,peso:parseFloat($('prog-peso').value)||null,ts:Date.now()});
-  saveProgresos();closeM('m-prog');renderOnline();toast('Progreso guardado ✓');
+function verFoto(aid, idx){
+  const fts = fotos[aid]||[];
+  if(!fts[idx]) return;
+  const ov = document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;display:flex;align-items:center;justify-content:center;cursor:pointer';
+  ov.innerHTML = `<img src="${fts[idx]}" style="max-width:95vw;max-height:95vh;border-radius:10px;object-fit:contain">
+    <button onclick="this.parentNode.remove()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);border:none;border-radius:50%;width:36px;height:36px;color:#fff;font-size:18px;cursor:pointer">✕</button>`;
+  ov.onclick = e => { if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
 }
 
-// ── CONFIG ───────────────────────────────────────────────
-function renderConfig(){
-  const usersH=usuarios.map(u=>`<div class="user-row"><div><div class="u-name">${u.nombre}</div><div class="u-sub">@${u.username}${u.id===CU?.id?' · (vos)':''}</div></div><div style="display:flex;align-items:center;gap:8px"><span class="role-tag ${u.rol==='admin'?'rt-admin':'rt-coach'}">${u.rol==='admin'?'Admin':'Coach'}</span><button class="btn xs sec" onclick="editUsuario(${u.id})">✎</button></div></div>`).join('');
-
-  $('tab-c').innerHTML=`
-    <div class="cfg-s">
-      <div class="cfg-hdr">🖼 Logo del negocio</div>
-      <div class="logo-area">
-        <div class="logo-pick" onclick="$('cfg-logo-file').click()">
-          <img id="cfg-logo-prev" src="${CFG.logoB64||''}" alt="" style="${CFG.logoB64?'display:block':'display:none'}">
-          ${!CFG.logoB64?'<div style="font-size:22px">🏋️</div><div style="font-size:11px;color:var(--text3)">Tocar para subir</div>':''}
-          <input type="file" id="cfg-logo-file" accept="image/*" onchange="cfgLogo(event)">
+function verTodoProgreso(aid){
+  const a = alumnos.find(x=>x.id===aid);
+  const progs = (progresos[aid]||[]).slice().reverse();
+  const tipoIcon = {reporte:'📋',consejo:'💡',medicion:'📏',nota:'📝'};
+  const ov = document.createElement('div');
+  ov.className='overlay on';
+  ov.innerHTML=`<div class="modal" style="max-height:85dvh">
+    <div class="mh"><h2>Historial · ${a?a.nombre:'—'}</h2><button class="btn sm sec" onclick="this.closest('.overlay').remove()">✕</button></div>
+    <div style="overflow-y:auto;flex:1;padding:14px 17px">
+      ${progs.map(p=>`<div class="prog-item" style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:600;color:var(--accent)">${tipoIcon[p.tipo]||'📝'} ${p.tipo.charAt(0).toUpperCase()+p.tipo.slice(1)}</span>
+          <span style="font-size:11px;color:var(--text3)">${fd(p.fecha)}${p.peso?' · '+p.peso+'kg':''}</span>
         </div>
-        ${CFG.logoB64?`<button class="btn xs red" onclick="quitarLogo()">Quitar logo</button>`:''}
-      </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.6">${p.txt}</div>
+      </div>`).join('')}
     </div>
-    <div class="cfg-s">
-      <div class="cfg-hdr">✏ Nombre del negocio</div>
-      <div class="cfg-row">
-        <input class="srch" id="cfg-nombre" type="text" value="${CFG.nombre}" placeholder="ProClub" style="height:36px;flex:1">
-        <button class="btn sm pri" onclick="guardarNombre()" style="flex-shrink:0">Guardar</button>
-      </div>
-    </div>
-    <div class="cfg-s">
-      <div class="cfg-hdr">🎨 Color de acento</div>
-      <div class="cfg-row">
-        <div><div class="cfg-l">Color principal</div><div class="cfg-s2">Botones y elementos destacados</div></div>
-        <input type="color" class="color-inp" value="${CFG.colorAccent||'#C8A84B'}" onchange="cambiarColor(this.value)">
-      </div>
-      <div class="cfg-row" style="border:none;padding-top:6px">
-        <button class="btn sm sec" onclick="resetColor()">↺ Restaurar dorado</button>
-      </div>
-    </div>
-    <div class="cfg-s">
-      <div class="cfg-hdr">👥 Usuarios del sistema</div>
-      ${usersH}
-      <div style="padding:12px 15px;border-top:1px solid var(--border)">
-        <button class="btn pri full" onclick="openUsuario()">+ Nuevo usuario</button>
-      </div>
-    </div>
-    <div class="cfg-s">
-      <div class="cfg-hdr">🤖 Asistente IA</div>
-      <div class="cfg-row">
-        <div><div class="cfg-l">Contador · Estratega · Coach</div><div class="cfg-s2">Reportes financieros y estrategia de crecimiento</div></div>
-        <button class="btn sm pur" onclick="openIA()">Abrir</button>
-      </div>
-    </div>`;
+  </div>`;
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
 }
 
-function cfgLogo(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{CFG.logoB64=ev.target.result;saveCFG();applyTheme();renderConfig();toast('Logo actualizado ✓');};r.readAsDataURL(f);}
-function quitarLogo(){CFG.logoB64='';saveCFG();applyTheme();renderConfig();toast('Logo quitado');}
-function guardarNombre(){const n=$('cfg-nombre').value.trim();if(!n){toast('Ingresá un nombre','err');return;}CFG.nombre=n;saveCFG();applyTheme();toast('Nombre actualizado ✓');}
-function cambiarColor(v){CFG.colorAccent=v;saveCFG();applyTheme();}
-function resetColor(){CFG.colorAccent='#C8A84B';saveCFG();applyTheme();renderConfig();toast('Color restaurado');}
+function generarPDF(aid){
+  const a = alumnos.find(x=>x.id===aid);
+  if(!a){toast('Alumno no encontrado','err');return;}
+  const progs = (progresos[aid]||[]).slice().reverse();
+  const fts = fotos[aid]||[];
+  const tipoIcon = {reporte:'📋',consejo:'💡',medicion:'📏',nota:'📝'};
+  const edad = a.nac ? (new Date().getFullYear()-parseInt(a.nac.slice(0,4))) : null;
 
-function openUsuario(){editUid=null;$('mu-t').textContent='Nuevo usuario';$('btn-du').style.display='none';$('u-nombre').value='';$('u-user').value='';$('u-pass').value='';$('u-rol').value='coach';openM('m-u');}
-function editUsuario(id){
-  editUid=id;const u=usuarios.find(x=>x.id===id);if(!u)return;
-  $('mu-t').textContent='Editar usuario';
-  $('btn-du').style.display=u.id===CU?.id?'none':'flex';
-  $('u-nombre').value=u.nombre||'';$('u-user').value=u.username||'';$('u-pass').value=u.password||'';$('u-rol').value=u.rol||'coach';
-  openM('m-u');
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8">
+<title>Reporte ProClub · ${a.nombre}</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff;color:#1a1a1a;padding:0}
+  .page{max-width:800px;margin:0 auto;padding:48px 40px}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:24px;border-bottom:3px solid #C8A84B}
+  .brand{display:flex;flex-direction:column}
+  .brand-name{font-size:28px;font-weight:800;color:#C8A84B;letter-spacing:-1px}
+  .brand-sub{font-size:12px;color:#888;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+  .fecha{font-size:12px;color:#888;text-align:right}
+  .alumno-section{background:#f9f7f2;border-radius:12px;padding:24px;margin-bottom:24px;border-left:4px solid #C8A84B}
+  .alumno-nombre{font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:12px}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .info-item{display:flex;flex-direction:column;gap:2px}
+  .info-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .info-val{font-size:14px;font-weight:500;color:#1a1a1a}
+  .section-title{font-size:14px;font-weight:700;color:#C8A84B;text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+  .section-title::after{content:'';flex:1;height:1px;background:#e8e0d0}
+  .prog-card{border:1px solid #e8e0d0;border-radius:10px;padding:14px;margin-bottom:10px;background:#fff}
+  .prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .prog-tipo{font-size:11px;font-weight:700;color:#C8A84B;text-transform:uppercase;letter-spacing:.5px}
+  .prog-date{font-size:11px;color:#888}
+  .prog-txt{font-size:13px;color:#444;line-height:1.7}
+  .fotos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+  .foto-img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;border:1px solid #e8e0d0}
+  .footer{margin-top:40px;padding-top:16px;border-top:1px solid #e8e0d0;display:flex;justify-content:space-between;align-items:center}
+  .footer-brand{font-size:13px;font-weight:700;color:#C8A84B}
+  .footer-txt{font-size:11px;color:#aaa}
+  @media print{body{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+</style>
+</head><body>
+<div class="page">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-name">ProClub</div>
+      <div class="brand-sub">Sistema de gestión</div>
+    </div>
+    <div class="fecha">Reporte generado<br>${new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})}</div>
+  </div>
+
+  <div class="alumno-section">
+    <div class="alumno-nombre">${a.nombre}</div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Plan</div><div class="info-val">${a.plan}</div></div>
+      <div class="info-item"><div class="info-label">Estado</div><div class="info-val">${a.estado==='activo'?'✓ Activo':'✗ Inactivo'}</div></div>
+      <div class="info-item"><div class="info-label">Nivel</div><div class="info-val">${a.nivel.charAt(0).toUpperCase()+a.nivel.slice(1)}</div></div>
+      ${edad?`<div class="info-item"><div class="info-label">Edad</div><div class="info-val">${edad} años</div></div>`:''}
+      ${a.peso?`<div class="info-item"><div class="info-label">Peso</div><div class="info-val">${a.peso} kg</div></div>`:''}
+      ${a.altura?`<div class="info-item"><div class="info-label">Altura</div><div class="info-val">${a.altura} cm</div></div>`:''}
+      ${a.inicio?`<div class="info-item"><div class="info-label">Inicio</div><div class="info-val">${fd(a.inicio)}</div></div>`:''}
+      ${a.venc?`<div class="info-item"><div class="info-label">Vencimiento</div><div class="info-val">${fd(a.venc)}</div></div>`:''}
+    </div>
+    ${a.notas?`<div style="margin-top:12px;font-size:13px;color:#555;line-height:1.6"><strong>Observaciones:</strong> ${a.notas}</div>`:''}
+    ${a.lesion?`<div style="margin-top:6px;font-size:12px;color:#888"><strong>Lesiones:</strong> ${a.lesion}</div>`:''}
+    ${a.patol?`<div style="margin-top:4px;font-size:12px;color:#888"><strong>Patologías:</strong> ${a.patol}</div>`:''}
+  </div>
+
+  ${fts.length?`<div class="section-title">📷 Fotos de progreso</div>
+  <div class="fotos-grid">${fts.slice(0,6).map(f=>`<img class="foto-img" src="${f}" alt="progreso">`).join('')}</div>`:''  }
+
+  ${progs.length?`<div class="section-title">📋 Historial de seguimiento</div>
+  ${progs.slice(0,8).map(p=>`<div class="prog-card">
+    <div class="prog-header">
+      <span class="prog-tipo">${{reporte:'📋 Reporte',consejo:'💡 Consejo',medicion:'📏 Medición',nota:'📝 Nota'}[p.tipo]||p.tipo}</span>
+      <span class="prog-date">${fd(p.fecha)}${p.peso?' · '+p.peso+'kg':''}</span>
+    </div>
+    <div class="prog-txt">${p.txt}</div>
+  </div>`).join('')}`:''}
+
+  <div class="footer">
+    <div class="footer-brand">ProClub · San Luis, Argentina</div>
+    <div class="footer-txt">Documento generado por ProClub AI</div>
+  </div>
+</div>
+<script>window.onload=()=>{setTimeout(()=>window.print(),400);}<\/script>
+</body></html>`);
+  win.document.close();
+  toast('PDF listo para imprimir/guardar ✓');
 }
-async function guardarUsuario(){
-  const nombre=$('u-nombre').value.trim(),username=$('u-user').value.trim().toLowerCase(),password=$('u-pass').value.trim(),rol=$('u-rol').value;
-  if(!nombre||!username||!password){toast('Todos los campos son obligatorios','err');return;}
-  if(password.length<4){toast('Contraseña mínimo 4 caracteres','err');return;}
-  try{
-    if(editUid){const res=await sbU('app_usuarios',editUid,{nombre,username,password,rol});const i=usuarios.findIndex(x=>x.id===editUid);if(i>-1)usuarios[i]={...usuarios[i],...(res[0]||{nombre,username,password,rol})};if(CU&&editUid===CU.id){CU.nombre=nombre;$('tb-dot').textContent=ini(nombre);}toast('Usuario actualizado ✓');}
-    else{const res=await sbP('app_usuarios',{nombre,username,password,rol});usuarios.push(res[0]);toast('Usuario creado ✓');}
-    closeM('m-u');renderConfig();
-  }catch(e){toast('Error — usuario ya existe','err');}
+
+
+// ── INSTALL APP (PWA) ────────────────────────────────────
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('app-banner');
+  if(banner && CU) { banner.style.display = 'flex'; }
+});
+
+function installApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted') toast('ProClub instalada ✓');
+      deferredPrompt=null;
+      const b=document.getElementById('app-banner');
+      if(b) b.style.display='none';
+    });
+  } else {
+    // iOS instructions
+    toast('En Safari: compartir → Agregar a inicio');
+  }
 }
-async function elimUsuario(){if(!confirm('¿Eliminar?'))return;try{await sbD('app_usuarios',editUid);const i=usuarios.findIndex(x=>x.id===editUid);if(i>-1)usuarios.splice(i,1);closeM('m-u');renderConfig();toast('Eliminado');}catch(e){toast('Error','err');}}
+
+// Apply logo to banner
+function applyBannerLogo(){
+  const logo = CFG.logoB64;
+  const img = document.getElementById('banner-logo');
+  const txt = document.getElementById('banner-icon');
+  if(img && logo){
+    img.src = logo; img.style.display='block';
+    if(txt) txt.childNodes[0].textContent='';
+  }
+}
+
+// Hook applyTheme to also update banner
+const __origApplyTheme = applyTheme;
+applyTheme = function(){
+  __origApplyTheme();
+  applyBannerLogo();
+};
+
 
 // ── IA ───────────────────────────────────────────────────
 function openIA(){
   iaHistory=[];
-  $('ia-msgs').innerHTML=`<div class="msg ai">Hola ${CU?CU.nombre.split(' ')[0]:''}! Soy tu asesor estratégico de ProClub. Actuó como tu contador, estratega de negocios y coach de fitness. Tengo acceso a los datos reales del negocio. ¿En qué te ayudo?</div>`;
+  $('ia-msgs').innerHTML=`<div class="msg ai">Hola ${CU?CU.nombre.split(' ')[0]:''}! Soy tu asesor estratégico de ProClub. Actuó como tu contador, estratega de negocios y coach de fitness. Tengo acceso a los datos reales del negocio en tiempo real. ¿En qué te ayudo hoy?</div>`;
   showS('s-ia');
 }
-function closeIA(){showS('s-app');}
-function qm(msg){if($('ia-inp'))$('ia-inp').value=msg;sendIA();}
+function closeIA(){ showS('s-app'); }
+function qm(msg){ if($('ia-inp'))$('ia-inp').value=msg; sendIA(); }
 
 async function sendIA(){
-  const inp=$('ia-inp'),msg=inp.value.trim();if(!msg)return;
+  const inp=$('ia-inp'), msg=inp.value.trim(); if(!msg) return;
   const send=$('ia-send');
   const msgsEl=$('ia-msgs');
   msgsEl.innerHTML+=`<div class="msg usr">${msg}</div>`;
   iaHistory.push({role:'user',content:msg});
-  inp.value='';inp.style.height='auto';send.disabled=true;
+  inp.value=''; inp.style.height='auto'; send.disabled=true;
   const lid='il'+Date.now();
   msgsEl.innerHTML+=`<div class="msg ai load" id="${lid}">Analizando...</div>`;
   msgsEl.scrollTop=msgsEl.scrollHeight;
@@ -2301,24 +2502,23 @@ async function sendIA(){
   const ina=alumnos.length-act;
   const cf=costos.filter(c=>c.tipo==='fijo').reduce((s,c)=>s+Number(c.valor),0);
   const cv=costos.filter(c=>c.tipo==='variable').reduce((s,c)=>s+Number(c.valor),0);
-  const tc=cf+cv,res=ing-tc,mar=ing>0?Math.round(res/ing*100):0;
+  const tc=cf+cv, res=ing-tc, mar=ing>0?Math.round(res/ing*100):0;
   const ti=inversiones.reduce((s,i)=>s+Number(i.valor),0);
-  const meses={};pagos.forEach(p=>{if(!p.fecha)return;const m=p.fecha.slice(0,7);meses[m]=(meses[m]||0)+Number(p.monto);});
+  const meses={};
+  pagos.forEach(p=>{ if(!p.fecha)return; const m=p.fecha.slice(0,7); meses[m]=(meses[m]||0)+Number(p.monto); });
   const mStr=Object.entries(meses).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,3).map(([m,v])=>`${m}: $${Number(v).toLocaleString('es-AR')}`).join(', ');
-  const planDist=Object.entries(alumnos.reduce((acc,a)=>{acc[a.plan]=(acc[a.plan]||0)+1;return acc;},{})).map(([k,v])=>`${k}: ${v}`).join(', ');
+  const planDist=Object.entries(alumnos.reduce((acc,a)=>{ acc[a.plan]=(acc[a.plan]||0)+1; return acc; },{})).map(([k,v])=>`${k}: ${v}`).join(', ');
 
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',max_tokens:1200,
+        model:'claude-sonnet-4-20250514', max_tokens:1200,
         system:`Sos el asesor estratégico de ${CFG.nombre||'ProClub'}, gimnasio boutique en San Luis, Argentina. Franco y Anyelen son los dueños.
-
 Roles: CONTADOR PROFESIONAL + ESTRATEGA DE NEGOCIOS + COACH FITNESS
 
-═══ DATOS REALES DEL NEGOCIO ═══
-Financiero:
+DATOS REALES DEL NEGOCIO:
 • Ingresos totales: $${ing.toLocaleString('es-AR')}
 • Costos fijos/mes: $${cf.toLocaleString('es-AR')}
 • Costos variables: $${cv.toLocaleString('es-AR')}
@@ -2327,29 +2527,14 @@ Financiero:
 • Margen: ${mar}%
 • Inversiones: $${ti.toLocaleString('es-AR')}
 • Ingresos últimos meses: ${mStr||'sin datos'}
-
-Operativo:
 • Alumnos: ${alumnos.length} total (${act} activos, ${ina} inactivos)
 • Tasa actividad: ${alumnos.length?Math.round(act/alumnos.length*100):0}%
 • Distribución por plan: ${planDist||'sin datos'}
 • Online activos: ${alumnos.filter(a=>a.modal==='online'&&a.estado==='activo').length}
-• Plan Black (1a1) activos: ${alumnos.filter(a=>a.modal==='personal'&&a.estado==='activo').length}
+• Plan Black activos: ${alumnos.filter(a=>a.modal==='personal'&&a.estado==='activo').length}
 • Transformación activos: ${alumnos.filter(a=>a.modal==='transformacion'&&a.estado==='activo').length}
-• Promos: ${promos.length} | Campañas: ${campanas.length}
 
-Planes disponibles:
-- Presencial/Online: Start, Plus, Prime, Elite
-- Plan Black (1a1): 2, 3 o 4 clases/semana
-- Transformación: GAP, Masa Muscular, Descenso de peso (3 meses)
-
-INSTRUCCIONES:
-- Español argentino, directo y profesional
-- Usá SIEMPRE los números reales en reportes financieros
-- Sé concreto: números, porcentajes, plazos, pasos específicos
-- Para expansión considerá la realidad de San Luis, Argentina
-- Formato claro con secciones cuando sea útil
-- Máx. 400 palabras
-- Terminá siempre con UNA acción concreta para implementar HOY`,
+INSTRUCCIONES: Español argentino, directo y profesional. Usá los números reales. Sé concreto con pasos específicos. Máx 400 palabras. Terminá con UNA acción concreta para implementar HOY.`,
         messages:iaHistory
       })
     });
@@ -2357,261 +2542,18 @@ INSTRUCCIONES:
     const txt=d.content?.[0]?.text||'Sin respuesta';
     iaHistory.push({role:'assistant',content:txt});
     const el=document.getElementById(lid);
-    if(el)el.outerHTML=`<div class="msg ai">${txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
+    if(el) el.outerHTML=`<div class="msg ai">${txt.replace(/
+/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
   }catch(e){
     const el=document.getElementById(lid);
-    if(el)el.outerHTML=`<div class="msg ai" style="color:var(--red)">⚠ Error de conexión con el asistente. Verificá tu conexión a internet e intentá de nuevo.</div>`;
-  }finally{send.disabled=false;msgsEl.scrollTop=msgsEl.scrollHeight;}
-}
-
-$('ia-inp').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendIA();}});
-$('ia-inp').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';});
-
-function openM(id){$(id).classList.add('on');}
-function closeM(id){$(id).classList.remove('on');}
-document.querySelectorAll('.overlay').forEach(ov=>{ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});});
-
-
-function loginUploadLogo(e){
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => {
-    CFG.logoB64 = ev.target.result;
-    saveCFG(); applyTheme();
-    toast('Logo actualizado ✓');
-  };
-  r.readAsDataURL(f);
-}
-
-init();
-
-// ── VISUAL UPGRADE ───────────────────────────────────────
-
-// Scroll reveal observer
-const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      revealObserver.unobserve(e.target);
-    }
-  });
-}, { threshold: 0.05, rootMargin: '0px 0px 0px 0px' });
-
-function initReveal() {
-  const els = document.querySelectorAll('.reveal:not(.visible)');
-  // First: immediately show all (failsafe)
-  els.forEach(el => {
-    revealObserver.observe(el);
-  });
-  // Fallback: force visible after 300ms if observer hasn't fired
-  setTimeout(() => {
-    document.querySelectorAll('.reveal:not(.visible)').forEach((el,i) => {
-      setTimeout(() => el.classList.add('visible'), i * 30);
-    });
-  }, 300);
-}
-
-// renderDash upgrade handled inline
-
-
-// FAB IA button
-function addIAFab() {
-  const existing = document.getElementById('ia-fab');
-  if (existing) return;
-  const fab = document.createElement('button');
-  fab.id = 'ia-fab';
-  fab.className = 'btn-ia-fab';
-  fab.innerHTML = '🤖';
-  fab.title = 'Asistente IA';
-  fab.onclick = openIA;
-  document.body.appendChild(fab);
-}
-
-// Hook showTab to trigger reveal
-const _origShowTab = showTab;
-showTab = function(id) {
-  _origShowTab(id);
-  setTimeout(initReveal, 50);
-  setTimeout(initReveal, 200);
-  setTimeout(initReveal, 500);
-  // Show/hide FAB
-  const fab = document.getElementById('ia-fab');
-  if (fab) fab.style.display = (id === 'c' || id === 'f') ? 'none' : 'flex';
-};
-
-// Hook buildNav
-const _origBuildNav = buildNav;
-buildNav = function() {
-  _origBuildNav();
-  addIAFab();
-};
-
-// Counter animation
-function animateNumber(el, target, prefix = '$', duration = 800) {
-  const start = 0;
-  const startTime = performance.now();
-  const update = (currentTime) => {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    const current = Math.round(start + (target - start) * eased);
-    el.textContent = prefix === '$' ? '$' + current.toLocaleString('es-AR') : current.toString();
-    if (progress < 1) requestAnimationFrame(update);
-  };
-  requestAnimationFrame(update);
-}
-
-// Touch ripple effect on buttons
-document.addEventListener('click', function(e) {
-  const btn = e.target.closest('.btn, .nb, .stab, .btn-login');
-  if (!btn) return;
-  const ripple = document.createElement('div');
-  const rect = btn.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  ripple.style.cssText = `position:absolute;border-radius:50%;background:rgba(255,255,255,.15);width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;transform:scale(0);animation:ripple .4s linear;pointer-events:none;z-index:999`;
-  btn.style.position = 'relative';
-  btn.style.overflow = 'hidden';
-  btn.appendChild(ripple);
-  setTimeout(() => ripple.remove(), 400);
-});
-
-// Ripple keyframe
-const rippleStyle = document.createElement('style');
-rippleStyle.textContent = '@keyframes ripple{to{transform:scale(2);opacity:0}}';
-document.head.appendChild(rippleStyle);
-
-console.log('ProClub Visual Upgrade loaded ✓');
-
-
-// ── UX UPGRADES ──────────────────────────────────────────
-
-// Progress bar on load
-(function(){
-  const wrap = document.createElement('div');
-  wrap.className = 'progress-bar-wrap';
-  const bar = document.createElement('div');
-  bar.className = 'progress-bar';
-  bar.id = 'prog-bar';
-  wrap.appendChild(bar);
-  document.body.appendChild(wrap);
-})();
-
-function showProgress(pct){
-  const b = document.getElementById('prog-bar');
-  if(b){ b.style.width = pct+'%'; if(pct>=100) setTimeout(()=>b.style.width='0%',400); }
-}
-
-// Topbar scroll effect
-document.getElementById('content').addEventListener('scroll', function(){
-  const tb = document.querySelector('.topbar');
-  if(tb) tb.classList.toggle('scrolled', this.scrollTop > 10);
-}, {passive:true});
-
-// Enhanced showTab with progress
-const __origShowTab = showTab;
-showTab = function(id){
-  showProgress(30);
-  __origShowTab(id);
-  setTimeout(()=>showProgress(100), 150);
-  setTimeout(initReveal, 200);
-};
-
-// Enhanced doLogin with progress
-const __origDoLogin = doLogin;
-doLogin = async function(){
-  showProgress(20);
-  await __origDoLogin();
-  showProgress(100);
-};
-
-// Haptic feedback simulation (mobile)
-function haptic(){
-  if(navigator.vibrate) navigator.vibrate(8);
-}
-document.addEventListener('click', function(e){
-  const el = e.target.closest('.btn, .nb, .stab, .btn-login-ceo, .btn-wa, .btn-ia-fab');
-  if(el) haptic();
-}, {passive:true});
-
-// Swipe between tabs (mobile)
-(function(){
-  let startX=0, startY=0;
-  const content = document.getElementById('content');
-  if(!content) return;
-  content.addEventListener('touchstart', e=>{
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-  }, {passive:true});
-  content.addEventListener('touchend', e=>{
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = e.changedTouches[0].clientY - startY;
-    if(Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)*0.8) return;
-    if(content.scrollTop > 10) return; // only when at top
-    const tabs = Array.from(document.querySelectorAll('.nb')).map(b=>b.dataset.id);
-    const cur = tabs.indexOf(curTab);
-    if(dx < 0 && cur < tabs.length-1) showTab(tabs[cur+1]);
-    if(dx > 0 && cur > 0) showTab(tabs[cur-1]);
-  }, {passive:true});
-})();
-
-// Auto-animate numbers in stats when visible
-function animateStat(el){
-  const val = parseFloat(el.textContent.replace(/[^0-9.-]/g,''));
-  if(isNaN(val)||val===0) return;
-  const prefix = el.textContent.includes('$') ? '$' : '';
-  const suffix = el.textContent.includes('%') ? '%' : '';
-  let start = null;
-  const dur = 600;
-  function step(ts){
-    if(!start) start = ts;
-    const prog = Math.min((ts-start)/dur,1);
-    const ease = 1-Math.pow(1-prog,3);
-    const cur = Math.round(val*ease);
-    el.textContent = prefix ? '$'+cur.toLocaleString('es-AR') : cur+suffix;
-    if(prog<1) requestAnimationFrame(step);
+    if(el) el.outerHTML=`<div class="msg ai" style="color:var(--red)">⚠ Error de conexión. Verificá internet e intentá de nuevo.</div>`;
+  }finally{
+    send.disabled=false;
+    msgsEl.scrollTop=msgsEl.scrollHeight;
   }
-  requestAnimationFrame(step);
 }
 
-// Patch initReveal to also animate stat numbers
-const __origInitReveal = typeof initReveal !== 'undefined' ? initReveal : ()=>{};
-function initReveal(){
-  __origInitReveal();
-  document.querySelectorAll('.stat-v').forEach(el=>{
-    if(!el.dataset.animated){
-      el.dataset.animated='1';
-      animateStat(el);
-    }
-  });
-}
+$('ia-inp').addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendIA(); } });
+$('ia-inp').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,80)+'px'; });
 
-// Pull to refresh hint
-let ptStartY = 0;
-document.getElementById('content')?.addEventListener('touchstart', e=>{
-  ptStartY = e.touches[0].clientY;
-},{passive:true});
 
-// Loading skeleton for tab transitions
-function showSkeleton(tabId){
-  const tab = document.getElementById('tab-'+tabId);
-  if(!tab) return;
-  tab.innerHTML = Array(4).fill(0).map((_,i)=>`
-    <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:8px">
-      <div class="skeleton" style="height:20px;width:${60+i*10}%"></div>
-      <div class="skeleton" style="height:80px;width:100%;border-radius:12px"></div>
-    </div>`).join('');
-}
-
-// Override tab renders to show skeleton briefly
-['a','p','f','v','m','o'].forEach(tabId=>{
-  const origFn = {a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline}[tabId];
-  if(!origFn) return;
-  const renders = {a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline};
-});
-
-console.log('UX Upgrade v2 loaded ✓');
-
-</script>
-</body>
-</html>
-<!-- DESIGN UPGRADE INJECTED -->

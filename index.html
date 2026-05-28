@@ -739,7 +739,7 @@ async function sendIA(){
   const meses={};pagos.forEach(p=>{if(!p.fecha)return;const m=p.fecha.slice(0,7);meses[m]=(meses[m]||0)+Number(p.monto);});
   const mStr=Object.entries(meses).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,3).map(([m,v])=>m+': $'+Number(v).toLocaleString('es-AR')).join(', ');
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    const r=await fetch('https://proclub-ia.francomeloni04.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:1200,
       system:'Sos el asesor de '+(CFG.nombre||'ProClub')+', gimnasio boutique en San Luis, Argentina. Franco y Anyelen son los duenos.\nRoles: CONTADOR + ESTRATEGA + COACH FITNESS\nDATOS REALES:\nIngresos: $'+ing.toLocaleString('es-AR')+'\nCostos fijos: $'+cf.toLocaleString('es-AR')+'\nVariables: $'+cv.toLocaleString('es-AR')+'\nResultado: $'+res.toLocaleString('es-AR')+'\nMargen: '+mar+'%\nInversiones: $'+ti.toLocaleString('es-AR')+'\nMeses: '+mStr+'\nAlumnos: '+alumnos.length+' total ('+act+' activos)\nOnline: '+alumnos.filter(a=>a.modal==="online"&&a.estado==="activo").length+'\nPlan Black: '+alumnos.filter(a=>a.modal==="personal"&&a.estado==="activo").length+'\nInstrucciones: Espanol argentino, directo. Usa numeros reales. Max 400 palabras. Termina con UNA accion para HOY.',
       messages:iaHistory

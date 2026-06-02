@@ -526,13 +526,13 @@ function renderDash(){
   let recH='';
   pagos.slice(0,4).forEach(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});recH+='<div class="ri"><div class="ri-av">'+(a?ini(a.nombre):'?')+'</div><div class="ri-i"><div class="ri-n">'+(a?a.nombre:'--')+'</div><div class="ri-s">'+fd(pg.fecha)+' - '+(pg.concepto||'Pago')+'</div></div><div class="ri-m">'+fmtM(pg.monto)+'</div></div>';});
 
-  // Ingresos por modalidad
-  const ingPre=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  const ingOnl=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  const ingTra=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  const ingPer=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  const ingPat=patin.reduce(function(s,a){return s+(Number(a.precio)||0);},0);
-  const ingTotal=ing+ingPat;
+  // Ingresos por modalidad - suma precio de ficha de alumnos activos
+  const ingPre=alumnos.filter(function(a){return a.modal==='presencial'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  const ingOnl=alumnos.filter(function(a){return a.modal==='online'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  const ingTra=alumnos.filter(function(a){return a.modal==='transformacion'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  const ingPer=alumnos.filter(function(a){return a.modal==='personal'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  const ingPat=patin.filter(function(a){return a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+(Number(a.precio)||0);},0);
+  const ingTotal=ingPre+ingOnl+ingTra+ingPer+ingPat;
   const costoTot=costos.reduce(function(s,c){return s+Number(c.valor);},0);
   const resFinal=ingTotal-costoTot;
   const marFinal=ingTotal>0?Math.round(resFinal/ingTotal*100):0;

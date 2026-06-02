@@ -476,11 +476,11 @@ function renderDash(){
   const costoT=costos.reduce((s,c)=>s+Number(c.valor),0);
   const res=ing-costoT,mar=ing>0?Math.round(res/ing*100):0;
   const tot=alumnos.length||1;
-  const xv=act.filter(a=>{const d=dias(a.venc);return d!==null&&d<=5;}).sort((a,b)=>dias(a.venc)-dias(b.venc));
+  const xv=act.filter(a=>{const d=dias(a.venc);return d!==null&&d<=2;}).sort((a,b)=>dias(a.venc)-dias(b.venc));
   let alerts='';
   if(xv.length){
     alerts='<div style="margin-bottom:14px"><div class="sec" style="color:var(--red);margin-top:0">Vencimientos proximos ('+xv.length+')</div>';
-    xv.forEach(function(a){const d=dias(a.venc);const txt=d<=0?'Vencio hace '+Math.abs(d)+'d':'Vence en '+d+'d';const lk=waLink(a.tel,waMsg(a));alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+'<button class="btn xs sec" onclick="editAlumno('+a.id+');showTab(\'a\')">Ver</button></div></div>';});
+    xv.forEach(function(a){const d=dias(a.venc);const txt=d<=0?'VENCIDO hace '+Math.abs(d)+' dia'+(Math.abs(d)!==1?'s':''):d===0?'Vence HOY':'Vence en '+d+' dia'+(d!==1?'s':'')+' - URGENTE';const lk=waLink(a.tel,waMsg(a));alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+'<button class="btn xs sec" onclick="editAlumno('+a.id+');showTab(\'a\')">Ver</button></div></div>';});
     alerts+='</div>';
   }
   const modMap={presencial:'Presencial',online:'Online',personal:'Plan Black',transformacion:'Transform.'};

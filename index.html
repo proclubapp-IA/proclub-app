@@ -606,14 +606,14 @@ function renderDash(){
 }
 function updatePlanes(){const m=($('a-modal')||{value:'presencial'}).value;const sel=$('a-plan');if(!sel)return;const cur=sel.value;sel.innerHTML=(PLANES[m]||PLANES.presencial).map(function(p){return '<option value="'+p+'"'+(cur===p?' selected':'')+'>'+p+'</option>';}).join('');}
 function renderAlumnos(){
-  const q=($('srch-a')||{value:''}).value.toLowerCase();
-  const fe=($('f-est')||{value:''}).value;
-  const fs=($('f-sort')||{value:'nombre'}).value;
-  const fn=($('f-niv')||{value:''}).value;
-  const fx=($('f-sex')||{value:''}).value;
+  var q=($('srch-a')||{value:''}).value.toLowerCase();
+  var fe=($('f-est')||{value:''}).value;
+  var fs=($('f-sort')||{value:'nombre'}).value;
+  var fn=($('f-niv')||{value:''}).value;
+  var fx=($('f-sex')||{value:''}).value;
   var list=alumnos.filter(function(a){
-    if(curSub==='vence_pronto'){const d=dias(a.venc);if(a.estado!=='activo'||d===null||d>7)return false;}
-    else if(curSub==='vigente'){const d=dias(a.venc);if(a.estado!=='activo'||d===null||d<=7)return false;}
+    if(curSub==='vence_pronto'){var d=dias(a.venc);if(a.estado!=='activo'||d===null||d>7)return false;}
+    else if(curSub==='vigente'){var d=dias(a.venc);if(a.estado!=='activo'||d===null||d<=7)return false;}
     else if(curSub==='principiante'||curSub==='intermedio'||curSub==='avanzado'){if(a.nivel!==curSub)return false;}
     else if(curSub!=='todos'&&a.modal!==curSub)return false;
     if(fe&&a.estado!==fe)return false;
@@ -623,54 +623,49 @@ function renderAlumnos(){
     return true;
   });
   list=list.slice().sort(function(a,b){
-    if(fs==='apellido'){const pa=(a.nombre||'').trim().split(' ').pop()||'';const pb=(b.nombre||'').trim().split(' ').pop()||'';return pa.localeCompare(pb,'es');}
+    if(fs==='apellido'){var pa=(a.nombre||'').trim().split(' ').pop()||'';var pb=(b.nombre||'').trim().split(' ').pop()||'';return pa.localeCompare(pb,'es');}
     if(fs==='nombre')return (a.nombre||'').localeCompare(b.nombre||'','es');
     if(fs==='inicio_asc')return (a.inicio||'').localeCompare(b.inicio||'');
     if(fs==='inicio_desc')return (b.inicio||'').localeCompare(a.inicio||'');
     if(fs==='venc')return (a.venc||'9999').localeCompare(b.venc||'9999');
-    if(fs==='edad'){const ya=a.nac?new Date().getFullYear()-parseInt(a.nac.slice(0,4)):999;const yb=b.nac?new Date().getFullYear()-parseInt(b.nac.slice(0,4)):999;return ya-yb;}
+    if(fs==='edad'){var ya=a.nac?new Date().getFullYear()-parseInt(a.nac.slice(0,4)):999;var yb=b.nac?new Date().getFullYear()-parseInt(b.nac.slice(0,4)):999;return ya-yb;}
     if(fs==='peso')return (Number(b.peso)||0)-(Number(a.peso)||0);
     if(fs==='altura')return (Number(b.altura)||0)-(Number(a.altura)||0);
     return 0;
   });
-  const subs=[{k:'todos',l:'Todos'},{k:'presencial',l:'Presencial'},{k:'online',l:'Online'},{k:'personal',l:'Plan Black'},{k:'transformacion',l:'Transform.'},{k:'principiante',l:'Principiante'},{k:'intermedio',l:'Intermedio'},{k:'avanzado',l:'Avanzado'},{k:'vence_pronto',l:'Vence pronto'},{k:'vigente',l:'Vigentes'}];
-  const subH=subs.map(function(s){return '<button class="stab'+(curSub===s.k?' on':'')+'" onclick="setSub(\''+s.k+'\')">'+s.l+'</button>';}).join('');
+  var subs=[{k:'todos',l:'Todos'},{k:'presencial',l:'Presencial'},{k:'online',l:'Online'},{k:'personal',l:'Plan Black'},{k:'transformacion',l:'Transform.'},{k:'principiante',l:'Principiante'},{k:'intermedio',l:'Intermedio'},{k:'avanzado',l:'Avanzado'},{k:'vence_pronto',l:'Vence pronto'},{k:'vigente',l:'Vigentes'}];
+  var subH=subs.map(function(s){return '<button class="stab'+(curSub===s.k?' on':'')+'" onclick="setSub(\"'+s.k+'\")">'+s.l+'</button>';}).join('');
   var listH='';
   if(list.length){
     list.forEach(function(a){
-      const lk=waLink(a.tel,waMsg(a));
-      const edad=a.nac?(new Date().getFullYear()-parseInt(a.nac.slice(0,4))):null;
-      const extra=[edad?edad+'a':null,a.peso?a.peso+'kg':null,a.altura?a.altura+'cm':null,a.sexo].filter(Boolean).join(' - ');
+      var lk=waLink(a.tel,waMsg(a));
+      var edad=a.nac?(new Date().getFullYear()-parseInt(a.nac.slice(0,4))):null;
+      var extra=[edad?edad+'a':null,a.peso?a.peso+'kg':null,a.altura?a.altura+'cm':null,a.sexo].filter(Boolean).join(' - ');
       listH+='<div class="ac"><div class="ac-top"><div class="ac-av">'+ini(a.nombre)+'</div><div class="ac-i"><div class="ac-n">'+a.nombre+'</div><div class="ac-s">'+a.plan+(extra?' - '+extra:'')+'</div><div class="ac-s">Ingreso: '+fd(a.inicio)+'</div></div></div><div class="ac-b">'+mBadge(a.modal)+' '+eBadge(a.estado)+' '+nBadge(a.nivel)+' '+vBadge(a)+'</div><div class="ac-a"><button class="btn xs" onclick="editAlumno('+a.id+')">Editar</button><button class="btn xs '+(a.estado==='activo'?'red':'grn')+'" onclick="toggleEs('+a.id+')">'+(a.estado==='activo'?'Inactivar':'Activar')+'</button>'+(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')+'</div></div>';
     });
   } else {listH='<div class="empty">Sin alumnos</div>';}
-  $('tab-a').innerHTML='<div class="stabs">'+subH+'</div>'
-    +'<div class="toolbar"><input class="srch" id="srch-a" type="text" placeholder="Buscar..." oninput="renderAlumnos()" value="'+q+'" style="flex:1"><button class="btn sm pri" onclick="openAlumno()">+ Nuevo</button></div>'
-    +'<div class="toolbar" style="gap:5px;margin-bottom:8px">'
-    +'<select class="ssel" id="f-sort" onchange="renderAlumnos()" style="flex:1"><option value="nombre" '+(fs==='nombre'?'selected':'')+'>A-Z nombre</option><option value="apellido" '+(fs==='apellido'?'selected':'')+'>A-Z apellido</option><option value="inicio_desc" '+(fs==='inicio_desc'?'selected':'')+'>Ingreso reciente</option><option value="inicio_asc" '+(fs==='inicio_asc'?'selected':'')+'>Ingreso antiguo</option><option value="venc" '+(fs==='venc'?'selected':'')+'>Proximo venc.</option><option value="edad" '+(fs==='edad'?'selected':'')+'>Por edad</option><option value="peso" '+(fs==='peso'?'selected':'')+'>Por peso</option><option value="altura" '+(fs==='altura'?'selected':'')+'>Por altura</option></select>'
-    +'<select class="ssel" id="f-est" onchange="renderAlumnos()" style="flex:1"><option value="" '+(fe===''?'selected':'')+'>Estado</option><option value="activo" '+(fe==='activo'?'selected':'')+'>Activos</option><option value="inactivo" '+(fe==='inactivo'?'selected':'')+'>Inactivos</option></select>'
-    +'<select class="ssel" id="f-niv" onchange="renderAlumnos()" style="flex:1"><option value="" '+(fn===''?'selected':'')+'>Nivel</option><option value="principiante" '+(fn==='principiante'?'selected':'')+'>Principiante</option><option value="intermedio" '+(fn==='intermedio'?'selected':'')+'>Intermedio</option><option value="avanzado" '+(fn==='avanzado'?'selected':'')+'>Avanzado</option></select>'
-    +'<select class="ssel" id="f-sex" onchange="renderAlumnos()" style="flex:1"><option value="" '+(fx===''?'selected':'')+'>Sexo</option><option value="Femenino" '+(fx==='Femenino'?'selected':'')+'>Femenino</option><option value="Masculino" '+(fx==='Masculino'?'selected':'')+'>Masculino</option></select>'
-    +'<button class="btn xs sec" onclick="resetFiltros()">x</button></div>'
-    var totalEsp=list.filter(function(a){return a.precio&&a.estado==='activo';}).reduce(function(s,a){return s+Number(a.precio);},0);
-  var totalCob=pagos.filter(function(pg){var found=list.find(function(a){return a.id===pg.aid;});return !!found;}).reduce(function(s,p){return s+Number(p.monto);},0);
+
+  // Resumen del grupo filtrado
+  var espGrupo=list.filter(function(a){return a.precio&&a.estado==='activo';}).reduce(function(s,a){return s+Number(a.precio);},0);
+  var cobGrupo=pagos.filter(function(pg){return list.find(function(a){return a.id===pg.aid;});}).reduce(function(s,p){return s+Number(p.monto);},0);
   var resumenH='';
   if(list.length>0){
-    resumenH='<div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">'
-      +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;flex:1;min-width:120px">'
-      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Alumnos</div>'
-      +'<div style="font-size:18px;font-weight:700;color:var(--blue)">'+list.length+'</div>'
+    resumenH='<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+      +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:1;min-width:100px;text-align:center">'
+      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Alumnos</div>'
+      +'<div style="font-size:22px;font-weight:800;color:var(--blue)">'+list.length+'</div>'
       +'</div>'
-      +(totalCob>0?'<div style="background:var(--bg2);border:1px solid rgba(48,209,88,.2);border-radius:10px;padding:9px 14px;flex:1;min-width:120px">'
-      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Cobrado</div>'
-      +'<div style="font-size:18px;font-weight:700;color:var(--green)">'+fmtM(totalCob)+'</div>'
+      +(cobGrupo>0?'<div style="background:var(--bg2);border:1px solid rgba(48,209,88,.25);border-radius:10px;padding:10px 14px;flex:1;min-width:100px;text-align:center">'
+      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Cobrado</div>'
+      +'<div style="font-size:18px;font-weight:800;color:var(--green)">'+fmtM(cobGrupo)+'</div>'
       +'</div>':'')
-      +(totalEsp>0?'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;flex:1;min-width:120px">'
-      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Esperado/mes</div>'
-      +'<div style="font-size:18px;font-weight:700;color:var(--gold)">'+fmtM(totalEsp)+'</div>'
+      +(espGrupo>0?'<div style="background:var(--bg2);border:1px solid rgba(200,168,75,.25);border-radius:10px;padding:10px 14px;flex:1;min-width:100px;text-align:center">'
+      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Esperado</div>'
+      +'<div style="font-size:18px;font-weight:800;color:var(--gold)">'+fmtM(espGrupo)+'</div>'
       +'</div>':'')
       +'</div>';
   }
+
   $('tab-a').innerHTML='<div class="stabs">'+subH+'</div>'
     +'<div class="toolbar"><input class="srch" id="srch-a" type="text" placeholder="Buscar..." oninput="renderAlumnos()" value="'+q+'" style="flex:1"><button class="btn sm pri" onclick="openAlumno()">+ Nuevo</button></div>'
     +'<div class="toolbar" style="gap:5px;margin-bottom:8px">'

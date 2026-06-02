@@ -505,65 +505,96 @@ function showTab(id){
   ({d:renderDash,a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline,c:renderConfig,pt:renderPatin}[id]||function(){})();
 }
 function renderDash(){
-  const act=alumnos.filter(function(a){return a.estado==='activo';});
-  const tot=alumnos.length||1;
-  const xv=act.filter(function(a){const d=dias(a.venc);return d!==null&&d<=2;}).sort(function(a,b){return dias(a.venc)-dias(b.venc);});
-  const costoT=costos.reduce(function(s,c){return s+Number(c.valor);},0);
-  const ingPre=alumnos.filter(function(a){return a.modal==='presencial'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  const ingOnl=alumnos.filter(function(a){return a.modal==='online'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  const ingTra=alumnos.filter(function(a){return a.modal==='transformacion'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  const ingPer=alumnos.filter(function(a){return a.modal==='personal'&&a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  const ingPat=patin.filter(function(a){return a.estado==='activo'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  const ingTotal=ingPre+ingOnl+ingTra+ingPer+ingPat;
-  const resFinal=ingTotal-costoT;
-  const marFinal=ingTotal>0?Math.round(resFinal/ingTotal*100):0;
-  const patAct=patin.filter(function(a){return a.estado==='activo';}).length;
+  var act=alumnos.filter(function(a){return a.estado==='activo';});
+  var tot=alumnos.length||1;
+  var patAct=patin.filter(function(a){return a.estado==='activo';});
+  var xv=act.filter(function(a){var d=dias(a.venc);return d!==null&&d<=2;}).sort(function(a,b){return dias(a.venc)-dias(b.venc);});
+  var costoT=costos.reduce(function(s,c){return s+Number(c.valor);},0);
 
+  // COBRADO - pagos reales registrados
+  var cobradoPre=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoOnl=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoTra=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoPer=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer;
+
+  // ESPERADO - precio de fichas de alumnos activos
+  var espPre=act.filter(function(a){return a.modal==='presencial'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  var espOnl=act.filter(function(a){return a.modal==='online'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  var espTra=act.filter(function(a){return a.modal==='transformacion'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  var espPer=act.filter(function(a){return a.modal==='personal'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  var espPat=patAct.filter(function(a){return a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
+  var espTotal=espPre+espOnl+espTra+espPer+espPat;
+
+  var resFinal=cobradoTotal-costoT;
+  var marFinal=cobradoTotal>0?Math.round(resFinal/cobradoTotal*100):0;
+
+  // Alertas vencimiento
   var alerts='';
   if(xv.length){
     alerts='<div style="margin-bottom:14px"><div class="sec" style="color:var(--red);margin-top:0">Vencimientos proximos ('+xv.length+')</div>';
     xv.forEach(function(a){
-      const d=dias(a.venc);
-      const txt=d<=0?'VENCIDO hace '+Math.abs(d)+' dia'+(Math.abs(d)!==1?'s':''):d===0?'Vence HOY':'Vence en '+d+' dia'+(d!==1?'s':'')+' - URGENTE';
-      const lk=waLink(a.tel,waMsg(a));
+      var d=dias(a.venc);
+      var txt=d<=0?'VENCIDO hace '+Math.abs(d)+' dia'+(Math.abs(d)!==1?'s':''):d===0?'Vence HOY':'Vence en '+d+' dia'+(d!==1?'s':'')+' - URGENTE';
+      var lk=waLink(a.tel,waMsg(a));
       alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+'<button class="btn xs sec" onclick="editAlumno('+a.id+');showTab(\"a\")">Ver</button></div></div>';
     });
     alerts+='</div>';
   }
 
-  const modMap={presencial:'Presencial',online:'Online',personal:'Plan Black',transformacion:'Transform.'};
-  const modC={presencial:'var(--blue)',online:'var(--purple)',personal:'var(--gold)',transformacion:'var(--orange)'};
+  // Distribucion
+  var modMap={presencial:'Presencial',online:'Online',personal:'Plan Black',transformacion:'Transform.'};
+  var modC={presencial:'var(--blue)',online:'var(--purple)',personal:'var(--gold)',transformacion:'var(--orange)'};
   var modH='';
   Object.entries(modMap).forEach(function(e){
-    const k=e[0],l=e[1];
-    const c=alumnos.filter(function(a){return a.modal===k;}).length;
-    const p=Math.round(c/tot*100);
+    var k=e[0],l=e[1];
+    var c=alumnos.filter(function(a){return a.modal===k;}).length;
+    var p=Math.round(c/tot*100);
     modH+='<div class="bar-row"><div class="bar-lbl">'+l+'</div><div class="bar-track"><div class="bar-fill" style="width:'+p+'%;background:'+modC[k]+'"></div></div><div class="bar-n">'+c+'</div></div>';
   });
 
-  var breakH='';
-  var modos=[{l:'Presencial',v:ingPre,c:'var(--blue)'},{l:'Online',v:ingOnl,c:'var(--purple)'},{l:'Transform.',v:ingTra,c:'var(--orange)'},{l:'Plan Black',v:ingPer,c:'var(--gold)'},{l:'Patin',v:ingPat,c:'#BF5AF2'}];
+  // Tabla cobrado vs esperado
+  var modos=[
+    {l:'Presencial',cob:cobradoPre,esp:espPre,c:'var(--blue)'},
+    {l:'Online',cob:cobradoOnl,esp:espOnl,c:'var(--purple)'},
+    {l:'Transform.',cob:cobradoTra,esp:espTra,c:'var(--orange)'},
+    {l:'Plan Black',cob:cobradoPer,esp:espPer,c:'var(--gold)'},
+    {l:'Patin',cob:0,esp:espPat,c:'#BF5AF2'}
+  ];
+  var breakH='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px"><span>Modalidad</span><span style="text-align:right">Cobrado</span><span style="text-align:right">Esperado</span></div>';
   modos.forEach(function(m){
-    if(m.v>0){breakH+='<div class="fin-row"><div class="fin-l" style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+m.c+';display:inline-block"></span>'+m.l+'</div><div class="fin-v" style="color:'+m.c+'">'+fmtM(m.v)+'</div></div>';}
+    if(m.cob>0||m.esp>0){
+      breakH+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:7px 0;border-bottom:1px solid var(--border);align-items:center">'
+        +'<div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:'+m.c+';flex-shrink:0;display:inline-block"></span><span style="font-size:12px">'+m.l+'</span></div>'
+        +'<div style="text-align:right;font-size:12px;font-weight:700;color:var(--green)">'+fmtM(m.cob)+'</div>'
+        +'<div style="text-align:right;font-size:12px;color:var(--text3)">'+fmtM(m.esp)+'</div>'
+        +'</div>';
+    }
   });
-  if(!breakH)breakH='<div class="empty" style="padding:10px">Carga precios en las fichas para ver ingresos</div>';
+  breakH+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:8px 0 0;font-weight:700">'
+    +'<span style="font-size:11px">Total</span>'
+    +'<span style="text-align:right;font-size:13px;color:var(--green)">'+fmtM(cobradoTotal)+'</span>'
+    +'<span style="text-align:right;font-size:13px;color:var(--text3)">'+fmtM(espTotal)+'</span>'
+    +'</div>';
+  if(cobradoTotal===0&&espTotal===0)breakH='<div class="empty" style="padding:10px">Carga precios en fichas y registra pagos</div>';
 
+  // Ultimos pagos
   var recH='';
   pagos.slice(0,4).forEach(function(pg){
-    const a=alumnos.find(function(x){return x.id===pg.aid;});
+    var a=alumnos.find(function(x){return x.id===pg.aid;});
     recH+='<div class="ri"><div class="ri-av">'+(a?ini(a.nombre):'?')+'</div><div class="ri-i"><div class="ri-n">'+(a?a.nombre:'--')+'</div><div class="ri-s">'+fd(pg.fecha)+' - '+(pg.concepto||'Pago')+'</div></div><div class="ri-m">'+fmtM(pg.monto)+'</div></div>';
   });
 
   $('tab-d').innerHTML=alerts
-    +'<div class="dash-hero"><div class="dh-lbl">Resultado del periodo</div><div class="dh-val">'+fmtM(resFinal)+'</div><div class="dh-sub">Ingresos '+fmtM(ingTotal)+' - Costos '+fmtM(costoT)+'</div><div class="dh-badge">Margen '+marFinal+'%</div></div>'
+    +'<div class="dash-hero"><div class="dh-lbl">Cobrado este periodo</div><div class="dh-val">'+fmtM(cobradoTotal)+'</div><div class="dh-sub">Esperado '+fmtM(espTotal)+' &middot; Costos '+fmtM(costoT)+'</div><div class="dh-badge">Margen '+marFinal+'%</div></div>'
     +'<div class="sg4">'
     +'<div class="stat g-blue"><div class="sl">Total</div><div class="sv c-blue">'+(alumnos.length+patin.length)+'</div></div>'
-    +'<div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+(act.length+patAct)+'</div></div>'
-    +'<div class="stat g-gold"><div class="sl">Ingresos</div><div class="sv c-gold" style="font-size:14px">'+fmtM(ingTotal)+'</div></div>'
+    +'<div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+(act.length+patAct.length)+'</div></div>'
+    +'<div class="stat g-gold"><div class="sl">Cobrado</div><div class="sv c-gold" style="font-size:14px">'+fmtM(cobradoTotal)+'</div></div>'
     +'<div class="stat '+(resFinal>=0?'g-green':'g-red')+'"><div class="sl">Neto</div><div class="sv '+(resFinal>=0?'c-green':'c-red')+'" style="font-size:14px">'+fmtM(resFinal)+'</div></div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
-    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Ingresos por modalidad</div>'+breakH+'</div></div>'
+    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Cobrado vs Esperado</div>'+breakH+'</div></div>'
     +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'</div></div>'
     +'</div>'
     +'<div class="sec">Ultimos pagos</div>'

@@ -397,6 +397,10 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
       <div class="slbl">Nivel y estado</div>
       <div class="field"><label>Nivel</label><select id="pt-nivel"><option value="principiante">Principiante</option><option value="intermedio">Intermedio</option><option value="avanzado">Avanzado</option><option value="competicion">Competicion</option></select></div>
       <div class="field"><label>Estado</label><select id="pt-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select></div>
+      <div class="slbl">Precio</div>
+      <div class="field"><label>Precio mensual ($)</label><input id="pt-precio" type="number" placeholder="15000" inputmode="numeric"></div>
+      <div class="field"><label>Descuento</label><select id="pt-descuento"><option value="">Sin descuento</option><option value="10%">10%</option><option value="15%">15%</option><option value="20%">20%</option><option value="25%">25%</option><option value="50%">50% (familiar)</option><option value="otro">Otro</option></select></div>
+      <div class="field full"><label>Observacion de precio</label><input id="pt-precio-obs" type="text" placeholder="Ej: descuento familiar..."></div>
       <div class="slbl">Notas</div>
       <div class="field full"><label>Observaciones</label><textarea id="pt-notas" placeholder="Objetivos, coreografias, figuras..."></textarea></div>
     </div>
@@ -769,7 +773,7 @@ function renderPatin(){
       listH+='<div class="ac">'
         +'<div class="ac-top"><div class="ac-av" style="background:rgba(191,90,242,.12);border-color:rgba(191,90,242,.3);color:var(--purple)">'+ini(a.nombre)+'</div>'
         +'<div class="ac-i"><div class="ac-n">'+a.nombre+'</div>'
-        +'<div class="ac-s">'+(extra||'Sin datos')+'</div></div></div>'
+        +'<div class="ac-s">'+(extra||'Sin datos')+'</div>'+(a.precio?'<div class="ac-s" style="color:var(--gold);font-weight:600">'+fmtM(a.precio)+(a.descuento?' - '+a.descuento:'')+'</div>':'')+'</div></div></div>'
         +'<div class="ac-b">'
         +'<span class="badge '+(a.estado==='activo'?'b-act':'b-ina')+'">'+(a.estado==='activo'?'Activo':'Inactivo')+'</span>'
         +'<span class="badge" style="background:rgba(191,90,242,.1);color:var(--purple);border:1px solid rgba(191,90,242,.2)">'+a.nivel.charAt(0).toUpperCase()+a.nivel.slice(1)+'</span>'
@@ -790,9 +794,9 @@ function renderPatin(){
 var editPtId=null;
 function openPatin(){
   editPtId=null;$('mpt-t').textContent='Nueva alumna';$('btn-pt-elim').style.display='none';
-  ['pt-nombre','pt-tel','pt-notas'].forEach(function(id){const e=$(id);if(e)e.value='';});
-  ['pt-nac','pt-peso','pt-altura'].forEach(function(id){const e=$(id);if(e)e.value='';});
-  $('pt-sexo').value='';$('pt-nivel').value='principiante';$('pt-estado').value='activo';
+  ['pt-nombre','pt-tel','pt-notas','pt-precio-obs'].forEach(function(id){const e=$(id);if(e)e.value='';});
+  ['pt-nac','pt-peso','pt-altura','pt-precio'].forEach(function(id){const e=$(id);if(e)e.value='';});
+  $('pt-sexo').value='';$('pt-nivel').value='principiante';$('pt-estado').value='activo';$('pt-descuento').value='';
   openM('m-pt');
 }
 function editPatin(id){
@@ -802,13 +806,13 @@ function editPatin(id){
   $('pt-nac').value=a.nac||'';$('pt-sexo').value=a.sexo||'';
   $('pt-peso').value=a.peso||'';$('pt-altura').value=a.altura||'';
   $('pt-nivel').value=a.nivel||'principiante';$('pt-estado').value=a.estado||'activo';
-  $('pt-notas').value=a.notas||'';
+  $('pt-notas').value=a.notas||'';$('pt-precio').value=a.precio||'';$('pt-descuento').value=a.descuento||'';$('pt-precio-obs').value=a.precio_obs||'';
   openM('m-pt');
 }
 async function guardarPatin(){
   const nombre=($('pt-nombre').value||'').trim();if(!nombre){toast('El nombre es obligatorio','err');return;}
   const b=$('btn-gpt');setBtn(b,true);
-  const obj={nombre:nombre,tel:($('pt-tel').value||'').trim(),nac:$('pt-nac').value||null,sexo:$('pt-sexo').value,peso:parseFloat($('pt-peso').value)||null,altura:parseFloat($('pt-altura').value)||null,nivel:$('pt-nivel').value,estado:$('pt-estado').value,notas:$('pt-notas').value};
+  const obj={nombre:nombre,tel:($('pt-tel').value||'').trim(),nac:$('pt-nac').value||null,sexo:$('pt-sexo').value,peso:parseFloat($('pt-peso').value)||null,altura:parseFloat($('pt-altura').value)||null,nivel:$('pt-nivel').value,estado:$('pt-estado').value,notas:$('pt-notas').value,precio:parseFloat($('pt-precio').value)||null,descuento:$('pt-descuento').value||'',precio_obs:($('pt-precio-obs').value||'').trim()};
   try{
     if(editPtId){const res=await sbU('patin',editPtId,obj);const i=patin.findIndex(function(x){return x.id===editPtId;});if(i>-1)patin[i]=Object.assign({},patin[i],res[0]||obj);toast('Alumna actualizada');}
     else{const res=await sbP('patin',obj);patin.push(res[0]);patin.sort(function(a,b){return a.nombre.localeCompare(b.nombre);});toast('Alumna creada');}

@@ -516,7 +516,8 @@ function renderDash(){
   var cobradoOnl=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoTra=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoPer=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer;
+  var cobradoPat=pagos.filter(function(pg){return pg.tipo==='patin';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer+cobradoPat;
 
   // ESPERADO - precio de fichas de alumnos activos
   var espPre=act.filter(function(a){return a.modal==='presencial'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
@@ -559,7 +560,7 @@ function renderDash(){
     {l:'Online',cob:cobradoOnl,esp:espOnl,c:'var(--purple)'},
     {l:'Transform.',cob:cobradoTra,esp:espTra,c:'var(--orange)'},
     {l:'Plan Black',cob:cobradoPer,esp:espPer,c:'var(--gold)'},
-    {l:'Patin',cob:0,esp:espPat,c:'#BF5AF2'}
+    {l:'Patin',cob:cobradoPat,esp:espPat,c:'#BF5AF2'}
   ];
   var breakH='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px"><span>Modalidad</span><span style="text-align:right">Cobrado</span><span style="text-align:right">Esperado</span></div>';
   modos.forEach(function(m){
@@ -676,7 +677,20 @@ async function guardarPago(){
   const aid=parseInt($('pm-a').value),monto=parseFloat($('pm-m').value),fecha=$('pm-f').value,venc=$('pm-v').value,concepto=($('pm-c').value||'').trim();
   if(!aid||!monto||!fecha){toast('Alumno, monto y fecha son obligatorios','err');return;}
   const b=$('btn-gp');setBtn(b,true);
-  try{const res=await sbP('pagos',{aid:aid,monto:monto,fecha:fecha,concepto:concepto||'Pago'});pagos.unshift(res[0]);if(venc){await sbU('alumnos',aid,{venc:venc});const a=alumnos.find(function(x){return x.id===aid;});if(a)a.venc=venc;}closeM('m-p');renderPagos();if(curTab==='d')renderDash();toast('Pago registrado');}catch(e){toast('Error','err');}finally{setBtn(b,false);}
+  try{
+    var pmEl=$('pm-a');
+    var esTipo=pmEl&&pmEl.dataset.tipo==='patin'?'patin':'gym';
+    var ptId=pmEl?parseInt(pmEl.dataset.patinId)||null:null;
+    var pagoObj={monto:monto,fecha:fecha,concepto:concepto||'Pago',tipo:esTipo};
+    if(esTipo==='patin'&&ptId){pagoObj.patin_id=ptId;}else{pagoObj.aid=aid;}
+    const res=await sbP('pagos',pagoObj);
+    pagos.unshift(res[0]);
+    if(esTipo!=='patin'&&venc){await sbU('alumnos',aid,{venc:venc});var al=alumnos.find(function(x){return x.id===aid;});if(al)al.venc=venc;}
+    if(pmEl){pmEl.dataset.tipo='';pmEl.dataset.patinId='';}
+    closeM('m-p');
+    if(curTab==='pt')renderPatin();else renderPagos();
+    if(curTab==='d')renderDash();
+    toast('Pago registrado');}catch(e){toast('Error','err');}finally{setBtn(b,false);}
 }
 async function elimPago(id){if(!confirm('Eliminar pago?'))return;try{await sbD('pagos',id);pagos=pagos.filter(function(p){return p.id!==id;});renderPagos();if(curTab==='d')renderDash();toast('Pago eliminado');}catch(e){toast('Error','err');}}
 function renderFinanzas(){
@@ -852,6 +866,7 @@ function renderPatin(){
         +'<span class="badge" style="background:rgba(191,90,242,.1);color:var(--purple);border:1px solid rgba(191,90,242,.2)">'+a.nivel.charAt(0).toUpperCase()+a.nivel.slice(1)+'</span>'
         +'</div>'
         +'<div class="ac-a"><button class="btn xs" onclick="editPatin('+a.id+')">Editar</button>'
+        +'<button class="btn xs grn" onclick="pagarPatin('+a.id+')">&plus; Pago</button>'
         +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
         +'</div></div>';
     });
@@ -897,6 +912,22 @@ async function elimPatin(){
   if(!confirm('Eliminar esta alumna definitivamente?'))return;
   try{await sbD('patin',editPtId);patin=patin.filter(function(x){return x.id!==editPtId;});closeM('m-pt');renderPatin();toast('Eliminada');}
   catch(e){toast('Error','err');}
+}
+
+function pagarPatin(id){
+  var a=patin.find(function(x){return x.id===id;});
+  if(!a)return;
+  // Reuse payment modal with patin context
+  $('pm-a').innerHTML='<option value="pt_'+id+'">'+a.nombre+' (Patin)</option>';
+  $('pm-m').value=a.precio||'';
+  $('pm-f').value=new Date().toISOString().split('T')[0];
+  var v=new Date();v.setMonth(v.getMonth()+1);
+  $('pm-v').value=v.toISOString().split('T')[0];
+  $('pm-c').value='Cuota Patin';
+  // Store patin_id for guardarPago
+  $('pm-a').dataset.patinId=id;
+  $('pm-a').dataset.tipo='patin';
+  openM('m-p');
 }
 
 init();

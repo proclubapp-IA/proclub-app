@@ -487,7 +487,7 @@ function goHome(){if(CU)showTab('d');else showS('s-login');}
 function openM(id){const el=$(id);if(el)el.classList.add('on');}
 function closeM(id){const el=$(id);if(el)el.classList.remove('on');}
 document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');}));
-const NAVS=[{id:'d',icon:'&#9632;',label:'Inicio',roles:['admin','coach']},{id:'a',icon:'&#128101;',label:'Alumnos',roles:['admin','coach']},{id:'p',icon:'&#128179;',label:'Pagos',roles:['admin','coach']},{id:'f',icon:'&#128200;',label:'Finanzas',roles:['admin']},{id:'v',icon:'&#127991;',label:'Ventas',roles:['admin','coach']},{id:'m',icon:'&#128226;',label:'Mkt',roles:['admin']},{id:'o',icon:'&#127760;',label:'Online',roles:['admin','coach']},{id:'c',icon:'&#9881;',label:'Config',roles:['admin']},{id:'pt',icon:'&#128764;',label:'Patin',roles:['admin','coach']}];
+const NAVS=[{id:'d',icon:'&#9632;',label:'Inicio',roles:['admin','coach']},{id:'a',icon:'&#128101;',label:'Alumnos',roles:['admin','coach']},{id:'p',icon:'&#128179;',label:'Pagos',roles:['admin','coach']},{id:'o',icon:'&#127760;',label:'Online',roles:['admin','coach']},{id:'pt',icon:'&#128764;',label:'Patin',roles:['admin','coach']},{id:'v',icon:'&#127991;',label:'Ventas',roles:['admin','coach']},{id:'m',icon:'&#128226;',label:'Mkt',roles:['admin']},{id:'f',icon:'&#128200;',label:'Finanzas',roles:['admin']},{id:'c',icon:'&#9881;',label:'Config',roles:['admin']}];
 function buildNav(){
   const nb=$('bnav');nb.innerHTML='';
   NAVS.filter(t=>t.roles.includes(CU.rol)).forEach(t=>{

@@ -313,6 +313,7 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
     <div class="tab" id="tab-m"></div>
     <div class="tab" id="tab-o"></div>
     <div class="tab" id="tab-c"></div>
+    <div class="tab" id="tab-pt"></div>
   </div>
   <div class="bnav" id="bnav"></div>
   <button class="fab-ia" onclick="openIA()">&#129302;</button>
@@ -382,6 +383,30 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
 <div class="overlay" id="m-costo"><div class="modal"><div class="mh"><h2 id="mcosto-t">Nuevo costo</h2><button class="btn sm sec" onclick="closeM('m-costo')">&#x2715;</button></div><div class="mb s1"><div class="field"><label>Descripcion *</label><input id="costo-n" type="text"></div><div class="field"><label>Monto ($) *</label><input id="costo-v" type="number" inputmode="numeric"></div><div class="field"><label>Tipo</label><select id="costo-t"><option value="fijo">Costo fijo</option><option value="variable">Costo variable</option></select></div><div class="field"><label>Categoria</label><select id="costo-cat"><option value="infraestructura">Infraestructura</option><option value="personal">Personal</option><option value="marketing">Marketing</option><option value="equipamiento">Equipamiento</option><option value="servicios">Servicios</option><option value="otro">Otro</option></select></div></div><div class="mf"><button class="btn sm red" id="btn-dc" onclick="elimCosto()" style="display:none;margin-right:auto">Eliminar</button><button class="btn sm sec" onclick="closeM('m-costo')">Cancelar</button><button class="btn sm pri" onclick="guardarCosto()">Guardar</button></div></div></div>
 <div class="overlay" id="m-inv"><div class="modal"><div class="mh"><h2 id="minv-t">Nueva inversion</h2><button class="btn sm sec" onclick="closeM('m-inv')">&#x2715;</button></div><div class="mb s1"><div class="field"><label>Descripcion *</label><input id="inv-n" type="text"></div><div class="field"><label>Monto ($) *</label><input id="inv-v" type="number" inputmode="numeric"></div><div class="field"><label>Fecha</label><input id="inv-f" type="date"></div><div class="field"><label>Categoria</label><select id="inv-cat"><option value="equipamiento">Equipamiento</option><option value="infraestructura">Infraestructura</option><option value="tecnologia">Tecnologia</option><option value="marketing">Marketing</option><option value="otro">Otro</option></select></div></div><div class="mf"><button class="btn sm red" id="btn-di" onclick="elimInv()" style="display:none;margin-right:auto">Eliminar</button><button class="btn sm sec" onclick="closeM('m-inv')">Cancelar</button><button class="btn sm pri" onclick="guardarInv()">Guardar</button></div></div></div>
 <div class="overlay" id="m-mkt"><div class="modal"><div class="mh"><h2 id="mmkt-t">Nueva campana</h2><button class="btn sm sec" onclick="closeM('m-mkt')">&#x2715;</button></div><div class="mb s1"><div class="field"><label>Nombre *</label><input id="mkt-n" type="text"></div><div class="field"><label>Canal</label><select id="mkt-canal"><option value="instagram">Instagram</option><option value="whatsapp">WhatsApp</option><option value="facebook">Facebook</option><option value="email">Email</option><option value="referidos">Referidos</option><option value="otro">Otro</option></select></div><div class="field"><label>Presupuesto ($)</label><input id="mkt-pre" type="number" inputmode="numeric"></div><div class="field"><label>Objetivo</label><input id="mkt-obj" type="text"></div><div class="field full"><label>Mensaje</label><textarea id="mkt-msg"></textarea></div></div><div class="mf"><button class="btn sm red" id="btn-dm" onclick="elimMkt()" style="display:none;margin-right:auto">Eliminar</button><button class="btn sm sec" onclick="closeM('m-mkt')">Cancelar</button><button class="btn sm pri" onclick="guardarMkt()">Guardar</button></div></div></div>
+<div class="overlay" id="m-pt">
+  <div class="modal">
+    <div class="mh"><h2 id="mpt-t">Nueva alumna</h2><button class="btn sm sec" onclick="closeM('m-pt')">&#x2715;</button></div>
+    <div class="mb">
+      <div class="slbl">Datos personales</div>
+      <div class="field full"><label>Nombre y apellido *</label><input id="pt-nombre" type="text" autocapitalize="words" placeholder="Sofia Gonzalez"></div>
+      <div class="field"><label>Telefono WhatsApp</label><input id="pt-tel" type="tel" placeholder="5492664112233"></div>
+      <div class="field"><label>Nacimiento</label><input id="pt-nac" type="date"></div>
+      <div class="field"><label>Sexo</label><select id="pt-sexo"><option value="">-</option><option>Femenino</option><option>Masculino</option><option>Otro</option></select></div>
+      <div class="field"><label>Peso (kg)</label><input id="pt-peso" type="number" placeholder="45" inputmode="decimal"></div>
+      <div class="field"><label>Altura (cm)</label><input id="pt-altura" type="number" placeholder="155" inputmode="decimal"></div>
+      <div class="slbl">Nivel y estado</div>
+      <div class="field"><label>Nivel</label><select id="pt-nivel"><option value="principiante">Principiante</option><option value="intermedio">Intermedio</option><option value="avanzado">Avanzado</option><option value="competicion">Competicion</option></select></div>
+      <div class="field"><label>Estado</label><select id="pt-estado"><option value="activo">Activo</option><option value="inactivo">Inactivo</option></select></div>
+      <div class="slbl">Notas</div>
+      <div class="field full"><label>Observaciones</label><textarea id="pt-notas" placeholder="Objetivos, coreografias, figuras..."></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn sm red" id="btn-pt-elim" onclick="elimPatin()" style="display:none;margin-right:auto">Eliminar</button>
+      <button class="btn sm sec" onclick="closeM('m-pt')">Cancelar</button>
+      <button class="btn sm pri" id="btn-gpt" onclick="guardarPatin()">Guardar</button>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="m-prog"><div class="modal"><div class="mh"><h2 id="mprog-t">Nuevo progreso</h2><button class="btn sm sec" onclick="closeM('m-prog')">&#x2715;</button></div><div class="mb s1"><div class="field"><label>Fecha</label><input id="prog-f" type="date"></div><div class="field"><label>Tipo</label><select id="prog-tipo"><option value="reporte">Reporte semanal</option><option value="consejo">Consejo</option><option value="medicion">Medicion</option><option value="nota">Nota</option></select></div><div class="field full"><label>Contenido *</label><textarea id="prog-txt" style="min-height:90px"></textarea></div><div class="field"><label>Peso actual (kg)</label><input id="prog-peso" type="number" inputmode="decimal"></div></div><div class="mf"><button class="btn sm sec" onclick="closeM('m-prog')">Cancelar</button><button class="btn sm pri" onclick="guardarProgreso()">Guardar</button></div></div></div>
 <script>
 const SB='https://duzadejqpbjzpnvvcnmb.supabase.co';
@@ -392,7 +417,7 @@ const sbP=async(t,b)=>{const r=await fetch(SB+'/rest/v1/'+t,{method:'POST',heade
 const sbU=async(t,id,b)=>{const r=await fetch(SB+'/rest/v1/'+t+'?id=eq.'+id,{method:'PATCH',headers:H,body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();};
 const sbD=async(t,id)=>{const r=await fetch(SB+'/rest/v1/'+t+'?id=eq.'+id,{method:'DELETE',headers:H});if(!r.ok)throw new Error(await r.text());return true;};
 const PLANES={presencial:['Plan Start','Plan Plus','Plan Prime','Plan Elite'],online:['Plan Start Online','Plan Plus Online','Plan Prime Online','Plan Elite Online'],personal:['Plan Black 2x/semana','Plan Black 3x/semana','Plan Black 4x/semana'],transformacion:['Transformacion GAP 3 meses','Transformacion Masa Muscular 3 meses','Transformacion Descenso de Peso 3 meses']};
-let CU=null,alumnos=[],pagos=[],promos=[],usuarios=[],costos=[],inversiones=[],campanas={},progresos={},fotos={};
+let CU=null,alumnos=[],pagos=[],promos=[],usuarios=[],costos=[],inversiones=[],campanas={},progresos={},fotos={},patin=[];
 let curTab='d',curSub='todos',editId=null,editUid=null,editCid=null,editIid=null,editMid=null,progAid=null,iaHistory=[];
 let CFG={nombre:'ProClub',logoB64:'',colorAccent:'#C8A84B'};
 const $=id=>document.getElementById(id);
@@ -431,8 +456,8 @@ function makeParticles(){const c=$('particles');if(!c)return;c.innerHTML='';for(
 async function init(){
   showS('s-load');loadCFG();applyTheme();makeParticles();
   try{
-    const[a,p,pr,u]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc')]);
-    alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];
+    const[a,p,pr,u,pt]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc'),sbG('patin','order=nombre.asc')]);
+    alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];patin=pt||[];
     ['costos','inv','mkt','prog','fotos'].forEach(k=>{try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='costos')costos=JSON.parse(x);else if(k==='inv')inversiones=JSON.parse(x);else if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
@@ -458,7 +483,7 @@ function goHome(){if(CU)showTab('d');else showS('s-login');}
 function openM(id){const el=$(id);if(el)el.classList.add('on');}
 function closeM(id){const el=$(id);if(el)el.classList.remove('on');}
 document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');}));
-const NAVS=[{id:'d',icon:'&#9632;',label:'Inicio',roles:['admin','coach']},{id:'a',icon:'&#128101;',label:'Alumnos',roles:['admin','coach']},{id:'p',icon:'&#128179;',label:'Pagos',roles:['admin','coach']},{id:'f',icon:'&#128200;',label:'Finanzas',roles:['admin']},{id:'v',icon:'&#127991;',label:'Ventas',roles:['admin','coach']},{id:'m',icon:'&#128226;',label:'Mkt',roles:['admin']},{id:'o',icon:'&#127760;',label:'Online',roles:['admin','coach']},{id:'c',icon:'&#9881;',label:'Config',roles:['admin']}];
+const NAVS=[{id:'d',icon:'&#9632;',label:'Inicio',roles:['admin','coach']},{id:'a',icon:'&#128101;',label:'Alumnos',roles:['admin','coach']},{id:'p',icon:'&#128179;',label:'Pagos',roles:['admin','coach']},{id:'f',icon:'&#128200;',label:'Finanzas',roles:['admin']},{id:'v',icon:'&#127991;',label:'Ventas',roles:['admin','coach']},{id:'m',icon:'&#128226;',label:'Mkt',roles:['admin']},{id:'o',icon:'&#127760;',label:'Online',roles:['admin','coach']},{id:'c',icon:'&#9881;',label:'Config',roles:['admin']},{id:'pt',icon:'&#128764;',label:'Patin',roles:['admin','coach']}];
 function buildNav(){
   const nb=$('bnav');nb.innerHTML='';
   NAVS.filter(t=>t.roles.includes(CU.rol)).forEach(t=>{
@@ -473,7 +498,7 @@ function showTab(id){
   document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.id===id));
   const tab=$('tab-'+id);if(tab)tab.classList.add('on');
   $('content').scrollTop=0;
-  ({d:renderDash,a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline,c:renderConfig}[id]||function(){})();
+  ({d:renderDash,a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline,c:renderConfig,pt:renderPatin}[id]||function(){})();
 }
 function renderDash(){
   const act=alumnos.filter(a=>a.estado==='activo');
@@ -725,6 +750,78 @@ async function sendIA(){
 }
 $('ia-inp').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendIA();}});
 $('ia-inp').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px';});
+
+function renderPatin(){
+  const q=($('srch-pt')||{value:''}).value.toLowerCase();
+  const fe=($('f-pt-est')||{value:''}).value;
+  var list=patin.filter(function(a){
+    if(fe&&a.estado!==fe)return false;
+    if(q&&!a.nombre.toLowerCase().includes(q))return false;
+    return true;
+  });
+  var listH='';
+  if(list.length){
+    list.forEach(function(a){
+      const edad=a.nac?(new Date().getFullYear()-parseInt(a.nac.slice(0,4))):null;
+      const extra=[edad?edad+'a':null,a.peso?a.peso+'kg':null,a.altura?a.altura+'cm':null].filter(Boolean).join(' - ');
+      const lk=a.tel?waLink(a.tel,'Hola '+a.nombre.split(' ')[0]+'! Te escribimos desde ProClub Patin.'):null;
+      const nvCol=a.nivel==='competicion'?'c-gold':a.nivel==='avanzado'?'c-green':a.nivel==='intermedio'?'c-ora':'';
+      listH+='<div class="ac">'
+        +'<div class="ac-top"><div class="ac-av" style="background:rgba(191,90,242,.12);border-color:rgba(191,90,242,.3);color:var(--purple)">'+ini(a.nombre)+'</div>'
+        +'<div class="ac-i"><div class="ac-n">'+a.nombre+'</div>'
+        +'<div class="ac-s">'+(extra||'Sin datos')+'</div></div></div>'
+        +'<div class="ac-b">'
+        +'<span class="badge '+(a.estado==='activo'?'b-act':'b-ina')+'">'+(a.estado==='activo'?'Activo':'Inactivo')+'</span>'
+        +'<span class="badge" style="background:rgba(191,90,242,.1);color:var(--purple);border:1px solid rgba(191,90,242,.2)">'+a.nivel.charAt(0).toUpperCase()+a.nivel.slice(1)+'</span>'
+        +'</div>'
+        +'<div class="ac-a"><button class="btn xs" onclick="editPatin('+a.id+')">Editar</button>'
+        +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
+        +'</div></div>';
+    });
+  } else {listH='<div class="empty">Sin alumnas de patin</div>';}
+  $('tab-pt').innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    +'<div><div style="font-size:18px;font-weight:700;color:var(--purple)">&#128764; Patin Artistico</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-top:2px">'+patin.length+' alumna'+(patin.length!==1?'s':'')+' registrada'+(patin.length!==1?'s':'')+'</div></div>'
+    +'<button class="btn sm pri" style="background:var(--purple);border-color:transparent" onclick="openPatin()">+ Nueva</button></div>'
+    +'<div class="toolbar"><input class="srch" id="srch-pt" type="text" placeholder="Buscar..." oninput="renderPatin()" value="'+q+'" style="flex:1">'
+    +'<select class="ssel" id="f-pt-est" onchange="renderPatin()"><option value="">Estado</option><option value="activo" '+(fe==='activo'?'selected':'')+'>Activas</option><option value="inactivo" '+(fe==='inactivo'?'selected':'')+'>Inactivas</option></select></div>'
+    +listH;
+}
+var editPtId=null;
+function openPatin(){
+  editPtId=null;$('mpt-t').textContent='Nueva alumna';$('btn-pt-elim').style.display='none';
+  ['pt-nombre','pt-tel','pt-notas'].forEach(function(id){const e=$(id);if(e)e.value='';});
+  ['pt-nac','pt-peso','pt-altura'].forEach(function(id){const e=$(id);if(e)e.value='';});
+  $('pt-sexo').value='';$('pt-nivel').value='principiante';$('pt-estado').value='activo';
+  openM('m-pt');
+}
+function editPatin(id){
+  editPtId=id;const a=patin.find(function(x){return x.id===id;});if(!a)return;
+  $('mpt-t').textContent='Editar alumna';$('btn-pt-elim').style.display='flex';
+  $('pt-nombre').value=a.nombre||'';$('pt-tel').value=a.tel||'';
+  $('pt-nac').value=a.nac||'';$('pt-sexo').value=a.sexo||'';
+  $('pt-peso').value=a.peso||'';$('pt-altura').value=a.altura||'';
+  $('pt-nivel').value=a.nivel||'principiante';$('pt-estado').value=a.estado||'activo';
+  $('pt-notas').value=a.notas||'';
+  openM('m-pt');
+}
+async function guardarPatin(){
+  const nombre=($('pt-nombre').value||'').trim();if(!nombre){toast('El nombre es obligatorio','err');return;}
+  const b=$('btn-gpt');setBtn(b,true);
+  const obj={nombre:nombre,tel:($('pt-tel').value||'').trim(),nac:$('pt-nac').value||null,sexo:$('pt-sexo').value,peso:parseFloat($('pt-peso').value)||null,altura:parseFloat($('pt-altura').value)||null,nivel:$('pt-nivel').value,estado:$('pt-estado').value,notas:$('pt-notas').value};
+  try{
+    if(editPtId){const res=await sbU('patin',editPtId,obj);const i=patin.findIndex(function(x){return x.id===editPtId;});if(i>-1)patin[i]=Object.assign({},patin[i],res[0]||obj);toast('Alumna actualizada');}
+    else{const res=await sbP('patin',obj);patin.push(res[0]);patin.sort(function(a,b){return a.nombre.localeCompare(b.nombre);});toast('Alumna creada');}
+    closeM('m-pt');renderPatin();
+  }catch(e){toast('Error al guardar','err');}
+  finally{setBtn(b,false);}
+}
+async function elimPatin(){
+  if(!confirm('Eliminar esta alumna definitivamente?'))return;
+  try{await sbD('patin',editPtId);patin=patin.filter(function(x){return x.id!==editPtId;});closeM('m-pt');renderPatin();toast('Eliminada');}
+  catch(e){toast('Error','err');}
+}
+
 init();
 </script>
 </body>

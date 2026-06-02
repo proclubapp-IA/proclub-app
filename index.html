@@ -525,7 +525,31 @@ function renderDash(){
   ['principiante','intermedio','avanzado'].forEach(function(k){const c=alumnos.filter(function(a){return a.nivel===k;}).length;const p=Math.round(c/tot*100);const col=k==='principiante'?'var(--text3)':k==='intermedio'?'var(--orange)':'var(--green)';nivH+='<div class="bar-row"><div class="bar-lbl" style="text-transform:capitalize">'+k+'</div><div class="bar-track"><div class="bar-fill" style="width:'+p+'%;background:'+col+'"></div></div><div class="bar-n">'+c+'</div></div>';});
   let recH='';
   pagos.slice(0,4).forEach(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});recH+='<div class="ri"><div class="ri-av">'+(a?ini(a.nombre):'?')+'</div><div class="ri-i"><div class="ri-n">'+(a?a.nombre:'--')+'</div><div class="ri-s">'+fd(pg.fecha)+' - '+(pg.concepto||'Pago')+'</div></div><div class="ri-m">'+fmtM(pg.monto)+'</div></div>';});
-  $('tab-d').innerHTML=alerts+'<div class="dash-hero"><div class="dh-lbl">Resultado del periodo</div><div class="dh-val">'+fmtM(res)+'</div><div class="dh-sub">Ingresos '+fmtM(ing)+' - Costos '+fmtM(costoT)+'</div><div class="dh-badge">Margen '+mar+'%</div></div><div class="sg4"><div class="stat g-blue"><div class="sl">Total</div><div class="sv c-blue">'+alumnos.length+'</div></div><div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+act.length+'</div></div><div class="stat g-gold"><div class="sl">Ingresos</div><div class="sv c-gold" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Neto</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Modalidad</div>'+modH+'</div></div><div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Nivel</div>'+nivH+'</div></div></div><div class="sec">Ultimos pagos</div><div class="card"><div class="card-body">'+(recH||'<div class="empty" style="padding:14px">Sin pagos</div>')+'</div></div>';
+
+  // Ingresos por modalidad
+  const ingPre=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  const ingOnl=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  const ingTra=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  const ingPer=pagos.filter(function(pg){const a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  const ingPat=patin.reduce(function(s,a){return s+(Number(a.precio)||0);},0);
+  const ingTotal=ing+ingPat;
+  const costoTot=costos.reduce(function(s,c){return s+Number(c.valor);},0);
+  const resFinal=ingTotal-costoTot;
+  const marFinal=ingTotal>0?Math.round(resFinal/ingTotal*100):0;
+
+  var breakH='';
+  const modos=[{l:'Presencial',v:ingPre,c:'var(--blue)'},{l:'Online',v:ingOnl,c:'var(--purple)'},{l:'Transform.',v:ingTra,c:'var(--orange)'},{l:'Plan Black',v:ingPer,c:'var(--gold)'},{l:'Patin',v:ingPat,c:'var(--purple)'}];
+  modos.forEach(function(m){if(m.v>0){breakH+='<div class="fin-row"><div class="fin-l" style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+m.c+';display:inline-block"></span>'+m.l+'</div><div class="fin-v" style="color:'+m.c+'">'+fmtM(m.v)+'</div></div>';}});
+  if(!breakH)breakH='<div class="empty" style="padding:10px">Sin ingresos registrados</div>';
+
+  $('tab-d').innerHTML=alerts
+    +'<div class="dash-hero"><div class="dh-lbl">Resultado del periodo</div><div class="dh-val">'+fmtM(resFinal)+'</div><div class="dh-sub">Ingresos '+fmtM(ingTotal)+' - Costos '+fmtM(costoTot)+'</div><div class="dh-badge">Margen '+marFinal+'%</div></div>'
+    +'<div class="sg4"><div class="stat g-blue"><div class="sl">Total alumnos</div><div class="sv c-blue">'+(alumnos.length+patin.length)+'</div></div><div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+act.length+'</div></div><div class="stat g-gold"><div class="sl">Ingresos</div><div class="sv c-gold" style="font-size:16px">'+fmtM(ingTotal)+'</div></div><div class="stat '+(resFinal>=0?'g-green':'g-red')+'"><div class="sl">Neto</div><div class="sv '+(resFinal>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(resFinal)+'</div></div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
+    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Ingresos por modalidad</div>'+breakH+'</div></div>'
+    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'</div></div>'
+    +'</div>'
+    +'<div class="sec">Ultimos pagos</div><div class="card"><div class="card-body">'+(recH||'<div class="empty" style="padding:14px">Sin pagos</div>')+'</div></div>';
 }
 function updatePlanes(){const m=($('a-modal')||{value:'presencial'}).value;const sel=$('a-plan');if(!sel)return;const cur=sel.value;sel.innerHTML=(PLANES[m]||PLANES.presencial).map(function(p){return '<option value="'+p+'"'+(cur===p?' selected':'')+'>'+p+'</option>';}).join('');}
 function renderAlumnos(){

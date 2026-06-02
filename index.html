@@ -544,7 +544,12 @@ function renderDash(){
 
   $('tab-d').innerHTML=alerts
     +'<div class="dash-hero"><div class="dh-lbl">Resultado del periodo</div><div class="dh-val">'+fmtM(resFinal)+'</div><div class="dh-sub">Ingresos '+fmtM(ingTotal)+' - Costos '+fmtM(costoTot)+'</div><div class="dh-badge">Margen '+marFinal+'%</div></div>'
-    +'<div class="sg4"><div class="stat g-blue"><div class="sl">Total alumnos</div><div class="sv c-blue">'+(alumnos.length+patin.length)+'</div></div><div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+act.length+'</div></div><div class="stat g-gold"><div class="sl">Ingresos</div><div class="sv c-gold" style="font-size:16px">'+fmtM(ingTotal)+'</div></div><div class="stat '+(resFinal>=0?'g-green':'g-red')+'"><div class="sl">Neto</div><div class="sv '+(resFinal>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(resFinal)+'</div></div></div>'
+    +'<div class="sg4">'
+    +'<div class="stat g-blue"><div class="sl">Total</div><div class="sv c-blue">'+(alumnos.length+patin.length)+'</div></div>'
+    +'<div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+(act.length+patin.filter(function(a){return a.estado==='activo';}).length)+'</div></div>'
+    +'<div class="stat g-gold"><div class="sl">Ingresos</div><div class="sv c-gold" style="font-size:14px">'+fmtM(ingTotal)+'</div></div>'
+    +'<div class="stat '+(resFinal>=0?'g-green':'g-red')+'"><div class="sl">Neto</div><div class="sv '+(resFinal>=0?'c-green':'c-red')+'" style="font-size:14px">'+fmtM(resFinal)+'</div></div>'
+    +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
     +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Ingresos por modalidad</div>'+breakH+'</div></div>'
     +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'</div></div>'

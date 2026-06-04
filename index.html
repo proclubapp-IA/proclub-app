@@ -70,11 +70,11 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
 .stat.g-red{background:linear-gradient(135deg,rgba(255,69,58,.07),var(--bg2));border-color:rgba(255,69,58,.13)}
 .stat.g-blue{background:linear-gradient(135deg,rgba(10,132,255,.08),var(--bg2));border-color:rgba(10,132,255,.15)}
 .sl{font-size:10px;color:var(--text3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px;font-weight:500}
-.sv{font-size:22px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.sv{font-size:18px;font-weight:700;letter-spacing:-.5px;line-height:1}
 .c-gold{color:var(--gold)}.c-green{color:var(--green)}.c-red{color:var(--red)}.c-blue{color:var(--blue)}.c-pur{color:var(--purple)}.c-ora{color:var(--orange)}
 .dash-hero{background:linear-gradient(135deg,#141008,#0A0A0A);border:1px solid rgba(200,168,75,.18);border-radius:16px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden}
 .dh-lbl{font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px}
-.dh-val{font-size:34px;font-weight:800;letter-spacing:-1.5px;color:var(--gold);line-height:1}
+.dh-val{font-size:26px;font-weight:800;letter-spacing:-1px;color:var(--gold);line-height:1}
 .dh-sub{font-size:11px;color:var(--text3);margin-top:5px}
 .dh-badge{display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(48,209,88,.1);color:var(--green);border:1px solid rgba(48,209,88,.2)}
 .alert-venc{background:rgba(255,69,58,.07);border:1px solid rgba(255,69,58,.2);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -260,9 +260,9 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
   .overlay .modal{margin:0 auto}
   .fab-ia{bottom:20px;right:24px}
   .toast{bottom:20px}
-  .dh-val{font-size:42px}
+  .dh-val{font-size:36px}
 }
-@media(max-width:440px){.mb{grid-template-columns:1fr!important}.full{grid-column:1!important}}
+@media(max-width:440px){.mb{grid-template-columns:1fr!important}.full{grid-column:1!important}.dh-val{font-size:22px!important}.sv{font-size:15px!important}.sg4{grid-template-columns:1fr 1fr!important;gap:6px!important}.sl{font-size:9px}.fin-row{flex-wrap:wrap;gap:4px}}
 </style>
 </head>
 <body>
@@ -508,21 +508,30 @@ function showTab(id){
   ({d:renderDash,a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline,c:renderConfig,pt:renderPatin}[id]||function(){})();
 }
 function renderDash(){
+  // Mes seleccionado
+  var mesEl=$('dash-mes');
+  var mesFiltro=mesEl?mesEl.value:'';
+  var hoy=new Date();
+  var mesActual=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+  if(!mesFiltro)mesFiltro=mesActual;
+
   var act=alumnos.filter(function(a){return a.estado==='activo';});
-  var tot=alumnos.length||1;
   var patAct=patin.filter(function(a){return a.estado==='activo';});
   var xv=act.filter(function(a){var d=dias(a.venc);return d!==null&&d<=2;}).sort(function(a,b){return dias(a.venc)-dias(b.venc);});
   var costoT=costos.reduce(function(s,c){return s+Number(c.valor);},0);
 
-  // COBRADO - pagos reales registrados
-  var cobradoPre=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoOnl=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoTra=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoPer=pagos.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoPat=pagos.filter(function(pg){return pg.tipo==='patin';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  // COBRADO del mes seleccionado - pagos reales
+  var pagosMes=pagos.filter(function(p){return p.fecha&&p.fecha.slice(0,7)===mesFiltro;});
+  var cobradoPre=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoOnl=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoTra=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoPer=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoPat=pagosMes.filter(function(pg){return pg.tipo==='patin';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer+cobradoPat;
+  var resFinal=cobradoTotal-costoT;
+  var marFinal=cobradoTotal>0?Math.round(resFinal/cobradoTotal*100):0;
 
-  // ESPERADO - precio de fichas de alumnos activos
+  // ESPERADO mensual - precio fichas activas (solo informativo)
   var espPre=act.filter(function(a){return a.modal==='presencial'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
   var espOnl=act.filter(function(a){return a.modal==='online'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
   var espTra=act.filter(function(a){return a.modal==='transformacion'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
@@ -530,8 +539,19 @@ function renderDash(){
   var espPat=patAct.filter(function(a){return a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
   var espTotal=espPre+espOnl+espTra+espPer+espPat;
 
-  var resFinal=cobradoTotal-costoT;
-  var marFinal=cobradoTotal>0?Math.round(resFinal/cobradoTotal*100):0;
+  // Meses disponibles para filtro
+  var mesesDisp={};
+  pagos.forEach(function(p){if(p.fecha)mesesDisp[p.fecha.slice(0,7)]=true;});
+  var mesesOpts=Object.keys(mesesDisp).sort().reverse().map(function(m){
+    var y=m.split('-')[0],mo=m.split('-')[1];
+    var nm=new Date(y,mo-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    return '<option value="'+m+'"'+(m===mesFiltro?' selected':'')+'>'+nm+'</option>';
+  }).join('');
+  if(!mesesDisp[mesFiltro]){
+    var y=mesFiltro.split('-')[0],mo=mesFiltro.split('-')[1];
+    var nm=new Date(y,mo-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    mesesOpts='<option value="'+mesFiltro+'" selected>'+nm+'</option>'+mesesOpts;
+  }
 
   // Alertas vencimiento
   var alerts='';
@@ -547,6 +567,7 @@ function renderDash(){
   }
 
   // Distribucion
+  var tot=alumnos.length||1;
   var modMap={presencial:'Presencial',online:'Online',personal:'Plan Black',transformacion:'Transform.'};
   var modC={presencial:'var(--blue)',online:'var(--purple)',personal:'var(--gold)',transformacion:'var(--orange)'};
   var modH='';
@@ -557,52 +578,53 @@ function renderDash(){
     modH+='<div class="bar-row"><div class="bar-lbl">'+l+'</div><div class="bar-track"><div class="bar-fill" style="width:'+p+'%;background:'+modC[k]+'"></div></div><div class="bar-n">'+c+'</div></div>';
   });
 
-  // Tabla cobrado vs esperado
+  // Tabla SOLO cobrado por modalidad
   var modos=[
-    {l:'Presencial',cob:cobradoPre,esp:espPre,c:'var(--blue)'},
-    {l:'Online',cob:cobradoOnl,esp:espOnl,c:'var(--purple)'},
-    {l:'Transform.',cob:cobradoTra,esp:espTra,c:'var(--orange)'},
-    {l:'Plan Black',cob:cobradoPer,esp:espPer,c:'var(--gold)'},
-    {l:'Patin',cob:cobradoPat,esp:espPat,c:'#BF5AF2'}
+    {l:'Presencial',cob:cobradoPre,c:'var(--blue)'},
+    {l:'Online',cob:cobradoOnl,c:'var(--purple)'},
+    {l:'Transform.',cob:cobradoTra,c:'var(--orange)'},
+    {l:'Plan Black',cob:cobradoPer,c:'var(--gold)'},
+    {l:'Patin',cob:cobradoPat,c:'#BF5AF2'}
   ];
-  var breakH='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.5px"><span>Modalidad</span><span style="text-align:right">Cobrado</span><span style="text-align:right">Esperado</span></div>';
+  var breakH='';
   modos.forEach(function(m){
-    if(m.cob>0||m.esp>0){
-      breakH+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:7px 0;border-bottom:1px solid var(--border);align-items:center">'
-        +'<div style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:'+m.c+';flex-shrink:0;display:inline-block"></span><span style="font-size:12px">'+m.l+'</span></div>'
-        +'<div style="text-align:right;font-size:12px;font-weight:700;color:var(--green)">'+fmtM(m.cob)+'</div>'
-        +'<div style="text-align:right;font-size:12px;color:var(--text3)">'+fmtM(m.esp)+'</div>'
-        +'</div>';
+    if(m.cob>0){
+      breakH+='<div class="fin-row"><div class="fin-l" style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:'+m.c+';display:inline-block"></span>'+m.l+'</div><div class="fin-v" style="color:var(--green)">'+fmtM(m.cob)+'</div></div>';
     }
   });
-  breakH+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:8px 0 0;font-weight:700">'
-    +'<span style="font-size:11px">Total</span>'
-    +'<span style="text-align:right;font-size:13px;color:var(--green)">'+fmtM(cobradoTotal)+'</span>'
-    +'<span style="text-align:right;font-size:13px;color:var(--text3)">'+fmtM(espTotal)+'</span>'
-    +'</div>';
-  if(cobradoTotal===0&&espTotal===0)breakH='<div class="empty" style="padding:10px">Carga precios en fichas y registra pagos</div>';
+  if(!breakH)breakH='<div class="empty" style="padding:10px">Sin pagos este mes</div>';
+  breakH+='<div class="fin-row" style="border-top:2px solid var(--border2);padding-top:8px"><div class="fin-l" style="font-weight:700">Total cobrado</div><div class="fin-v c-green" style="font-size:16px">'+fmtM(cobradoTotal)+'</div></div>';
 
-  // Ultimos pagos
+  // Ultimos pagos del mes
   var recH='';
-  pagos.slice(0,4).forEach(function(pg){
+  pagosMes.slice(0,4).forEach(function(pg){
     var a=alumnos.find(function(x){return x.id===pg.aid;});
-    recH+='<div class="ri"><div class="ri-av">'+(a?ini(a.nombre):'?')+'</div><div class="ri-i"><div class="ri-n">'+(a?a.nombre:'--')+'</div><div class="ri-s">'+fd(pg.fecha)+' - '+(pg.concepto||'Pago')+'</div></div><div class="ri-m">'+fmtM(pg.monto)+'</div></div>';
+    var nombre=a?a.nombre:(pg.tipo==='patin'?'Patin':'--');
+    recH+='<div class="ri"><div class="ri-av">'+ini(nombre)+'</div><div class="ri-i"><div class="ri-n">'+nombre+'</div><div class="ri-s">'+fd(pg.fecha)+' - '+(pg.concepto||'Pago')+'</div></div><div class="ri-m">'+fmtM(pg.monto)+'</div></div>';
   });
 
+  var mesNom=new Date(mesFiltro.split('-')[0],mesFiltro.split('-')[1]-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+
   $('tab-d').innerHTML=alerts
-    +'<div class="dash-hero"><div class="dh-lbl">Cobrado este periodo</div><div class="dh-val">'+fmtM(cobradoTotal)+'</div><div class="dh-sub">Esperado '+fmtM(espTotal)+' &middot; Costos '+fmtM(costoT)+'</div><div class="dh-badge">Margen '+marFinal+'%</div></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px">'
+    +'<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Periodo</div>'
+    +'<select class="ssel" id="dash-mes" onchange="renderDash()" style="flex:1;max-width:200px">'+mesesOpts+'</select>'
+    +'</div>'
+    +'<div class="dash-hero"><div class="dh-lbl">Cobrado en '+mesNom+'</div><div class="dh-val">'+fmtM(cobradoTotal)+'</div>'
+    +'<div class="dh-sub">Esperado/mes: '+fmtM(espTotal)+' &nbsp;&middot;&nbsp; Costos: '+fmtM(costoT)+'</div>'
+    +'<div class="dh-badge">Neto '+fmtM(resFinal)+'</div></div>'
     +'<div class="sg4">'
     +'<div class="stat g-blue"><div class="sl">Total</div><div class="sv c-blue">'+(alumnos.length+patin.length)+'</div></div>'
     +'<div class="stat g-green"><div class="sl">Activos</div><div class="sv c-green">'+(act.length+patAct.length)+'</div></div>'
-    +'<div class="stat g-gold"><div class="sl">Cobrado</div><div class="sv c-gold" style="font-size:14px">'+fmtM(cobradoTotal)+'</div></div>'
+    +'<div class="stat g-gold"><div class="sl">Cobrado</div><div class="sv c-gold" style="font-size:13px">'+fmtM(cobradoTotal)+'</div></div>'
     +'<div class="stat '+(resFinal>=0?'g-green':'g-red')+'"><div class="sl">Neto</div><div class="sv '+(resFinal>=0?'c-green':'c-red')+'" style="font-size:14px">'+fmtM(resFinal)+'</div></div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
-    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Cobrado vs Esperado</div>'+breakH+'</div></div>'
-    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'</div></div>'
+    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Cobrado por modalidad</div>'+breakH+'</div></div>'
+    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)">Esperado mensual: <span style="color:var(--gold);font-weight:700">'+fmtM(espTotal)+'</span></div></div></div>'
     +'</div>'
-    +'<div class="sec">Ultimos pagos</div>'
-    +'<div class="card"><div class="card-body">'+(recH||'<div class="empty" style="padding:14px">Sin pagos registrados</div>')+'</div></div>';
+    +'<div class="sec">Pagos de '+mesNom+'</div>'
+    +'<div class="card"><div class="card-body">'+(recH||'<div class="empty" style="padding:14px">Sin pagos este mes</div>')+'</div></div>';
 }
 function updatePlanes(){const m=($('a-modal')||{value:'presencial'}).value;const sel=$('a-plan');if(!sel)return;const cur=sel.value;sel.innerHTML=(PLANES[m]||PLANES.presencial).map(function(p){return '<option value="'+p+'"'+(cur===p?' selected':'')+'>'+p+'</option>';}).join('');}
 function renderAlumnos(){

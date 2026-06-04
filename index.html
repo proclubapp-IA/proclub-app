@@ -608,7 +608,7 @@ function renderDash(){
     +'<select class="ssel" id="dash-mes" onchange="renderDash()" style="flex:1;max-width:200px">'+mesesOpts+'</select>'
     +'</div>'
     +'<div class="dash-hero"><div class="dh-lbl">Cobrado en '+mesNom+'</div><div class="dh-val">'+fmtM(cobradoTotal)+'</div>'
-    +'<div class="dh-sub">Esperado/mes: '+fmtM(espTotal)+' &nbsp;&middot;&nbsp; Costos: '+fmtM(costoT)+'</div>'
+    +'<div class="dh-sub">Costos: '+fmtM(costoT)+'</div>'
     +'<div class="dh-badge">Neto '+fmtM(resFinal)+'</div></div>'
     +'<div class="sg4">'
     +'<div class="stat g-blue"><div class="sl">Total</div><div class="sv c-blue">'+(alumnos.length+patin.length)+'</div></div>'
@@ -618,7 +618,7 @@ function renderDash(){
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
     +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Cobrado por modalidad</div>'+breakH+'</div></div>'
-    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)">Esperado mensual: <span style="color:var(--gold);font-weight:700">'+fmtM(espTotal)+'</span></div></div></div>'
+    +'<div class="card"><div class="card-body"><div class="sec" style="margin:0 0 10px">Distribucion</div>'+modH+'</div></div>'
     +'</div>'
     +'<div class="sec">Pagos de '+mesNom+'</div>'
     +'<div class="card"><div class="card-body">'+(recH||'<div class="empty" style="padding:14px">Sin pagos este mes</div>')+'</div></div>';
@@ -665,7 +665,6 @@ function renderAlumnos(){
   } else {listH='<div class="empty">Sin alumnos</div>';}
 
   // Resumen del grupo filtrado
-  var espGrupo=list.filter(function(a){return a.precio&&a.estado==='activo';}).reduce(function(s,a){return s+Number(a.precio);},0);
   var cobGrupo=pagos.filter(function(pg){return list.find(function(a){return a.id===pg.aid;});}).reduce(function(s,p){return s+Number(p.monto);},0);
   var resumenH='';
   if(list.length>0){
@@ -678,10 +677,7 @@ function renderAlumnos(){
       +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Cobrado</div>'
       +'<div style="font-size:18px;font-weight:800;color:var(--green)">'+fmtM(cobGrupo)+'</div>'
       +'</div>':'')
-      +(espGrupo>0?'<div style="background:var(--bg2);border:1px solid rgba(200,168,75,.25);border-radius:10px;padding:10px 14px;flex:1;min-width:100px;text-align:center">'
-      +'<div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Esperado</div>'
-      +'<div style="font-size:18px;font-weight:800;color:var(--gold)">'+fmtM(espGrupo)+'</div>'
-      +'</div>':'')
+
       +'</div>';
   }
 

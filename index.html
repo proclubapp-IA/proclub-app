@@ -526,8 +526,7 @@ function renderDash(){
   var cobradoOnl=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoTra=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoPer=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoPat=pagosMes.filter(function(pg){return pg.tipo==='patin';}).reduce(function(s,p){return s+Number(p.monto);},0);
-  var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer+cobradoPat;
+  var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer;
   var resFinal=cobradoTotal-costoT;
   var marFinal=cobradoTotal>0?Math.round(resFinal/cobradoTotal*100):0;
 
@@ -536,8 +535,7 @@ function renderDash(){
   var espOnl=act.filter(function(a){return a.modal==='online'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
   var espTra=act.filter(function(a){return a.modal==='transformacion'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
   var espPer=act.filter(function(a){return a.modal==='personal'&&a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  var espPat=patAct.filter(function(a){return a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0);
-  var espTotal=espPre+espOnl+espTra+espPer+espPat;
+  var espTotal=espPre+espOnl+espTra+espPer;
 
   // Meses disponibles para filtro
   var mesesDisp={};
@@ -583,8 +581,7 @@ function renderDash(){
     {l:'Presencial',cob:cobradoPre,c:'var(--blue)'},
     {l:'Online',cob:cobradoOnl,c:'var(--purple)'},
     {l:'Transform.',cob:cobradoTra,c:'var(--orange)'},
-    {l:'Plan Black',cob:cobradoPer,c:'var(--gold)'},
-    {l:'Patin',cob:cobradoPat,c:'#BF5AF2'}
+    {l:'Plan Black',cob:cobradoPer,c:'var(--gold)'}
   ];
   var breakH='';
   modos.forEach(function(m){
@@ -656,7 +653,7 @@ function renderAlumnos(){
     return 0;
   });
   var subs=[{k:'todos',l:'Todos'},{k:'presencial',l:'Presencial'},{k:'online',l:'Online'},{k:'personal',l:'Plan Black'},{k:'transformacion',l:'Transform.'},{k:'principiante',l:'Principiante'},{k:'intermedio',l:'Intermedio'},{k:'avanzado',l:'Avanzado'},{k:'vence_pronto',l:'Vence pronto'},{k:'vigente',l:'Vigentes'}];
-  var subH=subs.map(function(s){return '<button class="stab'+(curSub===s.k?' on':'')+'" onclick="setSub(\"'+s.k+'\")">'+s.l+'</button>';}).join('');
+  var subH=subs.map(function(s){var sk=s.k;return '<button class="stab'+(curSub===sk?' on':'')+'" onclick="setSub(this.dataset.k)" data-k="'+sk+'">'+s.l+'</button>';}).join('');
   var listH='';
   if(list.length){
     list.forEach(function(a){

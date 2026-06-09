@@ -478,7 +478,7 @@ async function init(){
   try{
     const[a,p,pr,u,pt]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc'),sbG('patin','order=nombre.asc')]);
     alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];patin=pt||[];
-    loadAhorros();
+    loadAhorros();loadSueldos();
   ['costos','inv','mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='costos')costos=JSON.parse(x);else if(k==='inv')inversiones=JSON.parse(x);else if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
@@ -760,10 +760,11 @@ function renderFinanzas(){
   var cfH='';cf.forEach(function(c){cfH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-red">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var cvH='';cv.forEach(function(c){cvH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-ora">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var invH='';inversiones.forEach(function(i){invH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+i.descripcion+'</div><div class="fin-item-s">'+i.categoria+' - '+fd(i.fecha)+'</div></div><div class="fin-item-r"><span class="fin-v c-pur">'+fmtM(i.valor)+'</span><button class="btn xs sec" onclick="editInv(\''+i.id+'\')">Editar</button></div></div>';});
-  $('tab-f').innerHTML='<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
+  $('tab-f').innerHTML='<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
     +'<div class="fin-panel on" id="fp-res"><div class="sg4"><div class="stat g-green"><div class="sl">Ingresos</div><div class="sv c-green" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat g-red"><div class="sl">Costos</div><div class="sv c-red" style="font-size:16px">'+fmtM(tc)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Resultado</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div><div class="stat"><div class="sl">Margen</div><div class="sv '+(mar>=0?'c-green':'c-red')+'">'+mar+'%</div></div></div><div class="sec">Ingresos por mes</div><div class="card"><div class="card-body">'+(mH||'<div class="empty" style="padding:14px">Sin datos</div>')+'</div></div></div>'
     +'<div class="fin-panel" id="fp-cos"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="stat g-red"><div class="sl">Fijos/mes</div><div class="sv c-red">'+fmtM(tf)+'</div></div><div class="stat"><div class="sl">Variables</div><div class="sv c-ora">'+fmtM(tv)+'</div></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Costos fijos</div><button class="btn xs pri" onclick="openCosto(\'fijo\')">+ Agregar</button></div>'+(cfH||'<div class="empty" style="padding:10px">Sin costos fijos</div>')+'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px"><div class="sec" style="margin:0">Costos variables</div><button class="btn xs pri" onclick="openCosto(\'variable\')">+ Agregar</button></div>'+(cvH||'<div class="empty" style="padding:10px">Sin costos variables</div>')+'</div>'
     +'<div class="fin-panel" id="fp-inv"><div class="stat" style="margin-bottom:12px"><div class="sl">Total invertido</div><div class="sv c-pur">'+fmtM(ti)+'</div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div class="sec" style="margin:0">Inversiones</div><button class="btn xs pri" onclick="openInv()">+ Agregar</button></div>'+(invH||'<div class="empty">Sin inversiones</div>')+'</div>'
+    +'<div class="fin-panel" id="fp-sue"></div>'
     +'<div class="fin-panel" id="fp-aho"></div>'
     +'<div class="fin-panel" id="fp-bal"><div class="sec" style="margin-top:0">Estado patrimonial</div><div class="card" style="margin-bottom:12px"><div class="card-body"><div class="fin-row"><div class="fin-l">Activo total</div><div class="fin-v c-green">'+fmtM(ing+ti)+'</div></div><div class="fin-row"><div class="fin-l">Pasivo total</div><div class="fin-v c-red">'+fmtM(tc)+'</div></div><div class="fin-row"><div class="fin-l" style="font-weight:700">Patrimonio neto</div><div class="fin-v '+(ing+ti-tc>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(ing+ti-tc)+'</div></div></div></div><div class="sec">Balance</div><div class="card"><div class="card-body"><div class="fin-row"><div class="fin-l">Ingresos</div><div class="fin-v c-green">'+fmtM(ing)+'</div></div><div class="fin-row"><div class="fin-l">(-) Costos fijos</div><div class="fin-v c-red">-'+fmtM(tf)+'</div></div><div class="fin-row"><div class="fin-l">(-) Variables</div><div class="fin-v c-ora">-'+fmtM(tv)+'</div></div><div class="fin-row" style="padding-top:12px;border-top:2px solid var(--border2)"><div class="fin-l" style="font-weight:700">Resultado</div><div class="fin-v '+(res>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(res)+'</div></div></div></div></div>';
 }
@@ -990,9 +991,12 @@ function pagarPatin(id){
 
 // ── AHORROS ──
 var ahorros=[];
+var sueldos=[];
 var tipoCambio={blue:1000,oficial:1000,mep:1000};
 
 function saveAhorros(){try{localStorage.setItem('pc_ahorros',JSON.stringify({items:ahorros,tc:tipoCambio}));}catch(e){}}
+function saveSueldos(){try{localStorage.setItem('pc_sueldos',JSON.stringify(sueldos));}catch(e){}}
+function loadSueldos(){try{var x=localStorage.getItem('pc_sueldos');if(x)sueldos=JSON.parse(x);}catch(e){}}
 function loadAhorros(){try{var x=localStorage.getItem('pc_ahorros');if(x){var d=JSON.parse(x);ahorros=d.items||[];tipoCambio=d.tc||{blue:1000,oficial:1000,mep:1000};}}catch(e){}}
 
 function finTab(btn,pid){
@@ -1001,6 +1005,7 @@ function finTab(btn,pid){
   btn.classList.add('on');
   $(pid).classList.add('on');
   if(pid==='fp-aho')renderAhorros();
+  if(pid==='fp-sue')renderSueldos();
 }
 
 function renderAhorros(){
@@ -1122,6 +1127,132 @@ function elimAhorro(id){
   saveAhorros();
   renderAhorros();
   toast('Eliminado');
+}
+
+function renderSueldos(){
+  var panel=$('fp-sue');
+  if(!panel)return;
+  var hoy=new Date();
+  var mesActual=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+  var mesEl=$('sue-mes-sel');
+  var mesFiltro=mesEl?mesEl.value:mesActual;
+
+  // Get unique months
+  var meses={};
+  sueldos.forEach(function(s){if(s.mes)meses[s.mes]=true;});
+  if(!meses[mesActual])meses[mesActual]=true;
+  var mesesOpts=Object.keys(meses).sort().reverse().map(function(m){
+    var y=m.split('-')[0],mo=m.split('-')[1];
+    var nm=new Date(y,mo-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    return '<option value="'+m+'"'+(m===mesFiltro?' selected':'')+'>'+nm+'</option>';
+  }).join('');
+
+  var delMes=sueldos.filter(function(s){return s.mes===mesFiltro;});
+  var totalMes=delMes.reduce(function(sum,s){return sum+Number(s.monto);},0);
+
+  var listH='';
+  if(delMes.length){
+    delMes.forEach(function(s){
+      var estadoCol=s.pagado?'c-green':'c-red';
+      var estadoTxt=s.pagado?'Pagado':'Pendiente';
+      listH+='<div class="fin-item">'
+        +'<div class="fin-item-l">'
+        +'<div class="fin-item-n">'+s.coach+'</div>'
+        +'<div class="fin-item-s">'+s.rol+(s.notas?' - '+s.notas:'')+'</div>'
+        +'</div>'
+        +'<div class="fin-item-r">'
+        +'<span class="fin-v '+estadoCol+'">'+fmtM(s.monto)+'</span>'
+        +'<button class="btn xs '+(s.pagado?'sec':'grn')+'" id="sue-pag-'+s.id+'">'+estadoTxt+'</button>'
+        +'<button class="btn xs red" id="sue-del-'+s.id+'">x</button>'
+        +'</div></div>';
+    });
+  } else {
+    listH='<div class="empty">Sin sueldos cargados para este mes</div>';
+  }
+
+  panel.innerHTML=
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+    +'<div class="sec" style="margin:0;flex:1">Mes</div>'
+    +'<select class="ssel" id="sue-mes-sel" style="flex:1;max-width:180px">'+mesesOpts+'</select>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+    +'<div class="stat g-red"><div class="sl">Total sueldos</div><div class="sv c-red">'+fmtM(totalMes)+'</div></div>'
+    +'<div class="stat"><div class="sl">Coaches</div><div class="sv c-blue">'+delMes.length+'</div></div>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+    +'<div class="sec" style="margin:0">Sueldos de '+new Date(mesFiltro.split('-')[0],mesFiltro.split('-')[1]-1).toLocaleDateString('es-AR',{month:'long'})+'</div>'
+    +'<button class="btn xs pri" id="btn-add-sueldo">+ Agregar</button>'
+    +'</div>'
+    +listH;
+
+  // Events
+  var addBtn=document.getElementById('btn-add-sueldo');
+  if(addBtn)addBtn.onclick=function(){abrirNuevoSueldo(mesFiltro);};
+
+  var mesSelEl=document.getElementById('sue-mes-sel');
+  if(mesSelEl)mesSelEl.onchange=function(){renderSueldos();};
+
+  delMes.forEach(function(s){
+    var pagBtn=document.getElementById('sue-pag-'+s.id);
+    if(pagBtn)pagBtn.onclick=function(){
+      s.pagado=!s.pagado;
+      saveSueldos();
+      renderSueldos();
+      toast(s.coach+(s.pagado?' marcado como pagado':' marcado como pendiente'));
+    };
+    var delBtn=document.getElementById('sue-del-'+s.id);
+    if(delBtn)delBtn.onclick=function(){
+      if(!confirm('Eliminar sueldo de '+s.coach+'?'))return;
+      sueldos=sueldos.filter(function(x){return x.id!==s.id;});
+      saveSueldos();
+      renderSueldos();
+      toast('Eliminado');
+    };
+  });
+}
+
+function abrirNuevoSueldo(mes){
+  var existing=document.getElementById('m-sue');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-sue';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Nuevo sueldo</h2><button class="btn sm sec" id="sue-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Nombre del coach *</label><input id="sue-coach" type="text" autocapitalize="words" placeholder="Anyelen Perez"></div>'
+    +'<div class="field"><label>Rol</label><select id="sue-rol"><option value="Coach N1">Coach N1</option><option value="Coach N2">Coach N2</option><option value="Coach N3">Coach N3</option><option value="Coach N4">Coach N4</option><option value="Administrativo">Administrativo</option><option value="Otro">Otro</option></select></div>'
+    +'<div class="field"><label>Monto ($) *</label><input id="sue-monto" type="number" placeholder="50000" inputmode="numeric"></div>'
+    +'<div class="field"><label>Estado</label><select id="sue-estado"><option value="0">Pendiente</option><option value="1">Pagado</option></select></div>'
+    +'<div class="field full"><label>Notas</label><input id="sue-notas" type="text" placeholder="Bonus, horas extra..."></div>'
+    +'</div>'
+    +'<div class="mf">'
+    +'<button class="btn sm sec" id="sue-cancel">Cancelar</button>'
+    +'<button class="btn sm pri" id="sue-save">Guardar</button>'
+    +'</div></div>';
+  document.body.appendChild(div);
+  document.getElementById('sue-x').onclick=function(){div.remove();};
+  document.getElementById('sue-cancel').onclick=function(){div.remove();};
+  document.getElementById('sue-save').onclick=function(){
+    var coach=($('sue-coach').value||'').trim();
+    var monto=parseFloat($('sue-monto').value);
+    if(!coach||!monto){toast('Nombre y monto son obligatorios','err');return;}
+    sueldos.push({
+      id:'s'+Date.now(),
+      coach:coach,
+      rol:$('sue-rol').value,
+      monto:monto,
+      mes:mes,
+      pagado:$('sue-estado').value==='1',
+      notas:($('sue-notas').value||'').trim()
+    });
+    saveSueldos();
+    div.remove();
+    renderSueldos();
+    toast('Sueldo guardado');
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
+  setTimeout(function(){var el=$('sue-coach');if(el)el.focus();},100);
 }
 
 init();

@@ -1066,13 +1066,15 @@ function renderAhorros(){
 
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
     +'<div class="sec" style="margin:0">&#128184; Caja ProClub</div>'
-    +'<button class="btn xs pri" onclick="abrirNuevoAhorro(\"proclub\")">+ Agregar</button>'
+    +'<button class="btn xs pri" id="btn-add-proclub">+ Agregar</button>'
     +'</div>'+procH
 
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px">'
     +'<div class="sec" style="margin:0">&#127968; Ahorros Familia</div>'
-    +'<button class="btn xs pri" onclick="abrirNuevoAhorro(\"familia\")">+ Agregar</button>'
+    +'<button class="btn xs pri" id="btn-add-familia">+ Agregar</button>'
     +'</div>'+famH;
+  var btnP=document.getElementById('btn-add-proclub');if(btnP)btnP.onclick=function(){abrirNuevoAhorro('proclub');};
+  var btnF=document.getElementById('btn-add-familia');if(btnF)btnF.onclick=function(){abrirNuevoAhorro('familia');};
 }
 
 function guardarTC(){
@@ -1090,14 +1092,14 @@ function abrirNuevoAhorro(tipo){
   editAhoId=null;
   var lbl=tipo==='proclub'?'Caja ProClub':'Ahorros Familia';
   var modal='<div class="overlay on" id="m-aho">'
-    +'<div class="modal"><div class="mh"><h2>'+lbl+' - Nuevo</h2><button class="btn sm sec" onclick="document.getElementById(\"m-aho\").remove()">&#x2715;</button></div>'
+    +'<div class="modal"><div class="mh"><h2>'+lbl+' - Nuevo</h2><button class="btn sm sec" id="aho-x-btn">&#x2715;</button></div>'
     +'<div class="mb s1">'
     +'<div class="field"><label>Descripcion *</label><input id="aho-desc" type="text" placeholder="Efectivo caja, USDT Lemon..."></div>'
     +'<div class="field"><label>Monto *</label><input id="aho-monto" type="number" placeholder="50000" inputmode="decimal"></div>'
     +'<div class="field"><label>Moneda</label><select id="aho-moneda"><option value="ARS">ARS - Pesos</option><option value="USD">USD - Dolares</option><option value="CRYPTO">CRYPTO - Cripto</option></select></div>'
     +'<div class="field"><label>Donde esta guardado</label><select id="aho-banco"><option value="Efectivo">Efectivo</option><option value="Brubank">Brubank</option><option value="Mercado Pago">Mercado Pago</option><option value="Lemon">Lemon</option><option value="BBVA">BBVA</option><option value="Galicia">Galicia</option><option value="Santander">Santander</option><option value="Naranja X">Naranja X</option><option value="Binance">Binance</option><option value="Otro">Otro</option></select></div>'
     +'</div>'
-    +'<div class="mf"><button class="btn sm sec" onclick="document.getElementById(\"m-aho\").remove()">Cancelar</button><button class="btn sm pri" onclick="guardarAhorro()">Guardar</button>'
+    +'<div class="mf"><button class="btn sm sec" id="aho-cancel-btn">Cancelar</button><button class="btn sm pri" onclick="guardarAhorro()">Guardar</button>'
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',modal);
   setTimeout(function(){var el=$('aho-desc');if(el)el.focus();},100);

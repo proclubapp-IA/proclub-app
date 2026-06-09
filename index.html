@@ -681,6 +681,7 @@ function renderAlumnos(){
       +'</div>';
   }
 
+  var hadFocus=document.activeElement&&document.activeElement.id==='srch-a';
   $('tab-a').innerHTML='<div class="stabs">'+subH+'</div>'
     +'<div class="toolbar"><input class="srch" id="srch-a" type="text" placeholder="Buscar..." oninput="renderAlumnos()" value="'+q+'" style="flex:1"><button class="btn sm pri" onclick="openAlumno()">+ Nuevo</button></div>'
     +'<div class="toolbar" style="gap:5px;margin-bottom:8px">'
@@ -691,6 +692,7 @@ function renderAlumnos(){
     +'<button class="btn xs sec" onclick="resetFiltros()">x</button></div>'
     +resumenH
     +listH;
+  if(hadFocus){var el=$('srch-a');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}
 }
 function setSub(k){curSub=k;renderAlumnos();}
 function resetFiltros(){curSub='todos';['srch-a','f-est','f-niv','f-sex'].forEach(function(id){const e=$(id);if(e)e.value='';});const fs=$('f-sort');if(fs)fs.value='nombre';renderAlumnos();}

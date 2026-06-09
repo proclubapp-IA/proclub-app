@@ -1447,6 +1447,7 @@ function renderSueldos(){
         +'<div class="fin-item-r">'
         +'<span class="fin-v '+estadoCol+'">'+fmtM(s.monto)+'</span>'
         +'<button class="btn xs '+(s.pagado?'sec':'grn')+'" id="sue-pag-'+s.id+'">'+estadoTxt+'</button>'
+        +'<button class="btn xs sec" id="sue-edit-'+s.id+'">Editar</button>'
         +'<button class="btn xs red" id="sue-del-'+s.id+'">x</button>'
         +'</div></div>';
     });
@@ -1484,6 +1485,8 @@ function renderSueldos(){
       renderSueldos();
       toast(s.coach+(s.pagado?' marcado como pagado':' marcado como pendiente'));
     };
+    var editBtn=document.getElementById('sue-edit-'+s.id);
+    if(editBtn){(function(sue){editBtn.onclick=function(){editarSueldo(sue);};})(s);}
     var delBtn=document.getElementById('sue-del-'+s.id);
     if(delBtn)delBtn.onclick=function(){
       if(!confirm('Eliminar sueldo de '+s.coach+'?'))return;
@@ -1495,6 +1498,55 @@ function renderSueldos(){
   });
 }
 
+function editarSueldo(sue){
+  var existing=document.getElementById('m-sue');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-sue';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Editar sueldo</h2><button class="btn sm sec" id="sue-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Nombre del coach *</label><input id="sue-coach" type="text" autocapitalize="words" value="'+sue.coach+'"></div>'
+    +'<div class="field"><label>Rol</label><select id="sue-rol" onchange="autocompletarTarifa()"><option value="Coach N1"'+(sue.rol==='Coach N1'?' selected':'')+'>Coach N1</option><option value="Coach N2"'+(sue.rol==='Coach N2'?' selected':'')+'>Coach N2</option><option value="Coach N3"'+(sue.rol==='Coach N3'?' selected':'')+'>Coach N3</option><option value="Coach N4"'+(sue.rol==='Coach N4'?' selected':'')+'>Coach N4</option><option value="Administrativo"'+(sue.rol==='Administrativo'?' selected':'')+'>Administrativo</option><option value="Otro"'+(sue.rol==='Otro'?' selected':'')+'>Otro</option></select></div>'
+    +'<div class="field"><label>Sueldo base ($) *</label><input id="sue-monto" type="number" value="'+(sue.montoBase||sue.monto)+'" inputmode="numeric"></div>'
+    +'<div class="field"><label>Estado</label><select id="sue-estado"><option value="0"'+(sue.pagado?'':' selected')+'>Pendiente</option><option value="1"'+(sue.pagado?' selected':'')+'>Pagado</option></select></div>'
+    +'<div class="field"><label>Horas normales</label><input id="sue-horas" type="number" value="'+(sue.horas||'')+'" inputmode="numeric"></div>'
+    +'<div class="field"><label>Horas extra</label><input id="sue-horas-extra" type="number" value="'+(sue.horasExtra||0)+'" inputmode="numeric"></div>'
+    +'<div class="field"><label>Valor hora extra ($)</label><input id="sue-valor-hora" type="number" value="'+(sue.valorHora||0)+'" inputmode="numeric"></div>'
+    +'<div class="field full"><label>Notas</label><input id="sue-notas" type="text" value="'+(sue.notas||'')+'"></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="sue-cancel">Cancelar</button><button class="btn sm pri" id="sue-save">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('sue-x').onclick=function(){div.remove();};
+  document.getElementById('sue-cancel').onclick=function(){div.remove();};
+  document.getElementById('sue-save').onclick=function(){
+    var coach=($('sue-coach').value||'').trim();
+    var montoBase=parseFloat($('sue-monto').value)||0;
+    if(!coach||!montoBase){toast('Nombre y monto son obligatorios','err');return;}
+    var horasExtra=parseFloat($('sue-horas-extra').value)||0;
+    var valorHora=parseFloat($('sue-valor-hora').value)||0;
+    var bonusHoras=horasExtra*valorHora;
+    var montoFinal=montoBase+bonusHoras;
+    var idx=sueldos.findIndex(function(x){return x.id===sue.id;});
+    if(idx>-1){
+      sueldos[idx]=Object.assign({},sueldos[idx],{
+        coach:coach,rol:$('sue-rol').value,
+        monto:montoFinal,montoBase:montoBase,
+        horas:parseFloat($('sue-horas').value)||0,
+        horasExtra:horasExtra,valorHora:valorHora,bonusHoras:bonusHoras,
+        pagado:$('sue-estado').value==='1',
+        notas:($('sue-notas').value||'').trim()
+      });
+      saveSueldos();
+      div.remove();
+      renderSueldos();
+      toast('Sueldo actualizado');
+    }
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
+}
 function abrirNuevoSueldo(mes){
   var existing=document.getElementById('m-sue');
   if(existing)existing.remove();

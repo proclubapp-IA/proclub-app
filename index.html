@@ -478,7 +478,7 @@ async function init(){
   try{
     const[a,p,pr,u,pt]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc'),sbG('patin','order=nombre.asc')]);
     alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];patin=pt||[];
-    loadAhorros();loadSueldos();
+    loadAhorros();loadSueldos();loadTarifas();
   ['costos','inv','mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='costos')costos=JSON.parse(x);else if(k==='inv')inversiones=JSON.parse(x);else if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
@@ -760,13 +760,15 @@ function renderFinanzas(){
   var cfH='';cf.forEach(function(c){cfH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-red">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var cvH='';cv.forEach(function(c){cvH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-ora">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var invH='';inversiones.forEach(function(i){invH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+i.descripcion+'</div><div class="fin-item-s">'+i.categoria+' - '+fd(i.fecha)+'</div></div><div class="fin-item-r"><span class="fin-v c-pur">'+fmtM(i.valor)+'</span><button class="btn xs sec" onclick="editInv(\''+i.id+'\')">Editar</button></div></div>';});
-  $('tab-f').innerHTML='<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
-    +'<div class="fin-panel on" id="fp-res"><div class="sg4"><div class="stat g-green"><div class="sl">Ingresos</div><div class="sv c-green" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat g-red"><div class="sl">Costos</div><div class="sv c-red" style="font-size:16px">'+fmtM(tc)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Resultado</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div><div class="stat"><div class="sl">Margen</div><div class="sv '+(mar>=0?'c-green':'c-red')+'">'+mar+'%</div></div></div><div class="sec">Ingresos por mes</div><div class="card"><div class="card-body">'+(mH||'<div class="empty" style="padding:14px">Sin datos</div>')+'</div></div></div>'
+  $('tab-f').innerHTML='<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn sm" onclick="exportarInformeContable()">&#128196; Exportar PDF</button></div><div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class=\"fin-tab\" onclick=\"finTab(this,\\\'fp-pro\\\')\" >Proyeccion</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
+    +'<div class="fin-panel on" id="fp-res"><div class="sg4"><div class="stat g-green"><div class="sl">Ingresos</div><div class="sv c-green" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat g-red"><div class="sl">Costos</div><div class="sv c-red" style="font-size:16px">'+fmtM(tc)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Resultado</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div><div class="stat"><div class="sl">Margen</div><div class="sv '+(mar>=0?'c-green':'c-red')+'">'+mar+'%</div></div></div><div class="sec">Ingresos por mes</div><div class="card"><div class="card-body">'+(mH||'<div class="empty" style="padding:14px">Sin datos</div>')+'</div></div><div class="sec">Punto de equilibrio</div><div class="card"><div class="card-body" id="pe-box"><p style="font-size:12px;color:var(--text3)">Carga costos fijos y precios en fichas para calcular.</p></div></div></div>'
     +'<div class="fin-panel" id="fp-cos"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="stat g-red"><div class="sl">Fijos/mes</div><div class="sv c-red">'+fmtM(tf)+'</div></div><div class="stat"><div class="sl">Variables</div><div class="sv c-ora">'+fmtM(tv)+'</div></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Costos fijos</div><button class="btn xs pri" onclick="openCosto(\'fijo\')">+ Agregar</button></div>'+(cfH||'<div class="empty" style="padding:10px">Sin costos fijos</div>')+'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px"><div class="sec" style="margin:0">Costos variables</div><button class="btn xs pri" onclick="openCosto(\'variable\')">+ Agregar</button></div>'+(cvH||'<div class="empty" style="padding:10px">Sin costos variables</div>')+'</div>'
     +'<div class="fin-panel" id="fp-inv"><div class="stat" style="margin-bottom:12px"><div class="sl">Total invertido</div><div class="sv c-pur">'+fmtM(ti)+'</div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div class="sec" style="margin:0">Inversiones</div><button class="btn xs pri" onclick="openInv()">+ Agregar</button></div>'+(invH||'<div class="empty">Sin inversiones</div>')+'</div>'
     +'<div class="fin-panel" id="fp-sue"></div>'
+    +'<div class="fin-panel" id="fp-pro"></div>'
     +'<div class="fin-panel" id="fp-aho"></div>'
     +'<div class="fin-panel" id="fp-bal"><div class="sec" style="margin-top:0">Estado patrimonial</div><div class="card" style="margin-bottom:12px"><div class="card-body"><div class="fin-row"><div class="fin-l">Activo total</div><div class="fin-v c-green">'+fmtM(ing+ti)+'</div></div><div class="fin-row"><div class="fin-l">Pasivo total</div><div class="fin-v c-red">'+fmtM(tc)+'</div></div><div class="fin-row"><div class="fin-l" style="font-weight:700">Patrimonio neto</div><div class="fin-v '+(ing+ti-tc>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(ing+ti-tc)+'</div></div></div></div><div class="sec">Balance</div><div class="card"><div class="card-body"><div class="fin-row"><div class="fin-l">Ingresos</div><div class="fin-v c-green">'+fmtM(ing)+'</div></div><div class="fin-row"><div class="fin-l">(-) Costos fijos</div><div class="fin-v c-red">-'+fmtM(tf)+'</div></div><div class="fin-row"><div class="fin-l">(-) Variables</div><div class="fin-v c-ora">-'+fmtM(tv)+'</div></div><div class="fin-row" style="padding-top:12px;border-top:2px solid var(--border2)"><div class="fin-l" style="font-weight:700">Resultado</div><div class="fin-v '+(res>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(res)+'</div></div></div></div></div>';
+  setTimeout(calcPuntoEquilibrio,50);
 }
 // finTab moved to ahorros section
 function saveCostos(){try{localStorage.setItem('pc_costos',JSON.stringify(costos));}catch(e){}}
@@ -852,6 +854,13 @@ function renderConfig(){
     +'<div class="cfg-s"><div class="cfg-hdr">Nombre del negocio</div><div class="cfg-row"><input class="srch" id="cfg-nombre" type="text" value="'+CFG.nombre+'" placeholder="ProClub" style="height:36px;flex:1"><button class="btn sm pri" onclick="guardarNombre()">Guardar</button></div></div>'
     +'<div class="cfg-s"><div class="cfg-hdr">Color de acento</div><div class="cfg-row"><div><div class="cfg-l">Color principal</div><div class="cfg-s2">Botones y elementos destacados</div></div><input type="color" class="color-inp" value="'+(CFG.colorAccent||'#C8A84B')+'" onchange="cambiarColor(this.value)"></div><div class="cfg-row" style="border:none;padding-top:6px"><button class="btn sm sec" onclick="resetColor()">Restaurar dorado</button></div></div>'
     +'<div class="cfg-s"><div class="cfg-hdr">Usuarios del sistema</div>'+usersH+'<div style="padding:12px 15px;border-top:1px solid var(--border)"><button class="btn pri full" onclick="openUsuario()">+ Nuevo usuario</button></div></div>'
+    +'<div class="cfg-s"><div class="cfg-hdr">Valor hora por nivel de coach</div>'
+    +'<div class="cfg-row"><div class="cfg-l">Coach N1</div><div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:var(--text3)">$</span><input type="number" id="tar-n1" value="'+tarifasCoach.n1+'" style="width:90px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none" inputmode="numeric"></div></div>'
+    +'<div class="cfg-row"><div class="cfg-l">Coach N2</div><div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:var(--text3)">$</span><input type="number" id="tar-n2" value="'+tarifasCoach.n2+'" style="width:90px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none" inputmode="numeric"></div></div>'
+    +'<div class="cfg-row"><div class="cfg-l">Coach N3</div><div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:var(--text3)">$</span><input type="number" id="tar-n3" value="'+tarifasCoach.n3+'" style="width:90px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none" inputmode="numeric"></div></div>'
+    +'<div class="cfg-row"><div class="cfg-l">Coach N4</div><div style="display:flex;gap:6px;align-items:center"><span style="font-size:11px;color:var(--text3)">$</span><input type="number" id="tar-n4" value="'+tarifasCoach.n4+'" style="width:90px;padding:6px 8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none" inputmode="numeric"></div></div>'
+    +'<div style="padding:10px 15px"><button class="btn pri full" onclick="guardarTarifas()">Guardar tarifas</button></div>'
+    +'</div>'
     +'<div class="cfg-s"><div class="cfg-hdr">Asistente IA</div><div class="cfg-row"><div><div class="cfg-l">Contador - Estratega - Coach</div><div class="cfg-s2">Reportes y estrategia de crecimiento</div></div><button class="btn sm pur" onclick="openIA()">Abrir</button></div></div>';
 }
 function cfgLogo(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){CFG.logoB64=ev.target.result;saveCFG();applyTheme();renderConfig();toast('Logo actualizado');};r.readAsDataURL(f);}
@@ -992,12 +1001,285 @@ function pagarPatin(id){
 // ── AHORROS ──
 var ahorros=[];
 var sueldos=[];
+var tarifasCoach={n1:0,n2:0,n3:0,n4:0};
 var tipoCambio={blue:1000,oficial:1000,mep:1000};
 
 function saveAhorros(){try{localStorage.setItem('pc_ahorros',JSON.stringify({items:ahorros,tc:tipoCambio}));}catch(e){}}
 function saveSueldos(){try{localStorage.setItem('pc_sueldos',JSON.stringify(sueldos));}catch(e){}}
 function loadSueldos(){try{var x=localStorage.getItem('pc_sueldos');if(x)sueldos=JSON.parse(x);}catch(e){}}
+function saveTarifas(){try{localStorage.setItem('pc_tarifas',JSON.stringify(tarifasCoach));}catch(e){}}
+function loadTarifas(){try{var x=localStorage.getItem('pc_tarifas');if(x)tarifasCoach=Object.assign({},tarifasCoach,JSON.parse(x));}catch(e){}}
 function loadAhorros(){try{var x=localStorage.getItem('pc_ahorros');if(x){var d=JSON.parse(x);ahorros=d.items||[];tipoCambio=d.tc||{blue:1000,oficial:1000,mep:1000};}}catch(e){}}
+
+
+function exportarInformeContable(){
+  var hoy=new Date();
+  var mesActual=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+  var mesNom=hoy.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+
+  // Data
+  var pagosMes=pagos.filter(function(p){return p.fecha&&p.fecha.slice(0,7)===mesActual;});
+  var cobradoPre=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoOnl=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoTra=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoPer=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
+  var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer;
+  var costosFijos=costos.filter(function(c){return c.tipo==='fijo';}).reduce(function(s,c){return s+Number(c.valor);},0);
+  var costosVar=costos.filter(function(c){return c.tipo==='variable';}).reduce(function(s,c){return s+Number(c.valor);},0);
+  var sueldosMes=sueldos.filter(function(s){return s.mes===mesActual;}).reduce(function(s,x){return s+Number(x.monto);},0);
+  var totalCostos=costosFijos+costosVar+sueldosMes;
+  var neto=cobradoTotal-totalCostos;
+  var margen=cobradoTotal>0?Math.round(neto/cobradoTotal*100):0;
+  var activos=alumnos.filter(function(a){return a.estado==='activo';});
+  var precProm=activos.filter(function(a){return a.precio;}).length>0?activos.filter(function(a){return a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0)/activos.filter(function(a){return a.precio;}).length:0;
+  var puntEq=precProm>0?Math.ceil(costosFijos/precProm):0;
+
+  function fmt(n){return '$'+Number(n||0).toLocaleString('es-AR');}
+
+  // Build PDF rows for costos
+  var cfRows=costos.filter(function(c){return c.tipo==='fijo';}).map(function(c){
+    return '<tr><td>'+c.descripcion+'</td><td>'+c.categoria+'</td><td style="text-align:right;color:#e74c3c">'+fmt(c.valor)+'</td></tr>';
+  }).join('');
+  var cvRows=costos.filter(function(c){return c.tipo==='variable';}).map(function(c){
+    return '<tr><td>'+c.descripcion+'</td><td>'+c.categoria+'</td><td style="text-align:right;color:#e67e22">'+fmt(c.valor)+'</td></tr>';
+  }).join('');
+  var sueRows=sueldos.filter(function(s){return s.mes===mesActual;}).map(function(s){
+    return '<tr><td>'+s.coach+'</td><td>'+s.rol+'</td><td style="text-align:right;color:#e74c3c">'+fmt(s.monto)+(s.horasExtra>0?' <small>(+'+s.horasExtra+'hs extra)</small>':'')+'</td></tr>';
+  }).join('');
+  var pagosRows=pagosMes.map(function(pg){
+    var a=alumnos.find(function(x){return x.id===pg.aid;});
+    return '<tr><td>'+(a?a.nombre:'--')+'</td><td>'+(a?a.plan:'--')+'</td><td>'+(pg.fecha||'--')+'</td><td style="text-align:right;color:#27ae60">'+fmt(pg.monto)+'</td></tr>';
+  }).join('');
+
+  var win=window.open('','_blank');
+  if(!win){toast('Popup bloqueado. Permitilo en el navegador.','err');return;}
+
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Informe Contable ProClub - '+mesNom+'</title><style>');
+  win.document.write('*{margin:0;padding:0;box-sizing:border-box}');
+  win.document.write('body{font-family:-apple-system,Arial,sans-serif;color:#1a1a1a;padding:32px;font-size:13px}');
+  win.document.write('.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:3px solid #C8A84B}');
+  win.document.write('.brand{font-size:28px;font-weight:800;color:#C8A84B;letter-spacing:-1px}');
+  win.document.write('.brand-sub{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-top:2px}');
+  win.document.write('.fecha{text-align:right;font-size:12px;color:#888}');
+  win.document.write('.fecha strong{font-size:16px;color:#1a1a1a;display:block;margin-bottom:2px}');
+  win.document.write('.hero{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}');
+  win.document.write('.hero-box{border-radius:10px;padding:14px;text-align:center}');
+  win.document.write('.hero-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}');
+  win.document.write('.hero-val{font-size:22px;font-weight:800}');
+  win.document.write('.green{background:#e8f8f0;}.green .hero-lbl{color:#27ae60}.green .hero-val{color:#27ae60}');
+  win.document.write('.red{background:#fdf0f0;}.red .hero-lbl{color:#e74c3c}.red .hero-val{color:#e74c3c}');
+  win.document.write('.gold{background:#fdf8ec;}.gold .hero-lbl{color:#C8A84B}.gold .hero-val{color:#C8A84B}');
+  win.document.write('.blue{background:#eff6ff;}.blue .hero-lbl{color:#2980b9}.blue .hero-val{color:#2980b9}');
+  win.document.write('h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#C8A84B;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid #e8e0d0}');
+  win.document.write('table{width:100%;border-collapse:collapse;margin-bottom:4px}');
+  win.document.write('th{font-size:10px;text-transform:uppercase;letter-spacing:.3px;color:#888;padding:6px 8px;text-align:left;border-bottom:2px solid #e8e0d0}');
+  win.document.write('td{padding:6px 8px;border-bottom:1px solid #f0ece4;font-size:12px}');
+  win.document.write('tr:last-child td{border-bottom:none}');
+  win.document.write('.total-row{font-weight:700;background:#fafaf8}');
+  win.document.write('.total-row td{border-top:2px solid #e8e0d0;padding-top:8px}');
+  win.document.write('.pe-box{background:#f8f9fa;border-radius:8px;padding:12px 16px;margin-top:8px;display:flex;gap:24px;align-items:center}');
+  win.document.write('.pe-item{text-align:center}.pe-lbl{font-size:10px;color:#888;text-transform:uppercase}.pe-val{font-size:20px;font-weight:800}');
+  win.document.write('.footer{margin-top:28px;padding-top:12px;border-top:1px solid #e8e0d0;display:flex;justify-content:space-between;font-size:10px;color:#aaa}');
+  win.document.write('.brand-foot{font-weight:700;color:#C8A84B}');
+  win.document.write('@media print{body{padding:20px}@page{margin:15mm}}');
+  win.document.write('</style></head><body>');
+
+  win.document.write('<div class="header">');
+  win.document.write('<div><div class="brand">ProClub</div><div class="brand-sub">San Luis, Argentina</div></div>');
+  win.document.write('<div class="fecha"><strong>Informe Contable</strong>'+mesNom+'<br>Generado: '+hoy.toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})+'</div>');
+  win.document.write('</div>');
+
+  win.document.write('<div class="hero">');
+  win.document.write('<div class="hero-box green"><div class="hero-lbl">Cobrado</div><div class="hero-val">'+fmt(cobradoTotal)+'</div></div>');
+  win.document.write('<div class="hero-box red"><div class="hero-lbl">Costos totales</div><div class="hero-val">'+fmt(totalCostos)+'</div></div>');
+  win.document.write('<div class="hero-box '+(neto>=0?'green':'red')+'"><div class="hero-lbl">Resultado neto</div><div class="hero-val">'+fmt(neto)+'</div></div>');
+  win.document.write('<div class="hero-box blue"><div class="hero-lbl">Margen</div><div class="hero-val">'+margen+'%</div></div>');
+  win.document.write('</div>');
+
+  // Ingresos
+  win.document.write('<h2>Ingresos por modalidad</h2>');
+  win.document.write('<table><thead><tr><th>Modalidad</th><th>Alumnos activos</th><th style="text-align:right">Cobrado</th></tr></thead><tbody>');
+  var modalH=[['Presencial',cobradoPre,'presencial'],['Online',cobradoOnl,'online'],['Transformacion',cobradoTra,'transformacion'],['Plan Black',cobradoPer,'personal']];
+  modalH.forEach(function(m){
+    if(m[1]>0){
+      var cnt=alumnos.filter(function(a){return a.modal===m[2]&&a.estado==='activo';}).length;
+      win.document.write('<tr><td>'+m[0]+'</td><td>'+cnt+'</td><td style="text-align:right;color:#27ae60">'+fmt(m[1])+'</td></tr>');
+    }
+  });
+  win.document.write('<tr class="total-row"><td colspan="2"><strong>Total cobrado</strong></td><td style="text-align:right;color:#27ae60"><strong>'+fmt(cobradoTotal)+'</strong></td></tr>');
+  win.document.write('</tbody></table>');
+
+  // Costos fijos
+  if(cfRows){
+    win.document.write('<h2>Costos fijos</h2>');
+    win.document.write('<table><thead><tr><th>Descripcion</th><th>Categoria</th><th style="text-align:right">Monto</th></tr></thead><tbody>'+cfRows);
+    win.document.write('<tr class="total-row"><td colspan="2"><strong>Total fijos</strong></td><td style="text-align:right;color:#e74c3c"><strong>'+fmt(costosFijos)+'</strong></td></tr>');
+    win.document.write('</tbody></table>');
+  }
+
+  // Costos variables
+  if(cvRows){
+    win.document.write('<h2>Costos variables</h2>');
+    win.document.write('<table><thead><tr><th>Descripcion</th><th>Categoria</th><th style="text-align:right">Monto</th></tr></thead><tbody>'+cvRows);
+    win.document.write('<tr class="total-row"><td colspan="2"><strong>Total variables</strong></td><td style="text-align:right;color:#e67e22"><strong>'+fmt(costosVar)+'</strong></td></tr>');
+    win.document.write('</tbody></table>');
+  }
+
+  // Sueldos
+  if(sueRows){
+    win.document.write('<h2>Sueldos del mes</h2>');
+    win.document.write('<table><thead><tr><th>Coach</th><th>Rol</th><th style="text-align:right">Monto</th></tr></thead><tbody>'+sueRows);
+    win.document.write('<tr class="total-row"><td colspan="2"><strong>Total sueldos</strong></td><td style="text-align:right;color:#e74c3c"><strong>'+fmt(sueldosMes)+'</strong></td></tr>');
+    win.document.write('</tbody></table>');
+  }
+
+  // Pagos del mes
+  if(pagosRows){
+    win.document.write('<h2>Pagos registrados en el mes</h2>');
+    win.document.write('<table><thead><tr><th>Alumno</th><th>Plan</th><th>Fecha</th><th style="text-align:right">Monto</th></tr></thead><tbody>'+pagosRows+'</tbody></table>');
+  }
+
+  // Punto de equilibrio
+  win.document.write('<h2>Punto de equilibrio</h2>');
+  win.document.write('<div class="pe-box">');
+  win.document.write('<div class="pe-item"><div class="pe-lbl">Necesarios</div><div class="pe-val" style="color:#e74c3c">'+puntEq+'</div></div>');
+  win.document.write('<div class="pe-item"><div class="pe-lbl">Activos</div><div class="pe-val" style="color:#2980b9">'+activos.length+'</div></div>');
+  win.document.write('<div class="pe-item"><div class="pe-lbl">Margen</div><div class="pe-val" style="color:'+(activos.length>=puntEq?'#27ae60':'#e74c3c')+'">'+(activos.length-puntEq)+'</div></div>');
+  win.document.write('<div style="flex:1;font-size:12px;color:#555;padding-left:16px;border-left:1px solid #e8e0d0">'+(activos.length>=puntEq?'Cubierto. Sobran '+(activos.length-puntEq)+' alumnos sobre el punto de equilibrio.':'Faltan '+(puntEq-activos.length)+' alumnos para cubrir costos fijos.')+'</div>');
+  win.document.write('</div>');
+
+  // Balance final
+  win.document.write('<h2>Balance del mes</h2>');
+  win.document.write('<table><tbody>');
+  win.document.write('<tr><td>Ingresos cobrados</td><td style="text-align:right;color:#27ae60">'+fmt(cobradoTotal)+'</td></tr>');
+  if(cobradoPre>0)win.document.write('<tr><td style="padding-left:20px;color:#888">Presencial</td><td style="text-align:right;color:#888">'+fmt(cobradoPre)+'</td></tr>');
+  if(cobradoOnl>0)win.document.write('<tr><td style="padding-left:20px;color:#888">Online</td><td style="text-align:right;color:#888">'+fmt(cobradoOnl)+'</td></tr>');
+  if(cobradoTra>0)win.document.write('<tr><td style="padding-left:20px;color:#888">Transformacion</td><td style="text-align:right;color:#888">'+fmt(cobradoTra)+'</td></tr>');
+  if(cobradoPer>0)win.document.write('<tr><td style="padding-left:20px;color:#888">Plan Black</td><td style="text-align:right;color:#888">'+fmt(cobradoPer)+'</td></tr>');
+  win.document.write('<tr><td>(-) Costos fijos</td><td style="text-align:right;color:#e74c3c">-'+fmt(costosFijos)+'</td></tr>');
+  if(costosVar>0)win.document.write('<tr><td>(-) Costos variables</td><td style="text-align:right;color:#e67e22">-'+fmt(costosVar)+'</td></tr>');
+  if(sueldosMes>0)win.document.write('<tr><td>(-) Sueldos</td><td style="text-align:right;color:#e74c3c">-'+fmt(sueldosMes)+'</td></tr>');
+  win.document.write('<tr class="total-row"><td><strong>RESULTADO NETO</strong></td><td style="text-align:right;font-size:18px;color:'+(neto>=0?'#27ae60':'#e74c3c')+'"><strong>'+fmt(neto)+'</strong></td></tr>');
+  win.document.write('</tbody></table>');
+
+  win.document.write('<div class="footer"><div class="brand-foot">ProClub - San Luis, Argentina</div><div>Sistema de gestion ProClub AI</div></div>');
+  win.document.write('<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},500);}<'+'/scr'+'ipt>');
+  win.document.write('</body></html>');
+  win.document.close();
+  toast('Informe generado');
+}
+
+function renderProyeccion(){
+  var panel=document.getElementById('fp-pro');
+  if(!panel)return;
+
+  var hoy=new Date();
+  var sigMes=new Date(hoy.getFullYear(),hoy.getMonth()+1,1);
+  var sigMesStr=sigMes.getFullYear()+'-'+(String(sigMes.getMonth()+1).padStart(2,'0'));
+  var sigMesNom=sigMes.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+
+  // Alumnos activos con precio
+  var activos=alumnos.filter(function(a){return a.estado==='activo'&&a.precio;});
+  var totalProy=activos.reduce(function(s,a){return s+Number(a.precio);},0);
+
+  // Alumnos que vencen el mes que viene
+  var vencenSigMes=alumnos.filter(function(a){
+    if(!a.venc||a.estado!=='activo')return false;
+    return a.venc.slice(0,7)===sigMesStr;
+  });
+
+  // Alumnos que ya vencieron (riesgo de no renovar)
+  var vencidos=alumnos.filter(function(a){
+    if(!a.venc||a.estado!=='activo')return false;
+    var d=dias(a.venc);
+    return d!==null&&d<0;
+  });
+
+  // Costos fijos proyectados
+  var costosFijos=costos.filter(function(c){return c.tipo==='fijo';}).reduce(function(s,c){return s+Number(c.valor);},0);
+  var sueldosMes=sueldos.filter(function(s){return s.mes===sigMesStr;}).reduce(function(s,x){return s+Number(x.monto);},0);
+  var costosProyectados=costosFijos+sueldosMes;
+  var netoProyectado=totalProy-costosProyectados;
+
+  // Riesgo: si vencen alumnos, proyeccion sin ellos
+  var riesgoMonto=vencenSigMes.reduce(function(s,a){return s+Number(a.precio||0);},0);
+  var totalConRiesgo=totalProy-riesgoMonto;
+  var netoConRiesgo=totalConRiesgo-costosProyectados;
+
+  // Build vencen list
+  var vencenH='';
+  vencenSigMes.forEach(function(a){
+    var lk=waLink(a.tel,waMsg(a));
+    vencenH+='<div class="fin-item">'
+      +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
+      +'<div class="fin-item-s">'+a.plan+' - Vence: '+fd(a.venc)+'</div></div>'
+      +'<div class="fin-item-r">'
+      +'<span class="fin-v c-ora">'+fmtM(a.precio||0)+'</span>'
+      +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
+      +'</div></div>';
+  });
+
+  panel.innerHTML=
+    '<div class="sec" style="margin-top:0">Proyeccion para '+sigMesNom+'</div>'
+
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+    +'<div class="stat g-green"><div class="sl">Ingreso proyectado</div><div class="sv c-green" style="font-size:15px">'+fmtM(totalProy)+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">'+activos.length+' alumnos activos con precio</div></div>'
+    +'<div class="stat '+(netoProyectado>=0?'g-green':'g-red')+'"><div class="sl">Neto proyectado</div><div class="sv '+(netoProyectado>=0?'c-green':'c-red')+'" style="font-size:15px">'+fmtM(netoProyectado)+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">Costos: '+fmtM(costosProyectados)+'</div></div>'
+    +'</div>'
+
+    +(vencenSigMes.length>0?
+      '<div class="sec" style="color:var(--orange)">Vencen en '+sigMesNom+' ('+vencenSigMes.length+')</div>'
+      +'<div style="background:rgba(255,159,10,.06);border:1px solid rgba(255,159,10,.2);border-radius:12px;padding:12px;margin-bottom:12px">'
+      +'<div style="font-size:12px;color:var(--text3);margin-bottom:10px">Si no renuevan, el ingreso cae a '+fmtM(totalConRiesgo)+' (neto: '+fmtM(netoConRiesgo)+')</div>'
+      +vencenH
+      +'</div>'
+    :'<div class="card" style="margin-bottom:12px"><div class="card-body"><div style="font-size:13px;color:var(--green)">Ningún alumno vence en '+sigMesNom+' ✓</div></div></div>')
+
+    +(vencidos.length>0?
+      '<div class="sec" style="color:var(--red)">Vencidos sin renovar ('+vencidos.length+')</div>'
+      +'<div class="card" style="margin-bottom:12px"><div class="card-body">'
+      +vencidos.map(function(a){
+        var lk=waLink(a.tel,waMsg(a));
+        return '<div class="fin-row"><div class="fin-l">'+a.nombre+'<span style="font-size:10px;color:var(--text3);margin-left:6px">'+fd(a.venc)+'</span></div>'
+          +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')+'</div>';
+      }).join('')
+      +'</div></div>'
+    :'')
+
+    +'<div class="sec">Resumen proyectado</div>'
+    +'<div class="card"><div class="card-body">'
+    +'<div class="fin-row"><div class="fin-l">Ingreso esperado</div><div class="fin-v c-green">'+fmtM(totalProy)+'</div></div>'
+    +'<div class="fin-row"><div class="fin-l">(-) Costos fijos</div><div class="fin-v c-red">-'+fmtM(costosFijos)+'</div></div>'
+    +(sueldosMes>0?'<div class="fin-row"><div class="fin-l">(-) Sueldos cargados</div><div class="fin-v c-red">-'+fmtM(sueldosMes)+'</div></div>':'')
+    +'<div class="fin-row" style="border-top:2px solid var(--border2);padding-top:10px"><div class="fin-l" style="font-weight:700">Neto proyectado</div><div class="fin-v '+(netoProyectado>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(netoProyectado)+'</div></div>'
+    +'</div></div>';
+}
+
+function calcPuntoEquilibrio(){
+  var peBox=document.getElementById('pe-box');
+  if(!peBox)return;
+  var actConPrecio=alumnos.filter(function(a){return a.estado==='activo'&&a.precio;});
+  var precioPromedio=actConPrecio.length>0?actConPrecio.reduce(function(s,a){return s+Number(a.precio);},0)/actConPrecio.length:0;
+  var tf=costos.filter(function(c){return c.tipo==='fijo';}).reduce(function(s,c){return s+Number(c.valor);},0);
+  if(tf===0||precioPromedio===0){
+    peBox.innerHTML='<div style="font-size:12px;color:var(--text3)">Carga costos fijos y precios en fichas para calcular.</div>';
+    return;
+  }
+  var puntEq=Math.ceil(tf/precioPromedio);
+  var actTotal=actConPrecio.length;
+  var margenSeg=actTotal-puntEq;
+  var color=margenSeg>=3?'var(--green)':(margenSeg>=0?'var(--orange)':'var(--red)');
+  var msg=margenSeg>=0?'Estas cubierto! Sobran '+margenSeg+' alumno'+(margenSeg!==1?'s':'')+' sobre el equilibrio':'Faltan '+Math.abs(margenSeg)+' alumno'+(Math.abs(margenSeg)!==1?'s':'')+' para cubrir costos fijos';
+  peBox.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">'
+    +'<div class="stat g-red"><div class="sl">Alumnos necesarios</div><div class="sv c-red" style="font-size:26px">'+puntEq+'</div></div>'
+    +'<div class="stat"><div class="sl">Activos con precio</div><div class="sv c-blue" style="font-size:26px">'+actTotal+'</div></div>'
+    +'<div class="stat"><div class="sl">Margen seguridad</div><div class="sv" style="font-size:26px;color:'+color+'">'+margenSeg+'</div></div>'
+    +'</div>'
+    +'<div class="fin-row"><div class="fin-l">Costos fijos mensuales</div><div class="fin-v c-red">'+fmtM(tf)+'</div></div>'
+    +'<div class="fin-row"><div class="fin-l">Precio promedio por alumno</div><div class="fin-v c-gold">'+fmtM(Math.round(precioPromedio))+'</div></div>'
+    +'<div class="fin-row" style="border-top:2px solid var(--border2);padding-top:10px;font-weight:700"><div class="fin-l" style="color:'+color+'">'+msg+'</div></div>';
+}
 
 function finTab(btn,pid){
   document.querySelectorAll('.fin-tab').forEach(function(b){b.classList.remove('on');});
@@ -1006,6 +1288,8 @@ function finTab(btn,pid){
   $(pid).classList.add('on');
   if(pid==='fp-aho')renderAhorros();
   if(pid==='fp-sue')renderSueldos();
+  if(pid==='fp-res')setTimeout(calcPuntoEquilibrio,50);
+  if(pid==='fp-pro')renderProyeccion();
 }
 
 function renderAhorros(){
@@ -1221,7 +1505,7 @@ function abrirNuevoSueldo(mes){
     +'<div class="mh"><h2>Nuevo sueldo</h2><button class="btn sm sec" id="sue-x">&#x2715;</button></div>'
     +'<div class="mb s1">'
     +'<div class="field"><label>Nombre del coach *</label><input id="sue-coach" type="text" autocapitalize="words" placeholder="Anyelen Perez"></div>'
-    +'<div class="field"><label>Rol</label><select id="sue-rol"><option value="Coach N1">Coach N1</option><option value="Coach N2">Coach N2</option><option value="Coach N3">Coach N3</option><option value="Coach N4">Coach N4</option><option value="Administrativo">Administrativo</option><option value="Otro">Otro</option></select></div>'
+    +'<div class="field"><label>Rol</label><select id="sue-rol" onchange="autocompletarTarifa()"><option value="Coach N1">Coach N1</option><option value="Coach N2">Coach N2</option><option value="Coach N3">Coach N3</option><option value="Coach N4">Coach N4</option><option value="Administrativo">Administrativo</option><option value="Otro">Otro</option></select></div>'
     +'<div class="field"><label>Monto ($) *</label><input id="sue-monto" type="number" placeholder="50000" inputmode="numeric"></div>'
     +'<div class="field"><label>Estado</label><select id="sue-estado"><option value="0">Pendiente</option><option value="1">Pagado</option></select></div>'
     +'<div class="field"><label>Horas normales</label><input id="sue-horas" type="number" placeholder="40" inputmode="numeric"></div>'
@@ -1265,6 +1549,27 @@ function abrirNuevoSueldo(mes){
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
   setTimeout(function(){var el=$('sue-coach');if(el)el.focus();},100);
+}
+
+function guardarTarifas(){
+  var n1=parseFloat($('tar-n1').value)||0;
+  var n2=parseFloat($('tar-n2').value)||0;
+  var n3=parseFloat($('tar-n3').value)||0;
+  var n4=parseFloat($('tar-n4').value)||0;
+  tarifasCoach={n1:n1,n2:n2,n3:n3,n4:n4};
+  saveTarifas();
+  toast('Tarifas guardadas');
+}
+
+function autocompletarTarifa(){
+  var rol=$('sue-rol').value;
+  var tarifa=0;
+  if(rol==='Coach N1')tarifa=tarifasCoach.n1;
+  else if(rol==='Coach N2')tarifa=tarifasCoach.n2;
+  else if(rol==='Coach N3')tarifa=tarifasCoach.n3;
+  else if(rol==='Coach N4')tarifa=tarifasCoach.n4;
+  var el=$('sue-valor-hora');
+  if(el&&tarifa>0)el.value=tarifa;
 }
 
 init();

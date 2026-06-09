@@ -263,6 +263,19 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
   .dh-val{font-size:36px}
 }
 @media(max-width:440px){.mb{grid-template-columns:1fr!important}.full{grid-column:1!important}.dh-val{font-size:22px!important}.sv{font-size:15px!important}.sg4{grid-template-columns:1fr 1fr!important;gap:6px!important}.sl{font-size:9px}.fin-row{flex-wrap:wrap;gap:4px}}
+
+.aho-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:8px}
+.aho-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.aho-n{font-size:14px;font-weight:700}
+.aho-v{font-size:16px;font-weight:700}
+.aho-s{font-size:11px;color:var(--text3);margin-top:2px}
+.aho-tag{padding:3px 9px;border-radius:7px;font-size:11px;font-weight:600}
+.aho-ars{background:rgba(48,209,88,.1);color:var(--green);border:1px solid rgba(48,209,88,.2)}
+.aho-usd{background:rgba(10,132,255,.1);color:var(--blue);border:1px solid rgba(10,132,255,.2)}
+.aho-cry{background:rgba(191,90,242,.1);color:var(--purple);border:1px solid rgba(191,90,242,.2)}
+.tc-box{background:linear-gradient(135deg,rgba(10,132,255,.08),var(--bg2));border:1px solid rgba(10,132,255,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.tc-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.tc-val{font-size:20px;font-weight:800;color:var(--blue)}
 </style>
 </head>
 <body>
@@ -465,7 +478,8 @@ async function init(){
   try{
     const[a,p,pr,u,pt]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc'),sbG('patin','order=nombre.asc')]);
     alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];patin=pt||[];
-    ['costos','inv','mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='costos')costos=JSON.parse(x);else if(k==='inv')inversiones=JSON.parse(x);else if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
+    loadAhorros();
+  ['costos','inv','mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='costos')costos=JSON.parse(x);else if(k==='inv')inversiones=JSON.parse(x);else if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
 }
@@ -746,13 +760,14 @@ function renderFinanzas(){
   var cfH='';cf.forEach(function(c){cfH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-red">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var cvH='';cv.forEach(function(c){cvH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-ora">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var invH='';inversiones.forEach(function(i){invH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+i.descripcion+'</div><div class="fin-item-s">'+i.categoria+' - '+fd(i.fecha)+'</div></div><div class="fin-item-r"><span class="fin-v c-pur">'+fmtM(i.valor)+'</span><button class="btn xs sec" onclick="editInv(\''+i.id+'\')">Editar</button></div></div>';});
-  $('tab-f').innerHTML='<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button></div>'
+  $('tab-f').innerHTML='<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
     +'<div class="fin-panel on" id="fp-res"><div class="sg4"><div class="stat g-green"><div class="sl">Ingresos</div><div class="sv c-green" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat g-red"><div class="sl">Costos</div><div class="sv c-red" style="font-size:16px">'+fmtM(tc)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Resultado</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div><div class="stat"><div class="sl">Margen</div><div class="sv '+(mar>=0?'c-green':'c-red')+'">'+mar+'%</div></div></div><div class="sec">Ingresos por mes</div><div class="card"><div class="card-body">'+(mH||'<div class="empty" style="padding:14px">Sin datos</div>')+'</div></div></div>'
     +'<div class="fin-panel" id="fp-cos"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="stat g-red"><div class="sl">Fijos/mes</div><div class="sv c-red">'+fmtM(tf)+'</div></div><div class="stat"><div class="sl">Variables</div><div class="sv c-ora">'+fmtM(tv)+'</div></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Costos fijos</div><button class="btn xs pri" onclick="openCosto(\'fijo\')">+ Agregar</button></div>'+(cfH||'<div class="empty" style="padding:10px">Sin costos fijos</div>')+'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px"><div class="sec" style="margin:0">Costos variables</div><button class="btn xs pri" onclick="openCosto(\'variable\')">+ Agregar</button></div>'+(cvH||'<div class="empty" style="padding:10px">Sin costos variables</div>')+'</div>'
     +'<div class="fin-panel" id="fp-inv"><div class="stat" style="margin-bottom:12px"><div class="sl">Total invertido</div><div class="sv c-pur">'+fmtM(ti)+'</div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div class="sec" style="margin:0">Inversiones</div><button class="btn xs pri" onclick="openInv()">+ Agregar</button></div>'+(invH||'<div class="empty">Sin inversiones</div>')+'</div>'
+    +'<div class="fin-panel" id="fp-aho"></div>'
     +'<div class="fin-panel" id="fp-bal"><div class="sec" style="margin-top:0">Estado patrimonial</div><div class="card" style="margin-bottom:12px"><div class="card-body"><div class="fin-row"><div class="fin-l">Activo total</div><div class="fin-v c-green">'+fmtM(ing+ti)+'</div></div><div class="fin-row"><div class="fin-l">Pasivo total</div><div class="fin-v c-red">'+fmtM(tc)+'</div></div><div class="fin-row"><div class="fin-l" style="font-weight:700">Patrimonio neto</div><div class="fin-v '+(ing+ti-tc>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(ing+ti-tc)+'</div></div></div></div><div class="sec">Balance</div><div class="card"><div class="card-body"><div class="fin-row"><div class="fin-l">Ingresos</div><div class="fin-v c-green">'+fmtM(ing)+'</div></div><div class="fin-row"><div class="fin-l">(-) Costos fijos</div><div class="fin-v c-red">-'+fmtM(tf)+'</div></div><div class="fin-row"><div class="fin-l">(-) Variables</div><div class="fin-v c-ora">-'+fmtM(tv)+'</div></div><div class="fin-row" style="padding-top:12px;border-top:2px solid var(--border2)"><div class="fin-l" style="font-weight:700">Resultado</div><div class="fin-v '+(res>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(res)+'</div></div></div></div></div>';
 }
-function finTab(btn,pid){document.querySelectorAll('.fin-tab').forEach(function(b){b.classList.remove('on');});document.querySelectorAll('.fin-panel').forEach(function(p){p.classList.remove('on');});btn.classList.add('on');$(pid).classList.add('on');}
+// finTab moved to ahorros section
 function saveCostos(){try{localStorage.setItem('pc_costos',JSON.stringify(costos));}catch(e){}}
 function openCosto(tipo){editCid=null;$('mcosto-t').textContent='Nuevo costo';$('btn-dc').style.display='none';$('costo-n').value='';$('costo-v').value='';$('costo-t').value=tipo||'fijo';$('costo-cat').value='infraestructura';openM('m-costo');}
 function editCosto(id){editCid=id;const c=costos.find(function(x){return x.id===id;});if(!c)return;$('mcosto-t').textContent='Editar costo';$('btn-dc').style.display='flex';$('costo-n').value=c.descripcion;$('costo-v').value=c.valor;$('costo-t').value=c.tipo;$('costo-cat').value=c.categoria;openM('m-costo');}
@@ -971,6 +986,140 @@ function pagarPatin(id){
   $('pm-a').dataset.patinId=id;
   $('pm-a').dataset.tipo='patin';
   openM('m-p');
+}
+
+// ── AHORROS ──
+var ahorros=[];
+var tipoCambio={blue:1000,oficial:1000,mep:1000};
+
+function saveAhorros(){try{localStorage.setItem('pc_ahorros',JSON.stringify({items:ahorros,tc:tipoCambio}));}catch(e){}}
+function loadAhorros(){try{var x=localStorage.getItem('pc_ahorros');if(x){var d=JSON.parse(x);ahorros=d.items||[];tipoCambio=d.tc||{blue:1000,oficial:1000,mep:1000};}}catch(e){}}
+
+function finTab(btn,pid){
+  document.querySelectorAll('.fin-tab').forEach(function(b){b.classList.remove('on');});
+  document.querySelectorAll('.fin-panel').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');
+  $(pid).classList.add('on');
+  if(pid==='fp-aho')renderAhorros();
+}
+
+function renderAhorros(){
+  loadAhorros();
+  var panel=$('fp-aho');
+  if(!panel)return;
+
+  // Totales
+  var tcBlue=tipoCambio.blue||1;
+  var proclub=ahorros.filter(function(a){return a.tipo==='proclub';});
+  var familia=ahorros.filter(function(a){return a.tipo==='familia';});
+
+  function totalARS(lista){
+    return lista.reduce(function(s,a){
+      if(a.moneda==='ARS')return s+Number(a.monto);
+      if(a.moneda==='USD')return s+Number(a.monto)*tcBlue;
+      if(a.moneda==='CRYPTO')return s+Number(a.monto)*tcBlue;
+      return s+Number(a.monto);
+    },0);
+  }
+  function totalUSD(lista){
+    return lista.reduce(function(s,a){
+      if(a.moneda==='USD'||a.moneda==='CRYPTO')return s+Number(a.monto);
+      if(a.moneda==='ARS')return s+Number(a.monto)/tcBlue;
+      return s;
+    },0);
+  }
+
+  var tProcARS=totalARS(proclub);
+  var tFamARS=totalARS(familia);
+  var tProcUSD=totalUSD(proclub);
+  var tFamUSD=totalUSD(familia);
+
+  function cardH(a){
+    var tagCls=a.moneda==='ARS'?'aho-ars':a.moneda==='USD'?'aho-usd':'aho-cry';
+    var valStr=a.moneda==='ARS'?fmtM(a.monto):a.moneda==='USD'?'U$D '+Number(a.monto).toLocaleString('es-AR'):a.moneda+' '+Number(a.monto).toLocaleString('es-AR');
+    return '<div class="aho-card">'
+      +'<div class="aho-top"><div><div class="aho-n">'+a.descripcion+'</div><div class="aho-s">'+a.banco+'</div></div>'
+      +'<div style="text-align:right"><div class="aho-v">'+valStr+'</div>'
+      +(a.moneda!=='ARS'?'<div style="font-size:10px;color:var(--text3)">≈ '+fmtM(a.moneda==='ARS'?Number(a.monto):Number(a.monto)*tcBlue)+'</div>':'')
+      +'</div></div>'
+      +'<div style="display:flex;align-items:center;justify-content:space-between">'
+      +'<span class="aho-tag '+tagCls+'">'+a.moneda+'</span>'
+      +'<button class="btn xs red" onclick="elimAhorro(\"'+a.id+'\")">Eliminar</button>'
+      +'</div></div>';
+  }
+
+  var procH=proclub.length?proclub.map(cardH).join(''):'<div class="empty" style="padding:10px">Sin registros</div>';
+  var famH=familia.length?familia.map(cardH).join(''):'<div class="empty" style="padding:10px">Sin registros</div>';
+
+  panel.innerHTML=
+    '<div class="tc-box">'
+    +'<div style="flex:1"><div class="tc-lbl">Dolar Blue</div><div class="tc-val">$'+Number(tipoCambio.blue).toLocaleString('es-AR')+'</div></div>'
+    +'<div style="display:flex;gap:6px;align-items:center">'
+    +'<input type="number" id="tc-inp" value="'+tipoCambio.blue+'" style="width:90px;padding:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;font-family:inherit;outline:none" placeholder="1000" inputmode="numeric">'
+    +'<button class="btn sm pri" onclick="guardarTC()">OK</button>'
+    +'</div></div>'
+
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">'
+    +'<div class="stat g-gold"><div class="sl">ProClub total</div><div class="sv c-gold" style="font-size:13px">'+fmtM(tProcARS)+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">≈ U$D '+tProcUSD.toFixed(0)+'</div></div>'
+    +'<div class="stat g-blue"><div class="sl">Familia total</div><div class="sv c-blue" style="font-size:13px">'+fmtM(tFamARS)+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">≈ U$D '+tFamUSD.toFixed(0)+'</div></div>'
+    +'</div>'
+
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
+    +'<div class="sec" style="margin:0">&#128184; Caja ProClub</div>'
+    +'<button class="btn xs pri" onclick="abrirNuevoAhorro(\"proclub\")">+ Agregar</button>'
+    +'</div>'+procH
+
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px">'
+    +'<div class="sec" style="margin:0">&#127968; Ahorros Familia</div>'
+    +'<button class="btn xs pri" onclick="abrirNuevoAhorro(\"familia\")">+ Agregar</button>'
+    +'</div>'+famH;
+}
+
+function guardarTC(){
+  var v=parseFloat($('tc-inp').value);
+  if(!v||v<1)return;
+  tipoCambio.blue=v;
+  saveAhorros();
+  renderAhorros();
+  toast('Tipo de cambio actualizado');
+}
+
+var editAhoId=null,ahoTipo='proclub';
+function abrirNuevoAhorro(tipo){
+  ahoTipo=tipo;
+  editAhoId=null;
+  var lbl=tipo==='proclub'?'Caja ProClub':'Ahorros Familia';
+  var modal='<div class="overlay on" id="m-aho">'
+    +'<div class="modal"><div class="mh"><h2>'+lbl+' - Nuevo</h2><button class="btn sm sec" onclick="document.getElementById(\"m-aho\").remove()">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Descripcion *</label><input id="aho-desc" type="text" placeholder="Efectivo caja, USDT Lemon..."></div>'
+    +'<div class="field"><label>Monto *</label><input id="aho-monto" type="number" placeholder="50000" inputmode="decimal"></div>'
+    +'<div class="field"><label>Moneda</label><select id="aho-moneda"><option value="ARS">ARS - Pesos</option><option value="USD">USD - Dolares</option><option value="CRYPTO">CRYPTO - Cripto</option></select></div>'
+    +'<div class="field"><label>Donde esta guardado</label><select id="aho-banco"><option value="Efectivo">Efectivo</option><option value="Brubank">Brubank</option><option value="Mercado Pago">Mercado Pago</option><option value="Lemon">Lemon</option><option value="BBVA">BBVA</option><option value="Galicia">Galicia</option><option value="Santander">Santander</option><option value="Naranja X">Naranja X</option><option value="Binance">Binance</option><option value="Otro">Otro</option></select></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" onclick="document.getElementById(\"m-aho\").remove()">Cancelar</button><button class="btn sm pri" onclick="guardarAhorro()">Guardar</button>'
+    +'</div></div></div>';
+  document.body.insertAdjacentHTML('beforeend',modal);
+  setTimeout(function(){var el=$('aho-desc');if(el)el.focus();},100);
+}
+
+function guardarAhorro(){
+  var desc=($('aho-desc').value||'').trim();
+  var monto=parseFloat($('aho-monto').value);
+  if(!desc||!monto){toast('Descripcion y monto son obligatorios','err');return;}
+  ahorros.push({id:'a'+Date.now(),tipo:ahoTipo,descripcion:desc,monto:monto,moneda:$('aho-moneda').value,banco:$('aho-banco').value});
+  saveAhorros();
+  var m=$('m-aho');if(m)m.remove();
+  renderAhorros();
+  toast('Guardado');
+}
+
+function elimAhorro(id){
+  if(!confirm('Eliminar?'))return;
+  ahorros=ahorros.filter(function(a){return a.id!==id;});
+  saveAhorros();
+  renderAhorros();
+  toast('Eliminado');
 }
 
 init();

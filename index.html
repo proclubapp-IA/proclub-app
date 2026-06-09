@@ -1224,7 +1224,10 @@ function abrirNuevoSueldo(mes){
     +'<div class="field"><label>Rol</label><select id="sue-rol"><option value="Coach N1">Coach N1</option><option value="Coach N2">Coach N2</option><option value="Coach N3">Coach N3</option><option value="Coach N4">Coach N4</option><option value="Administrativo">Administrativo</option><option value="Otro">Otro</option></select></div>'
     +'<div class="field"><label>Monto ($) *</label><input id="sue-monto" type="number" placeholder="50000" inputmode="numeric"></div>'
     +'<div class="field"><label>Estado</label><select id="sue-estado"><option value="0">Pendiente</option><option value="1">Pagado</option></select></div>'
-    +'<div class="field full"><label>Notas</label><input id="sue-notas" type="text" placeholder="Bonus, horas extra..."></div>'
+    +'<div class="field"><label>Horas normales</label><input id="sue-horas" type="number" placeholder="40" inputmode="numeric"></div>'
+    +'<div class="field"><label>Horas extra</label><input id="sue-horas-extra" type="number" placeholder="0" inputmode="numeric"></div>'
+    +'<div class="field"><label>Valor hora extra ($)</label><input id="sue-valor-hora" type="number" placeholder="0" inputmode="numeric"></div>'
+    +'<div class="field full"><label>Notas</label><input id="sue-notas" type="text" placeholder="Detalle adicional..."></div>'
     +'</div>'
     +'<div class="mf">'
     +'<button class="btn sm sec" id="sue-cancel">Cancelar</button>'
@@ -1237,11 +1240,20 @@ function abrirNuevoSueldo(mes){
     var coach=($('sue-coach').value||'').trim();
     var monto=parseFloat($('sue-monto').value);
     if(!coach||!monto){toast('Nombre y monto son obligatorios','err');return;}
+    var horasExtra=parseFloat($('sue-horas-extra').value)||0;
+    var valorHora=parseFloat($('sue-valor-hora').value)||0;
+    var bonusHoras=horasExtra*valorHora;
+    var montoFinal=monto+bonusHoras;
     sueldos.push({
       id:'s'+Date.now(),
       coach:coach,
       rol:$('sue-rol').value,
-      monto:monto,
+      monto:montoFinal,
+      montoBase:monto,
+      horas:parseFloat($('sue-horas').value)||0,
+      horasExtra:horasExtra,
+      valorHora:valorHora,
+      bonusHoras:bonusHoras,
       mes:mes,
       pagado:$('sue-estado').value==='1',
       notas:($('sue-notas').value||'').trim()

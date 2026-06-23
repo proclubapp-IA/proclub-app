@@ -478,8 +478,10 @@ async function init(){
   try{
     const[a,p,pr,u,pt]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc'),sbG('patin','order=nombre.asc')]);
     alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];patin=pt||[];
-    loadAhorros();loadSueldos();loadTarifas();
-  ['costos','inv','mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='costos')costos=JSON.parse(x);else if(k==='inv')inversiones=JSON.parse(x);else if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
+    loadAhorros();loadTarifas();
+  try{sueldos=await sbG('sueldos','order=id.desc')||[];sueldos.forEach(function(s){s.montoBase=s.monto_base;s.horasExtra=s.horas_extra;s.valorHora=s.valor_hora;s.bonusHoras=s.bonus_horas;});}catch(e){console.warn('sueldos:',e);try{var xs=localStorage.getItem('pc_sueldos');if(xs)sueldos=JSON.parse(xs);}catch(e2){}}
+  ['mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
+    try{costos=await sbG('costos','order=id.desc')||[];}catch(e){console.warn('costos:',e);try{const xc=localStorage.getItem('pc_costos');if(xc)costos=JSON.parse(xc);}catch(e2){}}
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
 }
@@ -771,11 +773,34 @@ function renderFinanzas(){
   setTimeout(calcPuntoEquilibrio,50);
 }
 // finTab moved to ahorros section
-function saveCostos(){try{localStorage.setItem('pc_costos',JSON.stringify(costos));}catch(e){}}
+function saveCostos(){/* migrated to supabase */}
 function openCosto(tipo){editCid=null;$('mcosto-t').textContent='Nuevo costo';$('btn-dc').style.display='none';$('costo-n').value='';$('costo-v').value='';$('costo-t').value=tipo||'fijo';$('costo-cat').value='infraestructura';var hoy=new Date();$('costo-fecha').value=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));openM('m-costo');}
 function editCosto(id){editCid=id;const c=costos.find(function(x){return x.id===id;});if(!c)return;$('mcosto-t').textContent='Editar costo';$('btn-dc').style.display='flex';$('costo-n').value=c.descripcion;$('costo-v').value=c.valor;$('costo-t').value=c.tipo;$('costo-cat').value=c.categoria;$('costo-fecha').value=c.fecha||'';openM('m-costo');}
-function guardarCosto(){const desc=($('costo-n').value||'').trim(),valor=parseFloat($('costo-v').value);if(!desc||!valor){toast('Descripcion y monto son obligatorios','err');return;}var cfecha=$('costo-fecha').value||'';if(editCid){const i=costos.findIndex(function(x){return x.id===editCid;});if(i>-1)costos[i]=Object.assign({},costos[i],{descripcion:desc,valor:valor,tipo:$('costo-t').value,categoria:$('costo-cat').value,fecha:cfecha});}else costos.push({id:'c'+Date.now(),descripcion:desc,valor:valor,tipo:$('costo-t').value,categoria:$('costo-cat').value,fecha:cfecha});saveCostos();closeM('m-costo');renderFinanzas();toast('Costo guardado');}
-function elimCosto(){if(!confirm('Eliminar?'))return;costos=costos.filter(function(x){return x.id!==editCid;});saveCostos();closeM('m-costo');renderFinanzas();toast('Eliminado');}
+async function guardarCosto(){
+  const desc=($('costo-n').value||'').trim(),valor=parseFloat($('costo-v').value);
+  if(!desc||!valor){toast('Descripcion y monto son obligatorios','err');return;}
+  var cfecha=$('costo-fecha').value||'';
+  var obj={descripcion:desc,valor:valor,tipo:$('costo-t').value,categoria:$('costo-cat').value,fecha:cfecha};
+  try{
+    if(editCid){
+      await sbU('costos',editCid,obj);
+      var i=costos.findIndex(function(x){return x.id===editCid;});
+      if(i>-1)costos[i]=Object.assign({},costos[i],obj);
+    }else{
+      var res=await sbP('costos',obj);
+      costos.push(res[0]);
+    }
+    closeM('m-costo');renderFinanzas();toast('Costo guardado');
+  }catch(e){toast('Error al guardar','err');}
+}
+async function elimCosto(){
+  if(!confirm('Eliminar?'))return;
+  try{
+    await sbD('costos',editCid);
+    costos=costos.filter(function(x){return x.id!==editCid;});
+    closeM('m-costo');renderFinanzas();toast('Eliminado');
+  }catch(e){toast('Error','err');}
+}
 function saveInv(){try{localStorage.setItem('pc_inv',JSON.stringify(inversiones));}catch(e){}}
 function openInv(){editIid=null;$('minv-t').textContent='Nueva inversion';$('btn-di').style.display='none';$('inv-n').value='';$('inv-v').value='';$('inv-f').value=new Date().toISOString().split('T')[0];$('inv-cat').value='equipamiento';openM('m-inv');}
 function editInv(id){editIid=id;const inv=inversiones.find(function(x){return x.id===id;});if(!inv)return;$('minv-t').textContent='Editar inversion';$('btn-di').style.display='flex';$('inv-n').value=inv.descripcion;$('inv-v').value=inv.valor;$('inv-f').value=inv.fecha||'';$('inv-cat').value=inv.categoria;openM('m-inv');}
@@ -1005,8 +1030,8 @@ var tarifasCoach={n1:0,n2:0,n3:0,n4:0};
 var tipoCambio={blue:1000,oficial:1000,mep:1000};
 
 function saveAhorros(){try{localStorage.setItem('pc_ahorros',JSON.stringify({items:ahorros,tc:tipoCambio}));}catch(e){}}
-function saveSueldos(){try{localStorage.setItem('pc_sueldos',JSON.stringify(sueldos));}catch(e){}}
-function loadSueldos(){try{var x=localStorage.getItem('pc_sueldos');if(x)sueldos=JSON.parse(x);}catch(e){}}
+function saveSueldos(){/* migrated to supabase */}
+function loadSueldos(){/* migrated - loaded via init async */}
 function saveTarifas(){try{localStorage.setItem('pc_tarifas',JSON.stringify(tarifasCoach));}catch(e){}}
 function loadTarifas(){try{var x=localStorage.getItem('pc_tarifas');if(x)tarifasCoach=Object.assign({},tarifasCoach,JSON.parse(x));}catch(e){}}
 function loadAhorros(){try{var x=localStorage.getItem('pc_ahorros');if(x){var d=JSON.parse(x);ahorros=d.items||[];tipoCambio=d.tc||{blue:1000,oficial:1000,mep:1000};}}catch(e){}}
@@ -1479,21 +1504,26 @@ function renderSueldos(){
 
   delMes.forEach(function(s){
     var pagBtn=document.getElementById('sue-pag-'+s.id);
-    if(pagBtn)pagBtn.onclick=function(){
-      s.pagado=!s.pagado;
-      saveSueldos();
-      renderSueldos();
-      toast(s.coach+(s.pagado?' marcado como pagado':' marcado como pendiente'));
+    if(pagBtn)pagBtn.onclick=async function(){
+      var nuevoEstado=!s.pagado;
+      try{
+        await sbU('sueldos',s.id,{pagado:nuevoEstado});
+        s.pagado=nuevoEstado;
+        renderSueldos();
+        toast(s.coach+(s.pagado?' marcado como pagado':' marcado como pendiente'));
+      }catch(e){toast('Error','err');}
     };
     var editBtn=document.getElementById('sue-edit-'+s.id);
     if(editBtn){(function(sue){editBtn.onclick=function(){editarSueldo(sue);};})(s);}
     var delBtn=document.getElementById('sue-del-'+s.id);
-    if(delBtn)delBtn.onclick=function(){
+    if(delBtn)delBtn.onclick=async function(){
       if(!confirm('Eliminar sueldo de '+s.coach+'?'))return;
-      sueldos=sueldos.filter(function(x){return x.id!==s.id;});
-      saveSueldos();
-      renderSueldos();
-      toast('Eliminado');
+      try{
+        await sbD('sueldos',s.id);
+        sueldos=sueldos.filter(function(x){return x.id!==s.id;});
+        renderSueldos();
+        toast('Eliminado');
+      }catch(e){toast('Error','err');}
     };
   });
 }
@@ -1521,7 +1551,7 @@ function editarSueldo(sue){
   document.body.appendChild(div);
   document.getElementById('sue-x').onclick=function(){div.remove();};
   document.getElementById('sue-cancel').onclick=function(){div.remove();};
-  document.getElementById('sue-save').onclick=function(){
+  document.getElementById('sue-save').onclick=async function(){
     var coach=($('sue-coach').value||'').trim();
     var montoBase=parseFloat($('sue-monto').value)||0;
     if(!coach||!montoBase){toast('Nombre y monto son obligatorios','err');return;}
@@ -1529,21 +1559,28 @@ function editarSueldo(sue){
     var valorHora=parseFloat($('sue-valor-hora').value)||0;
     var bonusHoras=horasExtra*valorHora;
     var montoFinal=montoBase+bonusHoras;
-    var idx=sueldos.findIndex(function(x){return x.id===sue.id;});
-    if(idx>-1){
-      sueldos[idx]=Object.assign({},sueldos[idx],{
-        coach:coach,rol:$('sue-rol').value,
-        monto:montoFinal,montoBase:montoBase,
-        horas:parseFloat($('sue-horas').value)||0,
-        horasExtra:horasExtra,valorHora:valorHora,bonusHoras:bonusHoras,
-        pagado:$('sue-estado').value==='1',
-        notas:($('sue-notas').value||'').trim()
-      });
-      saveSueldos();
+    var updObj={
+      coach:coach,rol:$('sue-rol').value,
+      monto:montoFinal,monto_base:montoBase,
+      horas:parseFloat($('sue-horas').value)||0,
+      horas_extra:horasExtra,valor_hora:valorHora,bonus_horas:bonusHoras,
+      pagado:$('sue-estado').value==='1',
+      notas:($('sue-notas').value||'').trim()
+    };
+    try{
+      await sbU('sueldos',sue.id,updObj);
+      var idx=sueldos.findIndex(function(x){return x.id===sue.id;});
+      if(idx>-1){
+        sueldos[idx]=Object.assign({},sueldos[idx],updObj);
+        sueldos[idx].montoBase=updObj.monto_base;
+        sueldos[idx].horasExtra=updObj.horas_extra;
+        sueldos[idx].valorHora=updObj.valor_hora;
+        sueldos[idx].bonusHoras=updObj.bonus_horas;
+      }
       div.remove();
       renderSueldos();
       toast('Sueldo actualizado');
-    }
+    }catch(e){toast('Error al guardar','err');}
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
 }
@@ -1572,7 +1609,7 @@ function abrirNuevoSueldo(mes){
   document.body.appendChild(div);
   document.getElementById('sue-x').onclick=function(){div.remove();};
   document.getElementById('sue-cancel').onclick=function(){div.remove();};
-  document.getElementById('sue-save').onclick=function(){
+  document.getElementById('sue-save').onclick=async function(){
     var coach=($('sue-coach').value||'').trim();
     var monto=parseFloat($('sue-monto').value);
     if(!coach||!monto){toast('Nombre y monto son obligatorios','err');return;}
@@ -1580,24 +1617,28 @@ function abrirNuevoSueldo(mes){
     var valorHora=parseFloat($('sue-valor-hora').value)||0;
     var bonusHoras=horasExtra*valorHora;
     var montoFinal=monto+bonusHoras;
-    sueldos.push({
-      id:'s'+Date.now(),
+    var obj={
       coach:coach,
       rol:$('sue-rol').value,
       monto:montoFinal,
-      montoBase:monto,
+      monto_base:monto,
       horas:parseFloat($('sue-horas').value)||0,
-      horasExtra:horasExtra,
-      valorHora:valorHora,
-      bonusHoras:bonusHoras,
+      horas_extra:horasExtra,
+      valor_hora:valorHora,
+      bonus_horas:bonusHoras,
       mes:mes,
       pagado:$('sue-estado').value==='1',
       notas:($('sue-notas').value||'').trim()
-    });
-    saveSueldos();
-    div.remove();
-    renderSueldos();
-    toast('Sueldo guardado');
+    };
+    try{
+      var res=await sbP('sueldos',obj);
+      var nuevo=res[0];
+      nuevo.montoBase=nuevo.monto_base;nuevo.horasExtra=nuevo.horas_extra;nuevo.valorHora=nuevo.valor_hora;nuevo.bonusHoras=nuevo.bonus_horas;
+      sueldos.push(nuevo);
+      div.remove();
+      renderSueldos();
+      toast('Sueldo guardado');
+    }catch(e){toast('Error al guardar','err');}
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
   setTimeout(function(){var el=$('sue-coach');if(el)el.focus();},100);

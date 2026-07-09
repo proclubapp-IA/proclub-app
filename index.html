@@ -276,6 +276,16 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
 .tc-box{background:linear-gradient(135deg,rgba(10,132,255,.08),var(--bg2));border:1px solid rgba(10,132,255,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
 .tc-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
 .tc-val{font-size:20px;font-weight:800;color:var(--blue)}
+
+.login-wrap{position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.login-brand{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.login-title-wrap{text-align:left}
+.login-brand-name{font-size:32px;font-weight:800;color:var(--gold);letter-spacing:-1px;line-height:1}
+.login-brand-sub{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px}
+.login-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;backdrop-filter:blur(20px)}
+.login-card-title{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-card-sub{font-size:12px;color:var(--text3);margin-bottom:20px}
+.login-foot{margin-top:24px;font-size:11px;color:var(--text3);letter-spacing:.5px}
 </style>
 </head>
 <body>
@@ -283,28 +293,37 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
   <div class="pc-logo" id="load-logo">PC<img id="load-logo-img" src="" alt=""></div>
   <div class="spin"></div>
 </div>
-<div class="screen" id="s-login">
+<div id="s-login">
   <div class="login-bg"></div>
   <div id="particles" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
-  <div class="login-brand">
-    <div class="brand-logo" onclick="document.getElementById('login-logo-file').click()">
-      <img id="ll-img" src="" alt=""><span id="ll-txt">PC</span>
-      <div class="brand-edit">&#9998;</div>
-      <input type="file" id="login-logo-file" accept="image/*" onchange="loginUploadLogo(event)">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="brand-logo" onclick="document.getElementById('login-logo-file').click()">
+        <img id="ll-img" src="" alt=""><span id="ll-txt">PC</span>
+        <div class="brand-edit">&#9998;</div>
+        <input type="file" id="login-logo-file" accept="image/*" onchange="loginUploadLogo(event)">
+      </div>
+      <div class="login-title-wrap">
+        <div id="login-title" class="login-brand-name">ProClub</div>
+        <div class="login-brand-sub">Sistema de gestion</div>
+      </div>
     </div>
-    <div onclick="goHome()" style="cursor:pointer">
-      <div class="brand-name" id="login-title">ProClub</div>
-      <div class="brand-sub">Sistema de gestion</div>
+    <div class="login-card">
+      <div class="login-card-title">Bienvenido</div>
+      <div class="login-card-sub">Ingresa tus credenciales para continuar</div>
+      <div class="linp">
+        <span style="color:var(--text3);font-size:15px">&#128100;</span>
+        <input class="inp" id="lu" type="text" placeholder="Usuario" autocomplete="username">
+      </div>
+      <div class="linp">
+        <span style="color:var(--text3);font-size:15px">&#128274;</span>
+        <input class="inp" id="lp" type="password" placeholder="Contrasena" autocomplete="current-password">
+      </div>
+      <div class="lerr" id="lerr"></div>
+      <button class="btn-acc" id="lbtn" onclick="doLogin()">Ingresar &#8594;</button>
     </div>
+    <div class="login-foot">ProClub AI &bull; San Luis, Argentina</div>
   </div>
-  <div class="login-card">
-    <div class="card-title">Acceso exclusivo</div>
-    <div class="inp-wrap"><span style="font-size:15px">&#128100;</span><input class="inp" id="lu" type="text" placeholder="Usuario" autocomplete="off" autocapitalize="none"></div>
-    <div class="inp-wrap"><span style="font-size:15px">&#128274;</span><input class="inp" id="lp" type="password" placeholder="Contrasena"></div>
-    <div class="lerr" id="lerr"></div>
-    <button class="btn-acc" id="lbtn" onclick="doLogin()">Ingresar &#8594;</button>
-  </div>
-  <div class="login-foot">PRO AI &#8226; ProClub</div>
 </div>
 <div class="screen" id="s-app">
   <div class="topbar">
@@ -384,7 +403,7 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
     </div>
     <div class="mf">
       <button class="btn sm red" id="btn-baja" onclick="darBaja()" style="display:none;margin-right:auto">Dar de baja</button>
-      <button class="btn sm red" id="btn-elim" onclick="eliminarAlumno()" style="display:none">Eliminar</button>
+      <button class="btn sm red" id="btn-elim" onclick="eliminarAlumno()" style="display:none">Editar</button><button class="btn sm red" id="btn-elim" onclick="eliminarAlumno()" style="display:none">Eliminar</button>
       <button class="btn sm sec" onclick="closeM('m-a')">Cancelar</button>
       <button class="btn sm pri" id="btn-ga" onclick="guardarAlumno()">Guardar</button>
     </div>
@@ -479,6 +498,7 @@ async function init(){
     const[a,p,pr,u,pt]=await Promise.all([sbG('alumnos','order=nombre.asc'),sbG('pagos','order=fecha.desc'),sbG('promos','order=created_at.desc'),sbG('app_usuarios','order=nombre.asc'),sbG('patin','order=nombre.asc')]);
     alumnos=a||[];pagos=p||[];promos=pr||[];usuarios=u||[];patin=pt||[];
     loadAhorros();loadTarifas();
+  try{ahorros=await sbG('ahorros','order=id.desc')||[];}catch(e){console.warn('ahorros:',e);}
   try{sueldos=await sbG('sueldos','order=id.desc')||[];sueldos.forEach(function(s){s.montoBase=s.monto_base;s.horasExtra=s.horas_extra;s.valorHora=s.valor_hora;s.bonusHoras=s.bonus_horas;});}catch(e){console.warn('sueldos:',e);try{var xs=localStorage.getItem('pc_sueldos');if(xs)sueldos=JSON.parse(xs);}catch(e2){}}
   ['mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
     try{costos=await sbG('costos','order=id.desc')||[];}catch(e){console.warn('costos:',e);try{const xc=localStorage.getItem('pc_costos');if(xc)costos=JSON.parse(xc);}catch(e2){}}
@@ -1144,12 +1164,12 @@ var sueldos=[];
 var tarifasCoach={n1:0,n2:0,n3:0,n4:0};
 var tipoCambio={blue:1000,oficial:1000,mep:1000};
 
-function saveAhorros(){try{localStorage.setItem('pc_ahorros',JSON.stringify({items:ahorros,tc:tipoCambio}));}catch(e){}}
+function saveAhorros(){try{localStorage.setItem('pc_tc',JSON.stringify(tipoCambio));}catch(e){}}
 function saveSueldos(){/* migrated to supabase */}
 function loadSueldos(){/* migrated - loaded via init async */}
 function saveTarifas(){try{localStorage.setItem('pc_tarifas',JSON.stringify(tarifasCoach));}catch(e){}}
 function loadTarifas(){try{var x=localStorage.getItem('pc_tarifas');if(x)tarifasCoach=Object.assign({},tarifasCoach,JSON.parse(x));}catch(e){}}
-function loadAhorros(){try{var x=localStorage.getItem('pc_ahorros');if(x){var d=JSON.parse(x);ahorros=d.items||[];tipoCambio=d.tc||{blue:1000,oficial:1000,mep:1000};}}catch(e){}}
+function loadAhorros(){try{var x=localStorage.getItem('pc_tc');if(x)tipoCambio=Object.assign({},tipoCambio,JSON.parse(x));}catch(e){}}
 
 
 function exportarInformeContable(){
@@ -1473,7 +1493,7 @@ function renderAhorros(){
       +'</div></div>'
       +'<div style="display:flex;align-items:center;justify-content:space-between">'
       +'<span class="aho-tag '+tagCls+'">'+a.moneda+'</span>'
-      +'<button class="btn xs red" onclick="elimAhorro(\"'+a.id+'\")">Eliminar</button>'
+      +'<button class="btn xs sec" onclick="editarAhorro(\"'+a.id+'\")">Editar</button><button class="btn xs red" onclick="elimAhorro(\"'+a.id+'\")">Eliminar</button>'
       +'</div></div>';
   }
 
@@ -1534,23 +1554,64 @@ function abrirNuevoAhorro(tipo){
   setTimeout(function(){var el=$('aho-desc');if(el)el.focus();},100);
 }
 
-function guardarAhorro(){
+async function guardarAhorro(){
   var desc=($('aho-desc').value||'').trim();
   var monto=parseFloat($('aho-monto').value);
   if(!desc||!monto){toast('Descripcion y monto son obligatorios','err');return;}
-  ahorros.push({id:'a'+Date.now(),tipo:ahoTipo,descripcion:desc,monto:monto,moneda:$('aho-moneda').value,banco:$('aho-banco').value});
-  saveAhorros();
-  var m=$('m-aho');if(m)m.remove();
-  renderAhorros();
-  toast('Guardado');
+  var obj={tipo:ahoTipo,descripcion:desc,monto:monto,moneda:$('aho-moneda').value,banco:$('aho-banco').value};
+  try{
+    var res=await sbP('ahorros',obj);
+    ahorros.push(res[0]);
+    var m=document.getElementById('m-aho');if(m)m.remove();
+    renderAhorros();
+    toast('Guardado');
+  }catch(e){toast('Error al guardar','err');}
 }
 
-function elimAhorro(id){
+async function editarAhorro(id){
+  var a=ahorros.find(function(x){return x.id===id;});
+  if(!a)return;
+  var existing=document.getElementById('m-aho');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-aho';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Editar</h2><button class="btn sm sec" id="aho-x-btn">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Descripcion</label><input id="aho-desc" type="text" value="'+a.descripcion+'"></div>'
+    +'<div class="field"><label>Monto</label><input id="aho-monto" type="number" value="'+a.monto+'" inputmode="decimal"></div>'
+    +'<div class="field"><label>Moneda</label><select id="aho-moneda"><option value="ARS"'+(a.moneda==='ARS'?' selected':'')+'>ARS</option><option value="USD"'+(a.moneda==='USD'?' selected':'')+'>USD</option><option value="CRYPTO"'+(a.moneda==='CRYPTO'?' selected':'')+'>CRYPTO</option></select></div>'
+    +'<div class="field"><label>Donde</label><select id="aho-banco"><option value="Efectivo"'+(a.banco==='Efectivo'?' selected':'')+'>Efectivo</option><option value="Brubank"'+(a.banco==='Brubank'?' selected':'')+'>Brubank</option><option value="Mercado Pago"'+(a.banco==='Mercado Pago'?' selected':'')+'>Mercado Pago</option><option value="Lemon"'+(a.banco==='Lemon'?' selected':'')+'>Lemon</option><option value="BBVA"'+(a.banco==='BBVA'?' selected':'')+'>BBVA</option><option value="Galicia"'+(a.banco==='Galicia'?' selected':'')+'>Galicia</option><option value="Binance"'+(a.banco==='Binance'?' selected':'')+'>Binance</option><option value="Acciones"'+(a.banco==='Acciones'?' selected':'')+'>Acciones/Bolsa</option><option value="FCI"'+(a.banco==='FCI'?' selected':'')+'>FCI/Fondos</option><option value="Otro"'+(a.banco==='Otro'?' selected':'')+'>Otro</option></select></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="aho-cancel-btn">Cancelar</button><button class="btn sm pri" id="btn-save-aho">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('aho-x-btn').onclick=function(){div.remove();};
+  document.getElementById('aho-cancel-btn').onclick=function(){div.remove();};
+  document.getElementById('btn-save-aho').onclick=async function(){
+    var desc=($('aho-desc').value||'').trim();
+    var monto=parseFloat($('aho-monto').value);
+    if(!desc||!monto){toast('Completa todos los campos','err');return;}
+    var obj={descripcion:desc,monto:monto,moneda:$('aho-moneda').value,banco:$('aho-banco').value};
+    try{
+      await sbU('ahorros',id,obj);
+      var idx=ahorros.findIndex(function(x){return x.id===id;});
+      if(idx>-1)ahorros[idx]=Object.assign({},ahorros[idx],obj);
+      div.remove();renderAhorros();toast('Actualizado');
+    }catch(e){toast('Error','err');}
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
+}
+
+async function elimAhorro(id){
   if(!confirm('Eliminar?'))return;
-  ahorros=ahorros.filter(function(a){return a.id!==id;});
-  saveAhorros();
-  renderAhorros();
-  toast('Eliminado');
+  try{
+    await sbD('ahorros',id);
+    ahorros=ahorros.filter(function(a){return a.id!==id;});
+    renderAhorros();
+    toast('Eliminado');
+  }catch(e){toast('Error','err');}
 }
 
 function renderSueldos(){

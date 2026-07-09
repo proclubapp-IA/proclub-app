@@ -533,7 +533,7 @@ function renderDash(){
 
   var act=alumnos.filter(function(a){return a.estado==='activo';});
   var patAct=patin.filter(function(a){return a.estado==='activo';});
-  var xv=act.filter(function(a){var d=dias(a.venc);return d!==null&&d<=2;}).sort(function(a,b){return dias(a.venc)-dias(b.venc);});
+  var xv=alumnos.filter(function(a){var d=dias(a.venc);return a.estado==='activo'&&d!==null&&d<=2;}).sort(function(a,b){return dias(a.venc)-dias(b.venc);});
   var costoT=costos.filter(function(c){return !c.fecha||c.fecha.slice(0,7)===mesFiltro;}).reduce(function(s,c){return s+Number(c.valor);},0);
 
   // COBRADO del mes seleccionado - pagos reales
@@ -575,7 +575,7 @@ function renderDash(){
       var d=dias(a.venc);
       var txt=d<=0?'VENCIDO hace '+Math.abs(d)+' dia'+(Math.abs(d)!==1?'s':''):d===0?'Vence HOY':'Vence en '+d+' dia'+(d!==1?'s':'')+' - URGENTE';
       var lk=waLink(a.tel,waMsg(a));
-      alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+'<button class="btn xs sec" onclick="editAlumno('+a.id+');showTab(\"a\")">Ver</button></div></div>';
+      alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+' <button class="btn xs grn" onclick="renovarAlumno('+a.id+')">Renovar</button> <button class="btn xs sec" onclick="verAlumno('+a.id+')">Ver</button></div></div>';
     });
     alerts+='</div>';
   }
@@ -710,6 +710,60 @@ function renderAlumnos(){
     +listH;
   if(hadFocus){var el=$('srch-a');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}
 }
+function renovarAlumno(id){
+  var a=alumnos.find(function(x){return x.id===id;});
+  if(!a)return;
+  var existing=document.getElementById('m-renovar');
+  if(existing)existing.remove();
+  var hoy=new Date();
+  var sigMes=new Date(hoy.getFullYear(),hoy.getMonth()+1,hoy.getDate());
+  var defVenc=sigMes.toISOString().split('T')[0];
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-renovar';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Renovar - '+a.nombre.split(' ')[0]+'</h2><button class="btn sm sec" id="ren-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+a.plan+'</div>'
+    +'<div class="field"><label>Nuevo vencimiento *</label><input id="ren-venc" type="date" value="'+defVenc+'"></div>'
+    +'<div class="field"><label>Monto cobrado ($)</label><input id="ren-monto" type="number" value="'+(a.precio||'')+'" inputmode="numeric"></div>'
+    +'<div class="field"><label>Concepto</label><input id="ren-conc" type="text" value="Renovacion '+a.plan+'"></div>'
+    +'</div>'
+    +'<div class="mf">'
+    +'<button class="btn sm sec" id="ren-cancel">Cancelar</button>'
+    +'<button class="btn sm pri" id="ren-save">Renovar y registrar pago</button>'
+    +'</div></div>';
+  document.body.appendChild(div);
+  document.getElementById('ren-x').onclick=function(){div.remove();};
+  document.getElementById('ren-cancel').onclick=function(){div.remove();};
+  document.getElementById('ren-save').onclick=async function(){
+    var venc=document.getElementById('ren-venc').value;
+    var monto=parseFloat(document.getElementById('ren-monto').value)||0;
+    var conc=document.getElementById('ren-conc').value||'Renovacion';
+    if(!venc){toast('Ingresa la fecha de vencimiento','err');return;}
+    try{
+      // Update vencimiento
+      await sbU('alumnos',id,{venc:venc,estado:'activo'});
+      a.venc=venc;a.estado='activo';
+      // Register payment if monto entered
+      if(monto>0){
+        var res=await sbP('pagos',{aid:id,monto:monto,fecha:new Date().toISOString().split('T')[0],concepto:conc,tipo:'gym'});
+        pagos.unshift(res[0]);
+      }
+      div.remove();
+      renderDash();
+      toast(a.nombre.split(' ')[0]+' renovado hasta '+venc.split('-').reverse().join('/'));
+    }catch(e){toast('Error al renovar','err');}
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
+  setTimeout(function(){var el=document.getElementById('ren-venc');if(el)el.focus();},100);
+}
+
+function verAlumno(id){
+  editAlumno(id);
+  showTab('a');
+}
+
 function setSub(k){curSub=k;renderAlumnos();}
 function resetFiltros(){curSub='todos';['srch-a','f-est','f-niv','f-sex'].forEach(function(id){const e=$(id);if(e)e.value='';});const fs=$('f-sort');if(fs)fs.value='nombre';renderAlumnos();}
 async function toggleEs(id){const a=alumnos.find(function(x){return x.id===id;});if(!a)return;const n=a.estado==='activo'?'inactivo':'activo';try{await sbU('alumnos',id,{estado:n});a.estado=n;renderAlumnos();if(curTab==='d')renderDash();toast(a.nombre+' > '+n);}catch(e){toast('Error','err');}}
@@ -809,8 +863,69 @@ function elimInv(){if(!confirm('Eliminar?'))return;inversiones=inversiones.filte
 function renderPromos(){
   var h='';
   if(promos.length){promos.forEach(function(p){h+='<div class="prc"><div class="prc-top"><div class="prc-n">'+p.nombre+'</div><div class="prc-p">'+fmtM(p.precio)+'</div></div><div class="prc-d">'+(p.desc_texto||'')+'</div><div class="prc-s">Ventas: <span>'+p.ventas+'</span> - Recaudado: <span>'+fmtM(p.ventas*Number(p.precio))+'</span></div><div class="prc-a"><button class="btn sm grn" onclick="addVenta('+p.id+')">+ Venta</button><button class="btn sm red" onclick="elimPromo('+p.id+')" style="margin-left:auto">Eliminar</button></div></div>';});}else{h='<div class="empty">Sin promociones</div>';}
-  $('tab-v').innerHTML='<div class="toolbar" style="justify-content:flex-end"><button class="btn sm pri" onclick="openPromo()">+ Nueva promo</button></div>'+h;
+  var extrasH='';
+  var extMes=new Date();var extMesFiltro=extMes.getFullYear()+'-'+(String(extMes.getMonth()+1).padStart(2,'0'));
+  var extras=pagos.filter(function(p){return p.tipo==='extra'&&p.fecha&&p.fecha.slice(0,7)===extMesFiltro;});
+  var totalExtras=extras.reduce(function(s,p){return s+Number(p.monto);},0);
+  if(extras.length){extras.forEach(function(p){extrasH+='<div class="pgc"><div class="pg-av" style="background:rgba(255,159,10,.1);color:var(--orange)">$</div><div class="pg-i"><div class="pg-n">'+(p.concepto||'Ingreso extra')+'</div><div class="pg-s">'+fd(p.fecha)+'</div></div><div class="pg-r"><div class="pg-m">'+fmtM(p.monto)+'</div><button class="btn xs red" onclick="elimExtra('+p.id+')">x</button></div></div>';});}
+  $('tab-v').innerHTML='<div style="display:flex;gap:8px;margin-bottom:12px"><div class="stat" style="flex:1"><div class="sl">Otros ingresos del mes</div><div class="sv c-ora">'+fmtM(totalExtras)+'</div></div></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Otros ingresos</div><button class="btn sm pri" id="btn-add-extra">+ Ingreso</button></div>'
+    +(extrasH||'<div class="empty" style="padding:10px">Sin otros ingresos este mes</div>')
+    +'<div class="sec">Promociones</div>'
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn sm sec" onclick="openPromo()">+ Nueva promo</button></div>'+h;
+  var btnExtra=document.getElementById('btn-add-extra');
+  if(btnExtra)btnExtra.onclick=function(){abrirNuevoExtra();};
 }
+function abrirNuevoExtra(){
+  var existing=document.getElementById('m-extra');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-extra';
+  var hoy=new Date().toISOString().split('T')[0];
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Otro ingreso</h2><button class="btn sm sec" id="ext-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Concepto *</label><select id="ext-conc"><option value="Inbody">Inbody</option><option value="Pochoclos">Pochoclos</option><option value="Suplementos">Suplementos</option><option value="Indumentaria">Indumentaria</option><option value="Taller">Taller / Evento</option><option value="Otro">Otro</option></select></div>'
+    +'<div class="field"><label>Descripcion</label><input id="ext-desc" type="text" placeholder="Detalle opcional..."></div>'
+    +'<div class="field"><label>Monto ($) *</label><input id="ext-monto" type="number" placeholder="5000" inputmode="numeric"></div>'
+    +'<div class="field"><label>Fecha</label><input id="ext-fecha" type="date" value="'+hoy+'"></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="ext-cancel">Cancelar</button><button class="btn sm pri" id="ext-save">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('ext-x').onclick=function(){div.remove();};
+  document.getElementById('ext-cancel').onclick=function(){div.remove();};
+  document.getElementById('ext-save').onclick=async function(){
+    var conc=document.getElementById('ext-conc').value;
+    var desc=document.getElementById('ext-desc').value.trim();
+    var monto=parseFloat(document.getElementById('ext-monto').value)||0;
+    var fecha=document.getElementById('ext-fecha').value;
+    if(!monto||!fecha){toast('Monto y fecha son obligatorios','err');return;}
+    var label=conc+(desc?' - '+desc:'');
+    try{
+      var res=await sbP('pagos',{monto:monto,fecha:fecha,concepto:label,tipo:'extra',aid:null});
+      pagos.unshift(res[0]);
+      div.remove();
+      renderPromos();
+      renderDash();
+      toast('Ingreso registrado');
+    }catch(e){toast('Error','err');}
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
+}
+
+async function elimExtra(id){
+  if(!confirm('Eliminar?'))return;
+  try{
+    await sbD('pagos',id);
+    pagos=pagos.filter(function(p){return p.id!==id;});
+    renderPromos();
+    renderDash();
+    toast('Eliminado');
+  }catch(e){toast('Error','err');}
+}
+
 function openPromo(){$('pr-n').value='';$('pr-p').value='';$('pr-d').value='';openM('m-pr');}
 async function guardarPromo(){const nombre=($('pr-n').value||'').trim(),precio=parseFloat($('pr-p').value);if(!nombre||!precio){toast('Nombre y precio son obligatorios','err');return;}try{const res=await sbP('promos',{nombre:nombre,precio:precio,desc_texto:($('pr-d').value||'').trim(),ventas:0});promos.unshift(res[0]);closeM('m-pr');renderPromos();toast('Promocion creada');}catch(e){toast('Error','err');}}
 async function addVenta(id){const p=promos.find(function(x){return x.id===id;});if(!p)return;try{await sbU('promos',id,{ventas:p.ventas+1});p.ventas++;renderPromos();toast('Venta registrada');}catch(e){toast('Error','err');}}

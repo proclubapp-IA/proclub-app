@@ -807,8 +807,19 @@ async function guardarPago(){
 }
 async function elimPago(id){if(!confirm('Eliminar pago?'))return;try{await sbD('pagos',id);pagos=pagos.filter(function(p){return p.id!==id;});renderPagos();if(curTab==='d')renderDash();toast('Pago eliminado');}catch(e){toast('Error','err');}}
 function renderFinanzas(){
-  const ing=pagos.reduce(function(s,p){return s+Number(p.monto);},0);
-  const cf=costos.filter(function(c){return c.tipo==='fijo';}),cv=costos.filter(function(c){return c.tipo==='variable';});
+  // Mes seleccionado
+  var finMesEl=document.getElementById('fin-mes-sel');
+  var hoyFin=new Date();
+  var finMesActual=hoyFin.getFullYear()+'-'+(String(hoyFin.getMonth()+1).padStart(2,'0'));
+  var finMes=finMesEl?finMesEl.value:finMesActual;
+
+  // Pagos filtrados por mes
+  var pagosFin=pagos.filter(function(p){return p.fecha&&p.fecha.slice(0,7)===finMes;});
+  const ing=pagosFin.reduce(function(s,p){return s+Number(p.monto);},0);
+
+  // Costos filtrados por mes (sin fecha = siempre se muestra)
+  var costosFin=costos.filter(function(c){return !c.fecha||c.fecha.slice(0,7)===finMes;});
+  const cf=costosFin.filter(function(c){return c.tipo==='fijo';}),cv=costosFin.filter(function(c){return c.tipo==='variable';});
   const tf=cf.reduce(function(s,c){return s+Number(c.valor);},0),tv=cv.reduce(function(s,c){return s+Number(c.valor);},0),tc=tf+tv;
   const ti=inversiones.reduce(function(s,i){return s+Number(i.valor);},0),res=ing-tc,mar=ing>0?Math.round(res/ing*100):0;
   const meses={};pagos.forEach(function(p){if(!p.fecha)return;const m=p.fecha.slice(0,7);meses[m]=(meses[m]||0)+Number(p.monto);});
@@ -816,7 +827,22 @@ function renderFinanzas(){
   var cfH='';cf.forEach(function(c){cfH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-red">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var cvH='';cv.forEach(function(c){cvH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+c.descripcion+'</div><div class="fin-item-s">'+c.categoria+'</div></div><div class="fin-item-r"><span class="fin-v c-ora">'+fmtM(c.valor)+'</span><button class="btn xs sec" onclick="editCosto(\''+c.id+'\')">Editar</button></div></div>';});
   var invH='';inversiones.forEach(function(i){invH+='<div class="fin-item"><div class="fin-item-l"><div class="fin-item-n">'+i.descripcion+'</div><div class="fin-item-s">'+i.categoria+' - '+fd(i.fecha)+'</div></div><div class="fin-item-r"><span class="fin-v c-pur">'+fmtM(i.valor)+'</span><button class="btn xs sec" onclick="editInv(\''+i.id+'\')">Editar</button></div></div>';});
-  $('tab-f').innerHTML='<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn sm" onclick="exportarInformeContable()">&#128196; Exportar PDF</button></div><div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class="fin-tab" onclick="finTab(this,\'fp-pro\')">Proyeccion</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
+  // Build month selector
+  var finMeses={};
+  pagos.forEach(function(p){if(p.fecha)finMeses[p.fecha.slice(0,7)]=true;});
+  costos.forEach(function(c){if(c.fecha)finMeses[c.fecha.slice(0,7)]=true;});
+  if(!finMeses[finMesActual])finMeses[finMesActual]=true;
+  var finOpts=Object.keys(finMeses).sort().reverse().map(function(m){
+    var y=m.split('-')[0],mo=m.split('-')[1];
+    var nm=new Date(y,mo-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    return '<option value="'+m+'"'+(m===finMes?' selected':'')+'>'+nm+'</option>';
+  }).join('');
+
+  $('tab-f').innerHTML='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px">'
+    +'<select class="ssel" id="fin-mes-sel" onchange="renderFinanzas()" style="flex:1;max-width:200px">'+finOpts+'</select>'
+    +'<button class="btn sm" onclick="exportarInformeContable()">&#128196; Exportar PDF</button>'
+    +'</div>'
+    +'<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class="fin-tab" onclick="finTab(this,\'fp-pro\')">Proyeccion</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
     +'<div class="fin-panel on" id="fp-res"><div class="sg4"><div class="stat g-green"><div class="sl">Ingresos</div><div class="sv c-green" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat g-red"><div class="sl">Costos</div><div class="sv c-red" style="font-size:16px">'+fmtM(tc)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Resultado</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div><div class="stat"><div class="sl">Margen</div><div class="sv '+(mar>=0?'c-green':'c-red')+'">'+mar+'%</div></div></div><div class="sec">Ingresos por mes</div><div class="card"><div class="card-body">'+(mH||'<div class="empty" style="padding:14px">Sin datos</div>')+'</div></div><div class="sec">Punto de equilibrio</div><div class="card"><div class="card-body" id="pe-box"><p style="font-size:12px;color:var(--text3)">Carga costos fijos y precios en fichas para calcular.</p></div></div></div>'
     +'<div class="fin-panel" id="fp-cos"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="stat g-red"><div class="sl">Fijos/mes</div><div class="sv c-red">'+fmtM(tf)+'</div></div><div class="stat"><div class="sl">Variables</div><div class="sv c-ora">'+fmtM(tv)+'</div></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Costos fijos</div><button class="btn xs pri" onclick="openCosto(\'fijo\')">+ Agregar</button></div>'+(cfH||'<div class="empty" style="padding:10px">Sin costos fijos</div>')+'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px"><div class="sec" style="margin:0">Costos variables</div><button class="btn xs pri" onclick="openCosto(\'variable\')">+ Agregar</button></div>'+(cvH||'<div class="empty" style="padding:10px">Sin costos variables</div>')+'</div>'
     +'<div class="fin-panel" id="fp-inv"><div class="stat" style="margin-bottom:12px"><div class="sl">Total invertido</div><div class="sv c-pur">'+fmtM(ti)+'</div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div class="sec" style="margin:0">Inversiones</div><button class="btn xs pri" onclick="openInv()">+ Agregar</button></div>'+(invH||'<div class="empty">Sin inversiones</div>')+'</div>'

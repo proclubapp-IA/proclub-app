@@ -484,7 +484,13 @@ async function init(){
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
 }
-function showS(id){['s-load','s-login','s-app','s-ia'].forEach(function(s){const el=$(s);if(el)el.classList.toggle('on',el.id===id);});}
+// showS moved
+function showS(id){
+  ['s-load','s-login','s-app','s-ia'].forEach(function(s){
+    var el=document.getElementById(s);
+    if(el)el.classList.toggle('on',el.id===id);
+  });
+}
 async function doLogin(){
   const u=($('lu').value||'').trim().toLowerCase(),p=$('lp').value||'';
   $('lerr').textContent='';

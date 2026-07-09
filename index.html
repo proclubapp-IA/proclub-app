@@ -867,9 +867,32 @@ function renderPromos(){
   var extMes=new Date();var extMesFiltro=extMes.getFullYear()+'-'+(String(extMes.getMonth()+1).padStart(2,'0'));
   var extras=pagos.filter(function(p){return p.tipo==='extra'&&p.fecha&&p.fecha.slice(0,7)===extMesFiltro;});
   var totalExtras=extras.reduce(function(s,p){return s+Number(p.monto);},0);
-  if(extras.length){extras.forEach(function(p){extrasH+='<div class="pgc"><div class="pg-av" style="background:rgba(255,159,10,.1);color:var(--orange)">$</div><div class="pg-i"><div class="pg-n">'+(p.concepto||'Ingreso extra')+'</div><div class="pg-s">'+fd(p.fecha)+'</div></div><div class="pg-r"><div class="pg-m">'+fmtM(p.monto)+'</div><button class="btn xs red" onclick="elimExtra('+p.id+')">x</button></div></div>';});}
+  // Group by category
+  var cats=['Inbody','Pochoclos','Suplementos','Indumentaria','Taller','Otro'];
+  var catData={};
+  cats.forEach(function(c){catData[c]={items:[],total:0};});
+  extras.forEach(function(p){
+    var cat=p.concepto?p.concepto.split(' - ')[0]:'Otro';
+    if(!catData[cat])catData[cat]={items:[],total:0};
+    catData[cat].items.push(p);
+    catData[cat].total+=Number(p.monto);
+  });
+  cats.forEach(function(cat){
+    var cd=catData[cat];
+    if(cd.items.length===0)return;
+    extrasH+='<div style="margin-bottom:12px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'
+      +'<div style="font-size:12px;font-weight:700;color:var(--orange)">'+cat+'</div>'
+      +'<div style="font-size:13px;font-weight:700;color:var(--green)">'+fmtM(cd.total)+'</div>'
+      +'</div>';
+    cd.items.forEach(function(p){
+      var desc=p.concepto&&p.concepto.includes(' - ')?p.concepto.split(' - ').slice(1).join(' - '):'';
+      extrasH+='<div class="pgc"><div class="pg-i"><div class="pg-n">'+(desc||cat)+'</div><div class="pg-s">'+fd(p.fecha)+'</div></div><div class="pg-r"><div class="pg-m">'+fmtM(p.monto)+'</div><button class="btn xs red" onclick="elimExtra('+p.id+')">x</button></div></div>';
+    });
+    extrasH+='</div>';
+  });
   $('tab-v').innerHTML='<div style="display:flex;gap:8px;margin-bottom:12px"><div class="stat" style="flex:1"><div class="sl">Otros ingresos del mes</div><div class="sv c-ora">'+fmtM(totalExtras)+'</div></div></div>'
-    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Otros ingresos</div><button class="btn sm pri" id="btn-add-extra">+ Ingreso</button></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Otros ingresos del mes</div><button class="btn sm pri" id="btn-add-extra">+ Registrar</button></div>'
     +(extrasH||'<div class="empty" style="padding:10px">Sin otros ingresos este mes</div>')
     +'<div class="sec">Promociones</div>'
     +'<div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button class="btn sm sec" onclick="openPromo()">+ Nueva promo</button></div>'+h;
@@ -884,11 +907,13 @@ function abrirNuevoExtra(){
   div.id='m-extra';
   var hoy=new Date().toISOString().split('T')[0];
   div.innerHTML='<div class="modal">'
-    +'<div class="mh"><h2>Otro ingreso</h2><button class="btn sm sec" id="ext-x">&#x2715;</button></div>'
+    +'<div class="mh"><h2>Registrar ingreso</h2><button class="btn sm sec" id="ext-x">&#x2715;</button></div>'
     +'<div class="mb s1">'
-    +'<div class="field"><label>Concepto *</label><select id="ext-conc"><option value="Inbody">Inbody</option><option value="Pochoclos">Pochoclos</option><option value="Suplementos">Suplementos</option><option value="Indumentaria">Indumentaria</option><option value="Taller">Taller / Evento</option><option value="Otro">Otro</option></select></div>'
-    +'<div class="field"><label>Descripcion</label><input id="ext-desc" type="text" placeholder="Detalle opcional..."></div>'
-    +'<div class="field"><label>Monto ($) *</label><input id="ext-monto" type="number" placeholder="5000" inputmode="numeric"></div>'
+    +'<div class="field"><label>Categoria *</label><select id="ext-conc"><option value="Inbody">Inbody</option><option value="Pochoclos">Pochoclos</option><option value="Suplementos">Suplementos</option><option value="Indumentaria">Indumentaria</option><option value="Taller">Taller / Evento</option><option value="Otro">Otro</option></select></div>'
+    +'<div class="field"><label>Descripcion</label><input id="ext-desc" type="text" placeholder="Ej: 5 bolsas pochoclos x $3000"></div>'
+    +'<div class="field"><label>Costo ($)</label><input id="ext-costo" type="number" placeholder="0" inputmode="numeric"></div>'
+    +'<div class="field"><label>Ingreso total ($) *</label><input id="ext-monto" type="number" placeholder="5000" inputmode="numeric"></div>'
+    +'<div id="ext-ganancia" style="font-size:12px;color:var(--green);padding:4px 0;min-height:18px"></div>'
     +'<div class="field"><label>Fecha</label><input id="ext-fecha" type="date" value="'+hoy+'"></div>'
     +'</div>'
     +'<div class="mf"><button class="btn sm sec" id="ext-cancel">Cancelar</button><button class="btn sm pri" id="ext-save">Guardar</button></div>'
@@ -896,6 +921,18 @@ function abrirNuevoExtra(){
   document.body.appendChild(div);
   document.getElementById('ext-x').onclick=function(){div.remove();};
   document.getElementById('ext-cancel').onclick=function(){div.remove();};
+  document.getElementById('ext-monto').oninput=function(){
+    var ing=parseFloat(this.value)||0;
+    var cos=parseFloat(document.getElementById('ext-costo').value)||0;
+    var gan=ing-cos;
+    document.getElementById('ext-ganancia').textContent=cos>0?'Ganancia: '+fmtM(gan)+' (margen '+(ing>0?Math.round(gan/ing*100):0)+'%)':'';
+  };
+  document.getElementById('ext-costo').oninput=function(){
+    var ing=parseFloat(document.getElementById('ext-monto').value)||0;
+    var cos=parseFloat(this.value)||0;
+    var gan=ing-cos;
+    document.getElementById('ext-ganancia').textContent=cos>0?'Ganancia: '+fmtM(gan)+' (margen '+(ing>0?Math.round(gan/ing*100):0)+'%)':'';
+  };
   document.getElementById('ext-save').onclick=async function(){
     var conc=document.getElementById('ext-conc').value;
     var desc=document.getElementById('ext-desc').value.trim();
@@ -1473,7 +1510,7 @@ function renderAhorros(){
       +'</div></div>'
       +'<div style="display:flex;align-items:center;justify-content:space-between">'
       +'<span class="aho-tag '+tagCls+'">'+a.moneda+'</span>'
-      +'<button class="btn xs red" onclick="elimAhorro(\"'+a.id+'\")">Eliminar</button>'
+      +'<button class="btn xs sec" onclick="editarAhorro(\"'+a.id+'\")">Editar</button><button class="btn xs red" onclick="elimAhorro(\"'+a.id+'\")">Eliminar</button>'
       +'</div></div>';
   }
 
@@ -1501,9 +1538,41 @@ function renderAhorros(){
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px">'
     +'<div class="sec" style="margin:0">&#127968; Ahorros Familia</div>'
     +'<button class="btn xs pri" id="btn-add-familia">+ Agregar</button>'
-    +'</div>'+famH;
+    +'</div>'+famH
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px">'
+    +'<div class="sec" style="margin:0">&#128200; Inversiones planificadas</div>'
+    +'<button class="btn xs pri" id="btn-add-inv">+ Planificar</button>'
+    +'</div>'
+    +'<div id="inv-plan-panel"></div>';
   var btnP=document.getElementById('btn-add-proclub');if(btnP)btnP.onclick=function(){abrirNuevoAhorro('proclub');};
   var btnF=document.getElementById('btn-add-familia');if(btnF)btnF.onclick=function(){abrirNuevoAhorro('familia');};
+  // Inversiones planificadas
+  var invPlan=JSON.parse(localStorage.getItem('pc_inv_plan')||'[]');
+  var invH='';
+  invPlan.forEach(function(inv){
+    invH+='<div class="aho-card">'
+      +'<div class="aho-top"><div><div class="aho-n">'+inv.nombre+'</div><div class="aho-s">'+inv.categoria+(inv.notas?' - '+inv.notas:'')+'</div></div>'
+      +'<div style="text-align:right"><div class="aho-v" style="color:var(--blue)">'+fmtM(inv.monto)+'</div>'
+      +'<div style="font-size:10px;color:var(--text3)">'+inv.plazo+'</div></div></div>'
+      +'<div style="display:flex;justify-content:flex-end;gap:6px;margin-top:8px">'
+      +'<button class="btn xs red" id="del-inv-'+inv.id+'">Eliminar</button>'
+      +'</div></div>';
+  });
+  var invPanel=document.getElementById('inv-plan-panel');
+  if(invPanel){
+    invPanel.innerHTML=(invH||'<div class="empty" style="padding:10px">Sin inversiones planificadas</div>');
+    invPlan.forEach(function(inv){
+      var delBtn=document.getElementById('del-inv-'+inv.id);
+      if(delBtn)delBtn.onclick=function(){
+        var arr=JSON.parse(localStorage.getItem('pc_inv_plan')||'[]');
+        arr=arr.filter(function(x){return x.id!==inv.id;});
+        localStorage.setItem('pc_inv_plan',JSON.stringify(arr));
+        renderAhorros();toast('Eliminado');
+      };
+    });
+  }
+  var btnInv=document.getElementById('btn-add-inv');
+  if(btnInv)btnInv.onclick=function(){abrirNuevaInversion();};
 }
 
 function guardarTC(){
@@ -1532,6 +1601,103 @@ function abrirNuevoAhorro(tipo){
     +'</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',modal);
   setTimeout(function(){var el=$('aho-desc');if(el)el.focus();},100);
+}
+
+function abrirNuevaInversion(){
+  var existing=document.getElementById('m-inv');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-inv';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Planificar inversion</h2><button class="btn sm sec" id="inv-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Nombre *</label><input id="inv-nombre" type="text" placeholder="Ej: Cinta corredora nueva"></div>'
+    +'<div class="field"><label>Categoria</label><select id="inv-cat">'
+    +'<option value="Equipamiento">Equipamiento</option>'
+    +'<option value="Infraestructura">Infraestructura</option>'
+    +'<option value="Marketing">Marketing</option>'
+    +'<option value="Tecnologia">Tecnologia</option>'
+    +'<option value="Expansion">Expansion</option>'
+    +'<option value="Otro">Otro</option>'
+    +'</select></div>'
+    +'<div class="field"><label>Monto estimado ($) *</label><input id="inv-monto" type="number" placeholder="500000" inputmode="numeric"></div>'
+    +'<div class="field"><label>Plazo</label><select id="inv-plazo">'
+    +'<option value="1 mes">1 mes</option>'
+    +'<option value="2-3 meses">2-3 meses</option>'
+    +'<option value="3-6 meses">3-6 meses</option>'
+    +'<option value="6-12 meses">6-12 meses</option>'
+    +'<option value="Mas de 1 ano">Mas de 1 ano</option>'
+    +'</select></div>'
+    +'<div class="field full"><label>Notas</label><input id="inv-notas" type="text" placeholder="Detalles, proveedor, etc."></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="inv-cancel">Cancelar</button><button class="btn sm pri" id="inv-save">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('inv-x').onclick=function(){div.remove();};
+  document.getElementById('inv-cancel').onclick=function(){div.remove();};
+  document.getElementById('inv-save').onclick=function(){
+    var nombre=($('inv-nombre').value||'').trim();
+    var monto=parseFloat($('inv-monto').value)||0;
+    if(!nombre||!monto){toast('Nombre y monto son obligatorios','err');return;}
+    var arr=JSON.parse(localStorage.getItem('pc_inv_plan')||'[]');
+    arr.push({id:'i'+Date.now(),nombre:nombre,categoria:$('inv-cat').value,monto:monto,plazo:$('inv-plazo').value,notas:($('inv-notas').value||'').trim()});
+    localStorage.setItem('pc_inv_plan',JSON.stringify(arr));
+    div.remove();renderAhorros();toast('Inversion planificada');
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
+  setTimeout(function(){var el=$('inv-nombre');if(el)el.focus();},100);
+}
+
+async function editarAhorro(id){
+  var a=ahorros.find(function(x){return x.id===id;});
+  if(!a)return;
+  var existing=document.getElementById('m-aho');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-aho';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Editar ahorro</h2><button class="btn sm sec" id="aho-x-btn">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Descripcion</label><input id="aho-desc" type="text" value="'+a.descripcion+'"></div>'
+    +'<div class="field"><label>Monto</label><input id="aho-monto" type="number" value="'+a.monto+'" inputmode="decimal"></div>'
+    +'<div class="field"><label>Moneda</label><select id="aho-moneda">'
+    +'<option value="ARS"'+(a.moneda==='ARS'?' selected':'')+'>ARS - Pesos</option>'
+    +'<option value="USD"'+(a.moneda==='USD'?' selected':'')+'>USD - Dolares</option>'
+    +'<option value="CRYPTO"'+(a.moneda==='CRYPTO'?' selected':'')+'>CRYPTO</option>'
+    +'</select></div>'
+    +'<div class="field"><label>Donde esta guardado</label><select id="aho-banco">'
+    +'<option value="Efectivo"'+(a.banco==='Efectivo'?' selected':'')+'>Efectivo</option>'
+    +'<option value="Brubank"'+(a.banco==='Brubank'?' selected':'')+'>Brubank</option>'
+    +'<option value="Mercado Pago"'+(a.banco==='Mercado Pago'?' selected':'')+'>Mercado Pago</option>'
+    +'<option value="Lemon"'+(a.banco==='Lemon'?' selected':'')+'>Lemon</option>'
+    +'<option value="BBVA"'+(a.banco==='BBVA'?' selected':'')+'>BBVA</option>'
+    +'<option value="Galicia"'+(a.banco==='Galicia'?' selected':'')+'>Galicia</option>'
+    +'<option value="Binance"'+(a.banco==='Binance'?' selected':'')+'>Binance</option>'
+    +'<option value="Acciones"'+(a.banco==='Acciones'?' selected':'')+'>Acciones / Bolsa</option>'
+    +'<option value="FCI"'+(a.banco==='FCI'?' selected':'')+'>FCI / Fondos</option>'
+    +'<option value="Otro"'+(a.banco==='Otro'?' selected':'')+'>Otro</option>'
+    +'</select></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="aho-cancel-btn">Cancelar</button><button class="btn sm pri" id="btn-save-aho">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('aho-x-btn').onclick=function(){div.remove();};
+  document.getElementById('aho-cancel-btn').onclick=function(){div.remove();};
+  document.getElementById('btn-save-aho').onclick=async function(){
+    var desc=($('aho-desc').value||'').trim();
+    var monto=parseFloat($('aho-monto').value);
+    if(!desc||!monto){toast('Completa todos los campos','err');return;}
+    var obj={descripcion:desc,monto:monto,moneda:$('aho-moneda').value,banco:$('aho-banco').value};
+    try{
+      await sbU('ahorros',id,obj);
+      var idx=ahorros.findIndex(function(x){return x.id===id;});
+      if(idx>-1)ahorros[idx]=Object.assign({},ahorros[idx],obj);
+      div.remove();renderAhorros();toast('Actualizado');
+    }catch(e){toast('Error al guardar','err');}
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
 }
 
 function guardarAhorro(){

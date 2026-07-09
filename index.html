@@ -306,7 +306,7 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
     <div class="linp"><span style="color:var(--text3);font-size:15px">&#128100;</span><input class="inp" id="lu" type="text" placeholder="Usuario" autocomplete="username"></div>
     <div class="linp"><span style="color:var(--text3);font-size:15px">&#128274;</span><input class="inp" id="lp" type="password" placeholder="Contrasena" autocomplete="current-password"></div>
     <div class="lerr" id="lerr"></div>
-    <button class="btn-acc" id="lbtn" onclick="doLogin()">Ingresar &#8594;</button>
+    <button class="btn-acc" id="lbtn">Ingresar &#8594;</button>
   </div>
   <div class="login-foot">PRO AI &#8226; ProClub</div>
 </div>
@@ -505,6 +505,7 @@ async function doLogin(){
   finally{setBtn(b,false);}
 }
 $('lp').onkeydown=function(e){if(e.key==='Enter')doLogin();};
+$('lbtn').addEventListener('click',function(){doLogin();});
 $('lu').onkeydown=function(e){if(e.key==='Enter')$('lp').focus();};
 function doLogout(){CU=null;showS('s-login');$('lu').value='';$('lp').value='';}
 function goHome(){if(CU)showTab('d');else showS('s-login');}

@@ -499,7 +499,7 @@ async function doLogin(){
   finally{setBtn(b,false);}
 }
 $('lp').onkeydown=function(e){if(e.key==='Enter')doLogin();};
-$('lbtn').addEventListener('click',function(){doLogin();});
+$('lbtn').addEventListener('click',function(){console.log('CLICK');doLogin().then(function(){console.log('LOGIN DONE');}).catch(function(e){console.error('LOGIN ERR',e);});});
 $('lu').onkeydown=function(e){if(e.key==='Enter')$('lp').focus();};
 function doLogout(){CU=null;showS('s-login');$('lu').value='';$('lp').value='';}
 function goHome(){if(CU)showTab('d');else showS('s-login');}

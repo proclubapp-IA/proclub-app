@@ -288,28 +288,22 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
   <div class="pc-logo" id="load-logo">PC<img id="load-logo-img" src="" alt=""></div>
   <div class="spin"></div>
 </div>
-<div class="screen" id="s-login">
-  <div class="login-bg"></div>
-  <div id="particles" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
-  <div class="login-brand">
-    <div class="brand-logo" onclick="document.getElementById('login-logo-file').click()">
-      <img id="ll-img" src="" alt=""><span id="ll-txt">PC</span>
-      <div class="brand-edit">&#9998;</div>
-      <input type="file" id="login-logo-file" accept="image/*" onchange="loginUploadLogo(event)">
-    </div>
-    <div>
-      <div id="login-title" style="font-size:28px;font-weight:800;color:var(--gold);letter-spacing:-1px">ProClub</div>
-      <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Sistema de gestion</div>
-    </div>
+<div class="screen" id="s-login" style="align-items:center;justify-content:center;background:#0a0a0a;flex-direction:column;gap:16px;padding:32px">
+  <div style="text-align:center;margin-bottom:8px">
+    <div style="font-size:32px;font-weight:800;color:#C8A84B;letter-spacing:-1px">ProClub</div>
+    <div style="font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:4px">Sistema de gestion</div>
   </div>
-  <div class="login-box">
-    <div class="linp"><span style="color:var(--text3);font-size:15px">&#128100;</span><input class="inp" id="lu" type="text" placeholder="Usuario" autocomplete="username"></div>
-    <div class="linp"><span style="color:var(--text3);font-size:15px">&#128274;</span><input class="inp" id="lp" type="password" placeholder="Contrasena" autocomplete="current-password"></div>
-    <div class="lerr" id="lerr"></div>
-    <button class="btn-acc" id="lbtn">Ingresar &#8594;</button>
-  </div>
-  <div class="login-foot">PRO AI &#8226; ProClub</div>
+  <input id="lu" type="text" placeholder="Usuario" autocomplete="username"
+    style="width:100%;max-width:320px;padding:14px 16px;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;font-size:16px;font-family:inherit;outline:none;display:block">
+  <input id="lp" type="password" placeholder="Contrasena" autocomplete="current-password"
+    style="width:100%;max-width:320px;padding:14px 16px;background:#1a1a1a;border:1px solid #333;border-radius:12px;color:#fff;font-size:16px;font-family:inherit;outline:none;display:block">
+  <div id="lerr" style="color:#e74c3c;font-size:13px;min-height:18px"></div>
+  <button id="lbtn"
+    style="width:100%;max-width:320px;padding:16px;background:#C8A84B;border:none;border-radius:12px;color:#000;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:block">
+    Ingresar →
+  </button>
 </div>
+
 <div class="screen" id="s-app">
   <div class="topbar">
     <div class="tb-l" onclick="goHome()">

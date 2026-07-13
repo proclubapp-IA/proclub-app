@@ -445,7 +445,7 @@ function fd(d){return d?d.split('-').reverse().join('/'):'--';}
 function ini(n){return (n||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();}
 function fmtM(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 function dias(v){if(!v)return null;const h=new Date();h.setHours(0,0,0,0);const d=new Date(v);d.setHours(0,0,0,0);return Math.round((d-h)/864e5);}
-function waLink(tel,msg){const n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;return'https://wa.me/'+n+'?text='+encodeURIComponent(msg);}
+function waLink(tel,msg){var n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;var encoded=msg.split('').map(function(c){var code=c.codePointAt(0);if(code>127){return encodeURIComponent(c);}return c;}).join('');return'https://wa.me/'+n+'?text='+encoded;}
 function waMsg(a){
   var d=dias(a.venc),nom=a.nombre.split(' ')[0];
   var datos='\n\n👉 Alias: proclubarg\n✅ Titular: Franco Nicolás Meloni\n🏦 Banco: Brubank\n\nEnvianos el comprobante cuando lo hagas y activamos tu plan enseguida 🚀\n\n¡Gracias por ser parte de ProClub! 💪✨';

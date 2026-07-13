@@ -445,16 +445,13 @@ function fd(d){return d?d.split('-').reverse().join('/'):'--';}
 function ini(n){return (n||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();}
 function fmtM(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 function dias(v){if(!v)return null;const h=new Date();h.setHours(0,0,0,0);const d=new Date(v);d.setHours(0,0,0,0);return Math.round((d-h)/864e5);}
-function waLink(tel,msg){var n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;var encoded=msg.split('').map(function(c){var code=c.codePointAt(0);if(code>127){return encodeURIComponent(c);}return c;}).join('');return'https://wa.me/'+n+'?text='+encoded;}
+function waLink(tel,msg){const n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;return'https://wa.me/'+n+'?text='+encodeURIComponent(msg);}
 function waMsg(a){
-  var d=dias(a.venc),nom=a.nombre.split(' ')[0];
-  var datos='\n\n👉 Alias: proclubarg\n✅ Titular: Franco Nicolás Meloni\n🏦 Banco: Brubank\n\nEnvianos el comprobante cuando lo hagas y activamos tu plan enseguida 🚀\n\n¡Gracias por ser parte de ProClub! 💪✨';
-  var intro='Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖 y te escribo para avisarte que tu membresía venció el '+fd(a.venc)+' 😊\n\nCuando puedas renovar, te dejamos los datos:';
-  var recordatorio='Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖 y te escribo para recordarte que tu membresía vence el '+fd(a.venc)+' 😊\n\nCuando quieras renovar, te dejamos los datos:';
-  if(d===null)return 'Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖';
-  if(d<=0)return intro+datos;
-  if(d<=7)return recordatorio+datos;
-  return 'Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖';
+  const d=dias(a.venc),nom=a.nombre.split(' ')[0];
+  const datos='\n\n\uD83D\uDCB3 proclubarg\n\uD83D\uDC64 Franco Nicol\u00e1s Meloni\n\uD83C\uDFE6 Brubank\n\nEnvi\u00e1nos el comprobante y tu plan ser\u00e1 habilitado autom\u00e1ticamente. Gracias por ser parte de ProClub \uD83D\uDC9B';
+  if(d===null)return 'Hola '+nom+'! Te escribimos desde ProClub.';
+  if(d<=0)return 'PRO AI \u2022 ProClub\nHola '+nom+'! Tu membres\u00eda venci\u00f3 el '+fd(a.venc)+'. Para reactivar:'+datos;
+  return 'PRO AI \u2022 ProClub\nHola '+nom+'! Tu membres\u00eda vence en '+d+' d\u00eda'+(d!==1?'s':'')+'. Para renovar:'+datos;
 }
 function toast(msg,t){const el=$('toast');el.textContent=msg;el.className='toast '+(t||'ok')+' show';clearTimeout(el._t);el._t=setTimeout(function(){el.className='toast';},2400);}
 function setBtn(b,on){if(!b)return;b.disabled=on;if(on){b._t=b.textContent;b.textContent='...';}else b.textContent=b._t||b.textContent;}
@@ -573,15 +570,14 @@ function renderDash(){
   // Alertas vencimiento
   var alerts='';
   if(xv.length){
-    alerts='<div style="margin-bottom:14px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="color:var(--red);margin-top:0">Vencimientos proximos ('+xv.length+')</div></div><input id="srch-venc" type="text" placeholder="Buscar alumno..." oninput="filtrarVenc()" style="width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:8px">';
-    alerts+='<div id="venc-list-wrap">';
+    alerts='<div style="margin-bottom:14px"><div class="sec" style="color:var(--red);margin-top:0">Vencimientos proximos ('+xv.length+')</div>';
     xv.forEach(function(a){
       var d=dias(a.venc);
       var txt=d<=0?'VENCIDO hace '+Math.abs(d)+' dia'+(Math.abs(d)!==1?'s':''):d===0?'Vence HOY':'Vence en '+d+' dia'+(d!==1?'s':'')+' - URGENTE';
       var lk=waLink(a.tel,waMsg(a));
-      alerts+='<div class="alert-venc" data-nombre="'+a.nombre.toLowerCase()+'"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+' <button class="btn xs grn" onclick="renovarAlumno('+a.id+')">Renovar</button> <button class="btn xs sec" onclick="verAlumno('+a.id+')">Ver</button></div></div>';
+      alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+' <button class="btn xs grn" onclick="renovarAlumno('+a.id+')">Renovar</button> <button class="btn xs sec" onclick="verAlumno('+a.id+')">Ver</button></div></div>';
     });
-    alerts+='</div></div>';
+    alerts+='</div>';
   }
 
   // Distribucion
@@ -761,15 +757,6 @@ function renovarAlumno(id){
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
   setTimeout(function(){var el=document.getElementById('ren-venc');if(el)el.focus();},100);
-}
-
-function filtrarVenc(){
-  var q=(document.getElementById('srch-venc').value||'').toLowerCase();
-  var cards=document.querySelectorAll('.alert-venc[data-nombre]');
-  cards.forEach(function(card){
-    var nombre=card.getAttribute('data-nombre')||'';
-    card.style.display=(!q||nombre.includes(q))?'':'none';
-  });
 }
 
 function verAlumno(id){

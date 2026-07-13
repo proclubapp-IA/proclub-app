@@ -570,12 +570,12 @@ function renderDash(){
   // Alertas vencimiento
   var alerts='';
   if(xv.length){
-    alerts='<div style="margin-bottom:14px"><div class="sec" style="color:var(--red);margin-top:0">Vencimientos proximos ('+xv.length+')</div>';
+    alerts='<div style="margin-bottom:14px"><div class="sec" style="color:var(--red);margin-top:0">Vencimientos proximos ('+xv.length+')</div><input id="srch-venc" type="text" placeholder="🔍 Buscar alumno..." oninput="filtrarVenc()" style="width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-top:8px">';
     xv.forEach(function(a){
       var d=dias(a.venc);
       var txt=d<=0?'VENCIDO hace '+Math.abs(d)+' dia'+(Math.abs(d)!==1?'s':''):d===0?'Vence HOY':'Vence en '+d+' dia'+(d!==1?'s':'')+' - URGENTE';
       var lk=waLink(a.tel,waMsg(a));
-      alerts+='<div class="alert-venc"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+' <button class="btn xs grn" onclick="renovarAlumno('+a.id+')">Renovar</button> <button class="btn xs sec" onclick="verAlumno('+a.id+')">Ver</button></div></div>';
+      alerts+='<div class="alert-venc" data-nombre="'+a.nombre.toLowerCase()+'" id="av-'+a.id+'"><div><div class="av-n">'+a.nombre+'</div><div class="av-s">'+txt+' - '+a.plan+'</div></div><div style="display:flex;gap:5px;flex-wrap:wrap">'+(lk?'<a href="'+lk+'" target="_blank" class="btn-wa">WA</a>':'')+' <button class="btn xs grn" onclick="renovarAlumno('+a.id+')">Renovar</button> <button class="btn xs red" onclick="inactivarDesdeAlerta('+a.id+')">Inactivar</button> <button class="btn xs sec" onclick="verAlumno('+a.id+')">Ver</button></div></div>';
     });
     alerts+='</div>';
   }
@@ -757,6 +757,26 @@ function renovarAlumno(id){
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
   setTimeout(function(){var el=document.getElementById('ren-venc');if(el)el.focus();},100);
+}
+
+function filtrarVenc(){
+  var q=(document.getElementById('srch-venc').value||'').toLowerCase();
+  document.querySelectorAll('.alert-venc[data-nombre]').forEach(function(card){
+    var nombre=card.getAttribute('data-nombre')||'';
+    card.style.display=(!q||nombre.includes(q))?'':'none';
+  });
+}
+
+async function inactivarDesdeAlerta(id){
+  var a=alumnos.find(function(x){return x.id===id;});
+  if(!a)return;
+  if(!confirm('Inactivar a '+a.nombre+'?'))return;
+  try{
+    await sbU('alumnos',id,{estado:'inactivo'});
+    a.estado='inactivo';
+    renderDash();
+    toast(a.nombre+' inactivado');
+  }catch(e){toast('Error','err');}
 }
 
 function verAlumno(id){

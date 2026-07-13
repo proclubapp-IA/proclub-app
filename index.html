@@ -448,12 +448,13 @@ function dias(v){if(!v)return null;const h=new Date();h.setHours(0,0,0,0);const 
 function waLink(tel,msg){const n=(tel||'').replace(/\D/g,'');if(!n||n.length<8)return null;return'https://wa.me/'+n+'?text='+encodeURIComponent(msg);}
 function waMsg(a){
   var d=dias(a.venc),nom=a.nombre.split(' ')[0];
-  var datos='\n\n\uD83D\uDC49 Alias: proclubarg\n\u2705 Titular: Franco Nicol\u00e1s Meloni\n\uD83C\uDFE6 Banco: Brubank\n\nEnvi\u00e1nos el comprobante cuando lo hagas y activamos tu plan enseguida \uD83D\uDE80\n\n\u00a1Gracias por ser parte de ProClub! \uD83D\uDCAA\u2728';
-  var intro='Hola '+nom+'! \uD83D\uDC4B Soy el asistente de ProClub \uD83E\uDD16 y te escribo para avisarte que tu membres\u00eda venci\u00f3 el '+fd(a.venc)+' \uD83D\uDE0A\n\nCuando puedas renovar, te dejamos los datos:';
-  if(d===null)return 'Hola '+nom+'! \uD83D\uDC4B Soy el asistente de ProClub \uD83E\uDD16';
+  var datos='\n\n👉 Alias: proclubarg\n✅ Titular: Franco Nicolás Meloni\n🏦 Banco: Brubank\n\nEnvianos el comprobante cuando lo hagas y activamos tu plan enseguida 🚀\n\n¡Gracias por ser parte de ProClub! 💪✨';
+  var intro='Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖 y te escribo para avisarte que tu membresía venció el '+fd(a.venc)+' 😊\n\nCuando puedas renovar, te dejamos los datos:';
+  var recordatorio='Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖 y te escribo para recordarte que tu membresía vence el '+fd(a.venc)+' 😊\n\nCuando quieras renovar, te dejamos los datos:';
+  if(d===null)return 'Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖';
   if(d<=0)return intro+datos;
-  if(d<=2)return 'Hola '+nom+'! \uD83D\uDC4B Soy el asistente de ProClub \uD83E\uDD16 y te escribo para recordarte que tu membres\u00eda vence el '+fd(a.venc)+' \uD83D\uDE0A\n\nCuando quieras renovar, te dejamos los datos:'+datos;
-  return 'Hola '+nom+'! \uD83D\uDC4B Soy el asistente de ProClub \uD83E\uDD16';
+  if(d<=7)return recordatorio+datos;
+  return 'Hola '+nom+'! 👋 Soy el asistente de ProClub 🤖';
 }
 function toast(msg,t){const el=$('toast');el.textContent=msg;el.className='toast '+(t||'ok')+' show';clearTimeout(el._t);el._t=setTimeout(function(){el.className='toast';},2400);}
 function setBtn(b,on){if(!b)return;b.disabled=on;if(on){b._t=b.textContent;b.textContent='...';}else b.textContent=b._t||b.textContent;}

@@ -1483,7 +1483,11 @@ function calcPuntoEquilibrio(){
   if(!peBox)return;
   var actConPrecio=alumnos.filter(function(a){return a.estado==='activo'&&a.precio;});
   var precioPromedio=actConPrecio.length>0?actConPrecio.reduce(function(s,a){return s+Number(a.precio);},0)/actConPrecio.length:0;
-  var tf=costos.filter(function(c){return c.tipo==='fijo';}).reduce(function(s,c){return s+Number(c.valor);},0);
+  var hoyPE=new Date();
+  var mesPE=hoyPE.getFullYear()+'-'+(String(hoyPE.getMonth()+1).padStart(2,'0'));
+  var finMesEl=document.getElementById('fin-mes-sel');
+  if(finMesEl&&finMesEl.value)mesPE=finMesEl.value;
+  var tf=costos.filter(function(c){return c.tipo==='fijo'&&(!c.fecha||c.fecha.slice(0,7)===mesPE);}).reduce(function(s,c){return s+Number(c.valor);},0);
   if(tf===0||precioPromedio===0){
     peBox.innerHTML='<div style="font-size:12px;color:var(--text3)">Carga costos fijos y precios en fichas para calcular.</div>';
     return;

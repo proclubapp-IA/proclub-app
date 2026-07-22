@@ -1454,6 +1454,9 @@ function renderRetencion(){
   var ticketProm=actConPrecio.length>0?actConPrecio.reduce(function(s,a){return s+Number(a.precio);},0)/actConPrecio.length:0;
   var impactoPesos=churnReal.reduce(function(s,a){return s+Number(a.precio||ticketProm);},0);
   var nuevosNecesarios=ticketProm>0?Math.ceil(impactoPesos/ticketProm):0;
+  var impactoGracia=(enGracia.length+fueraGracia.length);
+  var impactoGraciaPesos=(enGracia.concat(fueraGracia)).reduce(function(s,a){return s+Number(a.precio||ticketProm);},0);
+  var nuevosParaGracia=ticketProm>0?Math.ceil(impactoGraciaPesos/ticketProm):0;
 
   // Build lists
   function buildList(lista,color,etiqueta){
@@ -1491,7 +1494,11 @@ function renderRetencion(){
       +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
       +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Ticket promedio</div><div style="font-size:16px;font-weight:700;color:var(--gold)">'+fmtM(Math.round(ticketProm))+'</div></div>'
       +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Impacto bajas</div><div style="font-size:16px;font-weight:700;color:var(--red)">-'+fmtM(impactoPesos)+'</div></div>'
-      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Nuevos p/compensar</div><div style="font-size:16px;font-weight:700;color:var(--blue)">'+nuevosNecesarios+'</div></div>'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Nuevos p/bajas</div><div style="font-size:16px;font-weight:700;color:var(--blue)">'+nuevosNecesarios+'</div></div>'
+      +'</div>'
+      +'<div style="border-top:1px solid var(--border);margin-top:10px;padding-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">En riesgo (gracia)</div><div style="font-size:16px;font-weight:700;color:var(--orange)">'+fmtM(impactoGraciaPesos)+'</div><div style="font-size:10px;color:var(--text3)">'+impactoGracia+' alumnos sin renovar</div></div>'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Nuevos p/cubrir gracia</div><div style="font-size:16px;font-weight:700;color:var(--orange)">'+nuevosParaGracia+'</div><div style="font-size:10px;color:var(--text3)">si no renuevan ninguno</div></div>'
       +'</div></div>'
 
       +(noRenH?'<div class="sec" style="color:var(--orange)">Sin renovar / Bajas ('+(enGracia.length+fueraGracia.length+churnReal.length)+')</div><div class="card"><div class="card-body">'+noRenH+'</div></div>':'')

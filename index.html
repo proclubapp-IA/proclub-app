@@ -862,12 +862,13 @@ function renderFinanzas(){
     +'<select class="ssel" id="fin-mes-sel" onchange="renderFinanzas()" style="flex:1;max-width:200px">'+finOpts+'</select>'
     +'<button class="btn sm" onclick="exportarInformeContable()">&#128196; Exportar PDF</button>'
     +'</div>'
-    +'<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class="fin-tab" onclick="finTab(this,\'fp-pro\')">Proyeccion</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
+    +'<div class="fin-tabs"><button class="fin-tab on" onclick="finTab(this,\'fp-res\')">Resumen</button><button class="fin-tab" onclick="finTab(this,\'fp-cos\')">Costos</button><button class="fin-tab" onclick="finTab(this,\'fp-inv\')">Inversiones</button><button class="fin-tab" onclick="finTab(this,\'fp-bal\')">Balance</button><button class="fin-tab" onclick="finTab(this,\'fp-sue\')">Sueldos</button><button class="fin-tab" onclick="finTab(this,\'fp-pro\')">Proyeccion</button><button class="fin-tab" onclick="finTab(this,\'fp-ret\')">Retencion</button><button class="fin-tab" onclick="finTab(this,\'fp-aho\')">Ahorros</button></div>'
     +'<div class="fin-panel on" id="fp-res"><div class="sg4"><div class="stat g-green"><div class="sl">Ingresos</div><div class="sv c-green" style="font-size:16px">'+fmtM(ing)+'</div></div><div class="stat g-red"><div class="sl">Costos</div><div class="sv c-red" style="font-size:16px">'+fmtM(tc)+'</div></div><div class="stat '+(res>=0?'g-green':'g-red')+'"><div class="sl">Resultado</div><div class="sv '+(res>=0?'c-green':'c-red')+'" style="font-size:16px">'+fmtM(res)+'</div></div><div class="stat"><div class="sl">Margen</div><div class="sv '+(mar>=0?'c-green':'c-red')+'">'+mar+'%</div></div></div><div class="sec">Ingresos por mes</div><div class="card"><div class="card-body">'+(mH||'<div class="empty" style="padding:14px">Sin datos</div>')+'</div></div><div class="sec">Punto de equilibrio</div><div class="card"><div class="card-body" id="pe-box"><p style="font-size:12px;color:var(--text3)">Carga costos fijos y precios en fichas para calcular.</p></div></div></div>'
     +'<div class="fin-panel" id="fp-cos"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div class="stat g-red"><div class="sl">Fijos/mes</div><div class="sv c-red">'+fmtM(tf)+'</div></div><div class="stat"><div class="sl">Variables</div><div class="sv c-ora">'+fmtM(tv)+'</div></div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="sec" style="margin:0">Costos fijos</div><button class="btn xs pri" onclick="openCosto(\'fijo\')">+ Agregar</button></div>'+(cfH||'<div class="empty" style="padding:10px">Sin costos fijos</div>')+'<div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px"><div class="sec" style="margin:0">Costos variables</div><button class="btn xs pri" onclick="openCosto(\'variable\')">+ Agregar</button></div>'+(cvH||'<div class="empty" style="padding:10px">Sin costos variables</div>')+'</div>'
     +'<div class="fin-panel" id="fp-inv"><div class="stat" style="margin-bottom:12px"><div class="sl">Total invertido</div><div class="sv c-pur">'+fmtM(ti)+'</div></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div class="sec" style="margin:0">Inversiones</div><button class="btn xs pri" onclick="openInv()">+ Agregar</button></div>'+(invH||'<div class="empty">Sin inversiones</div>')+'</div>'
     +'<div class="fin-panel" id="fp-sue"></div>'
     +'<div class="fin-panel" id="fp-pro"></div>'
+    +'<div class="fin-panel" id="fp-ret"></div>'
     +'<div class="fin-panel" id="fp-aho"></div>'
     +'<div class="fin-panel" id="fp-bal"><div class="sec" style="margin-top:0">Estado patrimonial</div><div class="card" style="margin-bottom:12px"><div class="card-body"><div class="fin-row"><div class="fin-l">Activo total</div><div class="fin-v c-green">'+fmtM(ing+ti)+'</div></div><div class="fin-row"><div class="fin-l">Pasivo total</div><div class="fin-v c-red">'+fmtM(tc)+'</div></div><div class="fin-row"><div class="fin-l" style="font-weight:700">Patrimonio neto</div><div class="fin-v '+(ing+ti-tc>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(ing+ti-tc)+'</div></div></div></div><div class="sec">Balance</div><div class="card"><div class="card-body"><div class="fin-row"><div class="fin-l">Ingresos</div><div class="fin-v c-green">'+fmtM(ing)+'</div></div><div class="fin-row"><div class="fin-l">(-) Costos fijos</div><div class="fin-v c-red">-'+fmtM(tf)+'</div></div><div class="fin-row"><div class="fin-l">(-) Variables</div><div class="fin-v c-ora">-'+fmtM(tv)+'</div></div><div class="fin-row" style="padding-top:12px;border-top:2px solid var(--border2)"><div class="fin-l" style="font-weight:700">Resultado</div><div class="fin-v '+(res>=0?'c-green':'c-red')+'" style="font-size:18px">'+fmtM(res)+'</div></div></div></div></div>';
   setTimeout(calcPuntoEquilibrio,50);
@@ -1392,6 +1393,99 @@ function exportarInformeContable(){
   toast('Informe generado');
 }
 
+function renderRetencion(){
+  var panel=document.getElementById('fp-ret');
+  if(!panel)return;
+
+  var hoy=new Date();
+  var mesActual=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+  var finMesEl=document.getElementById('fin-mes-sel');
+  var mesAnalisis=finMesEl&&finMesEl.value?finMesEl.value:mesActual;
+  var partes=mesAnalisis.split('-');
+  var mesNom=new Date(partes[0],partes[1]-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+
+  // Alumnos que vencieron en el mes analizado
+  var vencieronMes=alumnos.filter(function(a){
+    return a.venc&&a.venc.slice(0,7)===mesAnalisis;
+  });
+
+  // Fecha limite de gracia: 30 dias despues del fin del mes
+  var finMes=new Date(partes[0],partes[1],0); // ultimo dia del mes
+  var fechaGracia=new Date(finMes);
+  fechaGracia.setDate(fechaGracia.getDate()+30);
+  var hoyStr=hoy.toISOString().split('T')[0];
+  var graciaStr=fechaGracia.toISOString().split('T')[0];
+  var gracia30Pasada=hoyStr>graciaStr;
+
+  // Separar: renovaron vs no renovaron
+  var renovaron=vencieronMes.filter(function(a){return a.estado==='activo';});
+  var noRenovaron=vencieronMes.filter(function(a){return a.estado!=='activo';});
+
+  var totalVencieron=vencieronMes.length;
+  var tasaRetencion=totalVencieron>0?Math.round(renovaron.length/totalVencieron*100):0;
+  var tasaChurn=100-tasaRetencion;
+
+  // Ticket promedio activos
+  var actConPrecio=alumnos.filter(function(a){return a.estado==='activo'&&a.precio;});
+  var ticketProm=actConPrecio.length>0?actConPrecio.reduce(function(s,a){return s+Number(a.precio);},0)/actConPrecio.length:0;
+
+  // Impacto en pesos de los que no renovaron
+  var impactoPesos=noRenovaron.reduce(function(s,a){return s+Number(a.precio||ticketProm);},0);
+
+  // Alumnos nuevos necesarios para compensar
+  var nuevosNecesarios=ticketProm>0?Math.ceil(impactoPesos/ticketProm):0;
+
+  // Lista no renovaron
+  var noRenH='';
+  noRenovaron.forEach(function(a){
+    var diasVenc=Math.floor((hoy-new Date(a.venc))/(1000*60*60*24));
+    var estado=!gracia30Pasada?'En gracia ('+(30-diasVenc>0?30-Math.floor((hoy-new Date(finMes))/(1000*60*60*24)):0)+' dias rest.)':'Churn real';
+    var color=!gracia30Pasada?'var(--orange)':'var(--red)';
+    var lk=waLink(a.tel,waMsg(a));
+    noRenH+='<div class="fin-item">'
+      +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
+      +'<div class="fin-item-s">'+a.plan+' - Venció: '+fd(a.venc)+'</div></div>'
+      +'<div class="fin-item-r">'
+      +'<span style="font-size:11px;color:'+color+';font-weight:600">'+estado+'</span>'
+      +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
+      +'</div></div>';
+  });
+
+  // Renovaron tarde (activos que vencieron este mes - pueden haber renovado tarde)
+  var renH='';
+  renovaron.forEach(function(a){
+    renH+='<div class="fin-item">'
+      +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
+      +'<div class="fin-item-s">'+a.plan+'</div></div>'
+      +'<div class="fin-item-r"><span style="font-size:11px;color:var(--green);font-weight:600">✓ Renovó</span></div>'
+      +'</div>';
+  });
+
+  panel.innerHTML=
+    '<div class="sec" style="margin-top:0">Retención de '+mesNom+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">'
+    +'<div class="stat g-green"><div class="sl">Retención</div><div class="sv c-green" style="font-size:28px">'+tasaRetencion+'%</div><div style="font-size:11px;color:var(--text3);margin-top:2px">'+renovaron.length+' de '+totalVencieron+' renovaron</div></div>'
+    +'<div class="stat '+(tasaChurn>20?'g-red':'g-ora')+'"><div class="sl">Churn</div><div class="sv '+(tasaChurn>20?'c-red':'c-ora')+'" style="font-size:28px">'+tasaChurn+'%</div><div style="font-size:11px;color:var(--text3);margin-top:2px">'+noRenovaron.length+' no renovaron</div></div>'
+    +'</div>'
+
+    +(totalVencieron===0?'<div class="card"><div class="card-body empty">No hay alumnos que hayan vencido en '+mesNom+'</div></div>':
+      '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px">'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Ticket promedio</div><div style="font-size:16px;font-weight:700;color:var(--gold)">'+fmtM(Math.round(ticketProm))+'</div></div>'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Impacto en caja</div><div style="font-size:16px;font-weight:700;color:var(--red)">-'+fmtM(impactoPesos)+'</div></div>'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Nuevos necesarios</div><div style="font-size:16px;font-weight:700;color:var(--blue)">'+nuevosNecesarios+'</div></div>'
+      +'</div>'
+      +(gracia30Pasada?'':'<div style="margin-top:10px;font-size:11px;color:var(--orange)">⏳ Período de gracia activo (30 días) — el churn real se confirma al vencer la gracia</div>')
+      +'</div>'
+
+      +(noRenovaron.length>0?'<div class="sec" style="color:var(--orange)">No renovaron ('+noRenovaron.length+')</div>'
+      +'<div class="card"><div class="card-body">'+noRenH+'</div></div>':'')
+
+      +(renovaron.length>0?'<div class="sec" style="color:var(--green)">Renovaron ('+renovaron.length+')</div>'
+      +'<div class="card"><div class="card-body">'+renH+'</div></div>':''))
+    ;
+}
+
 function renderProyeccion(){
   var panel=document.getElementById('fp-pro');
   if(!panel)return;
@@ -1517,6 +1611,7 @@ function finTab(btn,pid){
   if(pid==='fp-sue')renderSueldos();
   if(pid==='fp-res')setTimeout(calcPuntoEquilibrio,50);
   if(pid==='fp-pro')renderProyeccion();
+  if(pid==='fp-ret')renderRetencion();
 }
 
 function renderAhorros(){

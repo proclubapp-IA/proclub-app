@@ -1398,90 +1398,103 @@ function renderRetencion(){
   if(!panel)return;
 
   var hoy=new Date();
+  hoy.setHours(0,0,0,0);
+  var hoyStr=hoy.toISOString().split('T')[0];
+
   var mesActual=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
   var finMesEl=document.getElementById('fin-mes-sel');
   var mesAnalisis=finMesEl&&finMesEl.value?finMesEl.value:mesActual;
   var partes=mesAnalisis.split('-');
-  var mesNom=new Date(partes[0],parseInt(partes[1])-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  var mesNom=new Date(parseInt(partes[0]),parseInt(partes[1])-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
 
-  // Alumnos que vencieron en el mes analizado
+  // Solo alumnos cuyo vencimiento cae en el mes analizado Y ya paso (antes de hoy)
   var vencieronMes=alumnos.filter(function(a){
-    return a.venc&&a.venc.slice(0,7)===mesAnalisis;
+    if(!a.venc)return false;
+    var mesVenc=a.venc.slice(0,7);
+    return mesVenc===mesAnalisis && a.venc<hoyStr;
   });
 
-  // Renovó = vencía ese mes Y su vencimiento fue corrido a un mes posterior
-  // No renovó = vencía ese mes Y su vencimiento sigue siendo ese mes (no actualizó)
-  // Inactivo = estado inactivo (churn confirmado)
+  // Renovaron = vencian ese mes + corrieron fecha a mes posterior
   var renovaron=vencieronMes.filter(function(a){
-    return a.estado==='activo' && a.venc && a.venc.slice(0,7) > mesAnalisis;
+    return a.estado==='activo' && a.venc.slice(0,7) > mesAnalisis;
   });
-  var noRenovaron=vencieronMes.filter(function(a){
-    return a.estado==='inactivo' || (a.estado==='activo' && a.venc && a.venc.slice(0,7) <= mesAnalisis);
+
+  // Churn real = inactivos que vencian ese mes
+  var churnReal=vencieronMes.filter(function(a){
+    return a.estado==='inactivo';
   });
-  var churnConfirmado=vencieronMes.filter(function(a){return a.estado==='inactivo';});
+
+  // En gracia = activos, vencidos, sin correr fecha (aun dentro de 30 dias de gracia)
   var enGracia=vencieronMes.filter(function(a){
-    return a.estado==='activo' && a.venc && a.venc.slice(0,7) <= mesAnalisis;
+    if(a.estado!=='activo')return false;
+    if(a.venc.slice(0,7) > mesAnalisis)return false; // ya renovaron
+    // Calcular si aun esta en periodo de gracia (30 dias desde vencimiento)
+    var vencDate=new Date(a.venc);
+    var gracia=new Date(vencDate);
+    gracia.setDate(gracia.getDate()+30);
+    return hoy<=gracia;
+  });
+
+  // Fuera de gracia = activos, vencidos hace mas de 30 dias, sin renovar
+  var fueraGracia=vencieronMes.filter(function(a){
+    if(a.estado!=='activo')return false;
+    if(a.venc.slice(0,7) > mesAnalisis)return false;
+    var vencDate=new Date(a.venc);
+    var gracia=new Date(vencDate);
+    gracia.setDate(gracia.getDate()+30);
+    return hoy>gracia;
   });
 
   var totalVencieron=vencieronMes.length;
   var tasaRetencion=totalVencieron>0?Math.round(renovaron.length/totalVencieron*100):0;
-  var tasaChurn=totalVencieron>0?Math.round(churnConfirmado.length/totalVencieron*100):0;
+  var tasaChurn=totalVencieron>0?Math.round(churnReal.length/totalVencieron*100):0;
 
-  // Ticket promedio
+  // Ticket promedio activos con precio
   var actConPrecio=alumnos.filter(function(a){return a.estado==='activo'&&a.precio;});
   var ticketProm=actConPrecio.length>0?actConPrecio.reduce(function(s,a){return s+Number(a.precio);},0)/actConPrecio.length:0;
-  var impactoPesos=churnConfirmado.reduce(function(s,a){return s+Number(a.precio||ticketProm);},0);
+  var impactoPesos=churnReal.reduce(function(s,a){return s+Number(a.precio||ticketProm);},0);
   var nuevosNecesarios=ticketProm>0?Math.ceil(impactoPesos/ticketProm):0;
 
-  // Listas
-  var noRenH='';
-  enGracia.forEach(function(a){
-    var lk=waLink(a.tel,waMsg(a));
-    noRenH+='<div class="fin-item">'
-      +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
-      +'<div class="fin-item-s">'+a.plan+' - Venció: '+fd(a.venc)+'</div></div>'
-      +'<div class="fin-item-r">'
-      +'<span style="font-size:11px;color:var(--orange);font-weight:600">Sin renovar</span>'
-      +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
-      +'</div></div>';
-  });
-  churnConfirmado.forEach(function(a){
-    var lk=waLink(a.tel,waMsg(a));
-    noRenH+='<div class="fin-item">'
-      +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
-      +'<div class="fin-item-s">'+a.plan+' - Inactivo'+'</div></div>'
-      +'<div class="fin-item-r">'
-      +'<span style="font-size:11px;color:var(--red);font-weight:600">Baja</span>'
-      +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
-      +'</div></div>';
-  });
+  // Build lists
+  function buildList(lista,color,etiqueta){
+    return lista.map(function(a){
+      var lk=waLink(a.tel,waMsg(a));
+      return '<div class="fin-item">'
+        +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
+        +'<div class="fin-item-s">'+a.plan+' - Venció: '+fd(a.venc)+'</div></div>'
+        +'<div class="fin-item-r">'
+        +'<span style="font-size:11px;color:'+color+';font-weight:600">'+etiqueta+'</span>'
+        +(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')
+        +'</div></div>';
+    }).join('');
+  }
 
-  var renH='';
-  renovaron.forEach(function(a){
-    renH+='<div class="fin-item">'
-      +'<div class="fin-item-l"><div class="fin-item-n">'+a.nombre+'</div>'
-      +'<div class="fin-item-s">'+a.plan+' - Vence: '+fd(a.venc)+'</div></div>'
-      +'<div class="fin-item-r"><span style="font-size:11px;color:var(--green);font-weight:600">Renovó</span></div>'
-      +'</div>';
-  });
+  var noRenH=buildList(enGracia,'var(--orange)','En gracia')
+    +buildList(fueraGracia,'var(--red)','Sin renovar')
+    +buildList(churnReal,'var(--red)','Baja');
+
+  var renH=buildList(renovaron,'var(--green)','Renovó');
 
   panel.innerHTML=
     '<div class="sec" style="margin-top:0">Retención de '+mesNom+'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">'
-    +'<div class="stat g-green"><div class="sl">Renovaron</div><div class="sv c-green" style="font-size:24px">'+tasaRetencion+'%</div><div style="font-size:11px;color:var(--text3);margin-top:2px">'+renovaron.length+' de '+totalVencieron+'</div></div>'
-    +'<div class="stat '+(tasaChurn>20?'g-red':'g-ora')+'"><div class="sl">Bajas</div><div class="sv '+(tasaChurn>20?'c-red':'c-ora')+'" style="font-size:24px">'+tasaChurn+'%</div><div style="font-size:11px;color:var(--text3);margin-top:2px">'+churnConfirmado.length+' inactivos</div></div>'
-    +'<div class="stat"><div class="sl">Sin renovar aun</div><div class="sv c-ora" style="font-size:24px">'+enGracia.length+'</div><div style="font-size:11px;color:var(--text3);margin-top:2px">activos vencidos</div></div>'
-    +'</div>'
-
     +(totalVencieron===0
-      ?'<div class="card"><div class="card-body"><div class="empty">No hay alumnos que hayan vencido en '+mesNom+'</div></div></div>'
-      :'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px">'
+      ?'<div class="card"><div class="card-body"><div class="empty">No hay alumnos vencidos en '+mesNom+' hasta hoy</div></div></div>'
+
+      :'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">'
+      +'<div class="stat g-green"><div class="sl">Renovaron</div><div class="sv c-green">'+renovaron.length+'</div><div style="font-size:10px;color:var(--text3)">'+tasaRetencion+'%</div></div>'
+      +'<div class="stat"><div class="sl">En gracia</div><div class="sv c-ora">'+enGracia.length+'</div><div style="font-size:10px;color:var(--text3)">30 dias</div></div>'
+      +'<div class="stat"><div class="sl">Sin renovar</div><div class="sv c-red">'+fueraGracia.length+'</div><div style="font-size:10px;color:var(--text3)">gracia vencida</div></div>'
+      +'<div class="stat g-red"><div class="sl">Bajas</div><div class="sv c-red">'+churnReal.length+'</div><div style="font-size:10px;color:var(--text3)">'+tasaChurn+'% churn</div></div>'
+      +'</div>'
+
+      +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px">'
       +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
       +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Ticket promedio</div><div style="font-size:16px;font-weight:700;color:var(--gold)">'+fmtM(Math.round(ticketProm))+'</div></div>'
-      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Impacto en caja</div><div style="font-size:16px;font-weight:700;color:var(--red)">-'+fmtM(impactoPesos)+'</div></div>'
+      +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Impacto bajas</div><div style="font-size:16px;font-weight:700;color:var(--red)">-'+fmtM(impactoPesos)+'</div></div>'
       +'<div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Nuevos p/compensar</div><div style="font-size:16px;font-weight:700;color:var(--blue)">'+nuevosNecesarios+'</div></div>'
       +'</div></div>'
-      +(noRenH?'<div class="sec" style="color:var(--orange)">Sin renovar / Bajas ('+noRenovaron.length+')</div><div class="card"><div class="card-body">'+noRenH+'</div></div>':'')
+
+      +(noRenH?'<div class="sec" style="color:var(--orange)">Sin renovar / Bajas ('+(enGracia.length+fueraGracia.length+churnReal.length)+')</div><div class="card"><div class="card-body">'+noRenH+'</div></div>':'')
       +(renH?'<div class="sec" style="color:var(--green)">Renovaron ('+renovaron.length+')</div><div class="card"><div class="card-body">'+renH+'</div></div>':''))
     ;
 }

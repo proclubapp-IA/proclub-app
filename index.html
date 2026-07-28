@@ -635,7 +635,7 @@ function renderDash(){
     +'<div class="sg4" style="margin-top:8px">'
     +'<div class="stat"><div class="sl">Mujeres activas</div><div class="sv" style="color:#f472b6">'+act.filter(function(a){return a.sexo==="Femenino";}).length+'</div><div style="font-size:10px;color:var(--text3)">'+Math.round(act.filter(function(a){return a.sexo==="Femenino";}).length/(act.length||1)*100)+'% del total</div></div>'
     +'<div class="stat"><div class="sl">Hombres activos</div><div class="sv" style="color:#60a5fa">'+act.filter(function(a){return a.sexo==="Masculino";}).length+'</div><div style="font-size:10px;color:var(--text3)">'+Math.round(act.filter(function(a){return a.sexo==="Masculino";}).length/(act.length||1)*100)+'% del total</div></div>'
-    +'<div class="stat"><div class="sl">Sin dato</div><div class="sv c-text3">'+act.filter(function(a){return !a.sexo||a.sexo==="";}).length+'</div></div>'
+    +'<div class="stat" style="cursor:pointer" onclick="abrirSinSexo()"><div class="sl">Sin dato &#128270;</div><div class="sv c-text3">'+act.filter(function(a){return !a.sexo||a.sexo==="";}).length+'</div><div style="font-size:10px;color:var(--text3)">toca para asignar</div></div>'
     +'<div class="stat"><div class="sl">Ticket prom.</div><div class="sv c-gold" style="font-size:13px">'+fmtM(Math.round(act.filter(function(a){return a.precio;}).reduce(function(s,a){return s+Number(a.precio);},0)/(act.filter(function(a){return a.precio;}).length||1)))+'</div></div>'
     +'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
@@ -763,6 +763,55 @@ function renovarAlumno(id){
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
   setTimeout(function(){var el=document.getElementById('ren-venc');if(el)el.focus();},100);
+}
+
+function abrirSinSexo(){
+  var sinSexo=alumnos.filter(function(a){return a.estado==='activo'&&(!a.sexo||a.sexo==='');});
+  if(!sinSexo.length){toast('Todos tienen sexo asignado');return;}
+  var existing=document.getElementById('m-sinsexo');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-sinsexo';
+  var listH=sinSexo.map(function(a){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">'
+      +'<div style="font-size:13px">'+a.nombre+'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button class="btn xs" style="background:rgba(244,114,182,.15);color:#f472b6;border:1px solid rgba(244,114,182,.3)" id="sex-f-'+a.id+'">M</button>'
+      +'<button class="btn xs" style="background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.3)" id="sex-m-'+a.id+'">H</button>'
+      +'</div></div>';
+  }).join('');
+  div.innerHTML='<div class="modal" style="max-height:80vh;overflow-y:auto">'
+    +'<div class="mh"><h2>Asignar sexo ('+sinSexo.length+')</h2><button class="btn sm sec" id="sinsexo-x">&#x2715;</button></div>'
+    +'<div style="padding:0 16px 16px">'+listH+'</div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('sinsexo-x').onclick=function(){div.remove();};
+  div.onclick=function(e){if(e.target===div)div.remove();};
+  sinSexo.forEach(function(a){
+    var btnF=document.getElementById('sex-f-'+a.id);
+    var btnM=document.getElementById('sex-m-'+a.id);
+    if(btnF)btnF.onclick=async function(){
+      try{
+        await sbU('alumnos',a.id,{sexo:'Femenino'});
+        a.sexo='Femenino';
+        btnF.style.background='rgba(244,114,182,.5)';
+        btnM.style.background='';
+        renderDash();
+        toast(a.nombre+' → Femenino');
+      }catch(e){toast('Error','err');}
+    };
+    if(btnM)btnM.onclick=async function(){
+      try{
+        await sbU('alumnos',a.id,{sexo:'Masculino'});
+        a.sexo='Masculino';
+        btnM.style.background='rgba(96,165,250,.5)';
+        btnF.style.background='';
+        renderDash();
+        toast(a.nombre+' → Masculino');
+      }catch(e){toast('Error','err');}
+    };
+  });
 }
 
 function filtrarVenc(){

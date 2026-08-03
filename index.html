@@ -1588,8 +1588,26 @@ function renderProyeccion(){
   });
 
   // Costos fijos proyectados
-  var costosFijos=costos.filter(function(c){return c.tipo==='fijo';}).reduce(function(s,c){return s+Number(c.valor);},0);
-  var sueldosMes=sueldos.filter(function(s){return s.mes===sigMesStr;}).reduce(function(s,x){return s+Number(x.monto);},0);
+  // Usar costos del mes mas reciente con datos, o el mes siguiente proyectado
+  var mesParaCostos=sigMesStr;
+  var costosMesProx=costos.filter(function(c){return c.tipo==='fijo'&&c.fecha&&c.fecha.slice(0,7)===mesParaCostos;});
+  if(costosMesProx.length===0){
+    // Si no hay costos cargados para el mes siguiente, usar el mes actual
+    var mesHoyStr=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+    costosMesProx=costos.filter(function(c){return c.tipo==='fijo'&&c.fecha&&c.fecha.slice(0,7)===mesHoyStr;});
+  }
+  if(costosMesProx.length===0){
+    // Si tampoco hay del mes actual, usar los que no tienen fecha (costos base)
+    costosMesProx=costos.filter(function(c){return c.tipo==='fijo'&&!c.fecha;});
+  }
+  var costosFijos=costosMesProx.reduce(function(s,c){return s+Number(c.valor);},0);
+  // Sueldos: usar mes siguiente si existen, sino mes actual
+  var sueldosSigMes=sueldos.filter(function(s){return s.mes===sigMesStr;});
+  if(sueldosSigMes.length===0){
+    var mesHoyStr2=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+    sueldosSigMes=sueldos.filter(function(s){return s.mes===mesHoyStr2;});
+  }
+  var sueldosMes=sueldosSigMes.reduce(function(s,x){return s+Number(x.monto);},0);
   var costosProyectados=costosFijos+sueldosMes;
   var netoProyectado=totalProy-costosProyectados;
 

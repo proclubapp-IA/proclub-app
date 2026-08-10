@@ -685,7 +685,7 @@ function renderAlumnos(){
       var lk=waLink(a.tel,waMsg(a));
       var edad=a.nac?(new Date().getFullYear()-parseInt(a.nac.slice(0,4))):null;
       var extra=[edad?edad+'a':null,a.peso?a.peso+'kg':null,a.altura?a.altura+'cm':null,a.sexo].filter(Boolean).join(' - ');
-      listH+='<div class="ac"><div class="ac-top"><div class="ac-av">'+ini(a.nombre)+'</div><div class="ac-i"><div class="ac-n">'+a.nombre+'</div><div class="ac-s">'+a.plan+(extra?' - '+extra:'')+'</div><div class="ac-s">Ingreso: '+fd(a.inicio)+'</div></div></div><div class="ac-b">'+mBadge(a.modal)+' '+eBadge(a.estado)+' '+nBadge(a.nivel)+' '+vBadge(a)+'</div><div class="ac-a"><button class="btn xs" onclick="editAlumno('+a.id+')">Editar</button><button class="btn xs '+(a.estado==='activo'?'red':'grn')+'" onclick="toggleEs('+a.id+')">'+(a.estado==='activo'?'Inactivar':'Activar')+'</button>'+(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')+'</div></div>';+(a.modal==='transformacion'&&cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;}).length?'<div style="background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.25);border-radius:8px;padding:5px 10px;margin-bottom:4px;font-size:12px"><span style="color:var(--orange);font-weight:700">Debe: '+fmtM(cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;}).reduce(function(s,c){return s+Number(c.monto);},0))+'</span><span style="color:var(--text3)"> vence '+fd(cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;})[0].fecha_venc)+'</span></div>':'')
+      listH+='<div class="ac"><div class="ac-top"><div class="ac-av">'+ini(a.nombre)+'</div><div class="ac-i"><div class="ac-n">'+a.nombre+'</div><div class="ac-s">'+a.plan+(extra?' - '+extra:'')+' </div><div class="ac-s">Ingreso: '+fd(a.inicio)+'</div></div></div><div class="ac-b">'+mBadge(a.modal)+' '+eBadge(a.estado)+' '+nBadge(a.nivel)+' '+vBadge(a)+'</div>'+(a.modal==='transformacion'&&cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;}).length?'<div style="background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.25);border-radius:8px;padding:5px 10px;margin:4px 0;font-size:12px"><span style="color:var(--orange);font-weight:700">Debe: '+fmtM(cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;}).reduce(function(s,c){return s+Number(c.monto);},0))+'</span><span style="color:var(--text3)"> vence '+fd(cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;})[0].fecha_venc)+'</span></div>':'')+'<div class="ac-a"><button class="btn xs" onclick="editAlumno('+a.id+')">Editar</button><button class="btn xs '+(a.estado==='activo'?'red':'grn')+'" onclick="toggleEs('+a.id+')">'+( a.estado==='activo'?'Inactivar':'Activar')+'</button>'+(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')+'</div></div>';
     });
   } else {listH='<div class="empty">Sin alumnos</div>';}
 
@@ -1569,10 +1569,15 @@ function renderCobros(){
   var panel=$('tab-cb');
   if(!panel)return;
   var hoy=new Date().toISOString().split('T')[0];
+  var q=(document.getElementById('srch-cobros-inp')||{value:''}).value.toLowerCase();
   var pendientes=cobrosPend.filter(function(c){return !c.pagado;}).sort(function(a,b){return a.fecha_venc.localeCompare(b.fecha_venc);});
   var cobrados=cobrosPend.filter(function(c){return c.pagado;});
-  var totalPend=pendientes.reduce(function(s,c){return s+Number(c.monto);},0);
-  var vencidos=pendientes.filter(function(c){return c.fecha_venc<hoy;});
+  if(q){
+    pendientes=pendientes.filter(function(c){var a=alumnos.find(function(x){return x.id===c.aid;});return a&&a.nombre.toLowerCase().includes(q);});
+    cobrados=cobrados.filter(function(c){var a=alumnos.find(function(x){return x.id===c.aid;});return a&&a.nombre.toLowerCase().includes(q);});
+  }
+  var totalPend=cobrosPend.filter(function(c){return !c.pagado;}).reduce(function(s,c){return s+Number(c.monto);},0);
+  var vencidos=cobrosPend.filter(function(c){return !c.pagado&&c.fecha_venc<hoy;});
 
   function buildRow(c,isPend){
     var a=alumnos.find(function(x){return x.id===c.aid;});
@@ -1580,7 +1585,7 @@ function renderCobros(){
     var diasFaltantes=Math.ceil((new Date(c.fecha_venc)-new Date(hoy))/(1000*60*60*24));
     var color=isPend?(c.fecha_venc<hoy?'var(--red)':diasFaltantes<=7?'var(--orange)':'var(--green)'):'var(--text3)';
     var label=isPend?(c.fecha_venc<hoy?'Vencido hace '+Math.abs(diasFaltantes)+' dias':diasFaltantes===0?'Vence HOY':'Vence en '+diasFaltantes+' dias'):'Cobrado '+fd(c.fecha_pago||'');
-    return '<div class="pgc" data-nombre="'+(a?a.nombre:'').toLowerCase()+'">' 
+    return '<div class="pgc" id="cobro-row-'+c.id+'">'
       +'<div class="pg-i">'
       +'<div class="pg-n">'+nombre+'</div>'
       +'<div class="pg-s">'+(c.descripcion||'Cuota pendiente')+' - '+fd(c.fecha_venc)+'</div>'
@@ -1589,6 +1594,7 @@ function renderCobros(){
       +'<div class="pg-r">'
       +'<div class="pg-m">'+fmtM(c.monto)+'</div>'
       +(isPend?'<button class="btn xs grn" id="cob-pay-'+c.id+'">Cobrar</button>':'')
+      +'<button class="btn xs sec" id="cob-edit-'+c.id+'">Editar</button>'
       +'<button class="btn xs red" id="cob-del-'+c.id+'">x</button>'
       +'</div></div>';
   }
@@ -1598,38 +1604,46 @@ function renderCobros(){
 
   panel.innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
-    +'<div class="stat g-red"><div class="sl">Por cobrar</div><div class="sv c-red" style="font-size:18px">'+fmtM(totalPend)+'</div><div style="font-size:10px;color:var(--text3)">'+pendientes.length+' cuotas</div></div>'
+    +'<div class="stat g-red"><div class="sl">Por cobrar</div><div class="sv c-red" style="font-size:18px">'+fmtM(totalPend)+'</div><div style="font-size:10px;color:var(--text3)">'+cobrosPend.filter(function(c){return !c.pagado;}).length+' cuotas</div></div>'
     +'<div class="stat '+(vencidos.length?'g-red':'')+'"><div class="sl">Vencidas</div><div class="sv '+(vencidos.length?'c-red':'c-text3')+'">'+vencidos.length+'</div><div style="font-size:10px;color:var(--text3)">requieren contacto</div></div>'
     +'</div>'
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
     +'<div class="sec" style="margin:0">Cobros pendientes</div>'
     +'<button class="btn sm pri" id="btn-add-cobro">+ Agregar</button>'
     +'</div>'
-    +'<input id="srch-cobros" type="text" placeholder="🔍 Buscar alumno..." oninput="filtrarCobros()" style="width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:8px">'
+    +'<input id="srch-cobros-inp" type="text" placeholder="🔍 Buscar alumno..." oninput="renderCobros()" value="'+q+'" style="width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:10px">'
     +pendH
     +(cobrados.length?'<div class="sec" style="margin-top:12px">Cobrados</div>'+cobH:'');
 
   // Events
   var btnAdd=document.getElementById('btn-add-cobro');
   if(btnAdd)btnAdd.onclick=abrirNuevoCobro;
+  
+  // Restore focus if searching
+  var hadFocus=document.activeElement&&document.activeElement.id==='srch-cobros-inp';
+  if(hadFocus){var el=document.getElementById('srch-cobros-inp');if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}
 
-  pendientes.forEach(function(c){
-    var btnPay=document.getElementById('cob-pay-'+c.id);
-    if(btnPay)btnPay.onclick=async function(){
-      var hoyDate=new Date().toISOString().split('T')[0];
-      try{
-        await sbU('cobros_pendientes',c.id,{pagado:true,fecha_pago:hoyDate});
-        c.pagado=true;c.fecha_pago=hoyDate;
-        // Register as payment
-        var a=alumnos.find(function(x){return x.id===c.aid;});
-        if(a){await sbP('pagos',{aid:c.aid,monto:c.monto,fecha:hoyDate,concepto:c.descripcion||'Cuota programa',tipo:'gym'});}
-        renderCobros();renderDash();
-        toast('Cobro registrado y pago guardado');
-      }catch(e){toast('Error','err');}
-    };
+  cobrosPend.forEach(function(c){
+    var isPend=!c.pagado;
+    if(isPend){
+      var btnPay=document.getElementById('cob-pay-'+c.id);
+      if(btnPay)btnPay.onclick=async function(){
+        var hoyDate=new Date().toISOString().split('T')[0];
+        try{
+          await sbU('cobros_pendientes',c.id,{pagado:true,fecha_pago:hoyDate});
+          c.pagado=true;c.fecha_pago=hoyDate;
+          var a=alumnos.find(function(x){return x.id===c.aid;});
+          if(a){var res=await sbP('pagos',{aid:c.aid,monto:c.monto,fecha:hoyDate,concepto:c.descripcion||'Cuota programa',tipo:'gym'});pagos.unshift(res[0]);}
+          renderCobros();renderDash();
+          toast('Cobro registrado');
+        }catch(e){toast('Error','err');}
+      };
+    }
+    var btnEdit=document.getElementById('cob-edit-'+c.id);
+    if(btnEdit)btnEdit.onclick=function(){editarCobro(c);};
     var btnDel=document.getElementById('cob-del-'+c.id);
     if(btnDel)btnDel.onclick=async function(){
-      if(!confirm('Eliminar este cobro pendiente?'))return;
+      if(!confirm('Eliminar este cobro?'))return;
       try{
         await sbD('cobros_pendientes',c.id);
         cobrosPend=cobrosPend.filter(function(x){return x.id!==c.id;});
@@ -1637,17 +1651,41 @@ function renderCobros(){
       }catch(e){toast('Error','err');}
     };
   });
-  cobrados.forEach(function(c){
-    var btnDel=document.getElementById('cob-del-'+c.id);
-    if(btnDel)btnDel.onclick=async function(){
-      if(!confirm('Eliminar?'))return;
-      try{
-        await sbD('cobros_pendientes',c.id);
-        cobrosPend=cobrosPend.filter(function(x){return x.id!==c.id;});
-        renderCobros();toast('Eliminado');
-      }catch(e){toast('Error','err');}
-    };
-  });
+}
+
+function editarCobro(c){
+  var existing=document.getElementById('m-cobro-edit');
+  if(existing)existing.remove();
+  var a=alumnos.find(function(x){return x.id===c.aid;});
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-cobro-edit';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Editar cobro</h2><button class="btn sm sec" id="cobro-edit-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Alumno</label><input type="text" value="'+(a?a.nombre:'')+'" disabled style="opacity:.6"></div>'
+    +'<div class="field"><label>Descripcion</label><input id="cobro-edit-desc" type="text" value="'+(c.descripcion||'')+'"></div>'
+    +'<div class="field"><label>Monto ($) *</label><input id="cobro-edit-monto" type="number" value="'+c.monto+'" inputmode="numeric"></div>'
+    +'<div class="field"><label>Fecha vencimiento *</label><input id="cobro-edit-fecha" type="date" value="'+c.fecha_venc+'"></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="cobro-edit-cancel">Cancelar</button><button class="btn sm pri" id="cobro-edit-save">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('cobro-edit-x').onclick=function(){div.remove();};
+  document.getElementById('cobro-edit-cancel').onclick=function(){div.remove();};
+  document.getElementById('cobro-edit-save').onclick=async function(){
+    var monto=parseFloat(document.getElementById('cobro-edit-monto').value)||0;
+    var fecha=document.getElementById('cobro-edit-fecha').value;
+    var desc=(document.getElementById('cobro-edit-desc').value||'').trim();
+    if(!monto||!fecha){toast('Completa los campos','err');return;}
+    try{
+      await sbU('cobros_pendientes',c.id,{monto:monto,fecha_venc:fecha,descripcion:desc});
+      c.monto=monto;c.fecha_venc=fecha;c.descripcion=desc;
+      div.remove();renderCobros();
+      toast('Actualizado');
+    }catch(e){toast('Error','err');}
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
 }
 
 function filtrarCobros(){

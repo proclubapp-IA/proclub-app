@@ -320,7 +320,8 @@ html,body{height:100%;background:#000;color:var(--text);font-family:-apple-syste
   <div class="content" id="content">
     <div class="tab on" id="tab-d"></div>
     <div class="tab" id="tab-a"></div>
-    <div class="tab" id="tab-p"></div>
+    <div class="tab" id="tab-cb"></div>
+  <div class="tab" id="tab-p"></div>
     <div class="tab" id="tab-f"></div>
     <div class="tab" id="tab-v"></div>
     <div class="tab" id="tab-m"></div>
@@ -482,6 +483,7 @@ async function init(){
   try{sueldos=await sbG('sueldos','order=id.desc')||[];sueldos.forEach(function(s){s.montoBase=s.monto_base;s.horasExtra=s.horas_extra;s.valorHora=s.valor_hora;s.bonusHoras=s.bonus_horas;});}catch(e){console.warn('sueldos:',e);try{var xs=localStorage.getItem('pc_sueldos');if(xs)sueldos=JSON.parse(xs);}catch(e2){}}
   ['mkt','prog','fotos'].forEach(function(k){try{const x=localStorage.getItem('pc_'+k);if(x){if(k==='mkt')campanas=JSON.parse(x);else if(k==='prog')progresos=JSON.parse(x);else if(k==='fotos')fotos=JSON.parse(x);}}catch(e){}});
     try{costos=await sbG('costos','order=id.desc')||[];}catch(e){console.warn('costos:',e);try{const xc=localStorage.getItem('pc_costos');if(xc)costos=JSON.parse(xc);}catch(e2){}}
+  try{cobrosPend=await sbG('cobros_pendientes','order=fecha_venc.asc')||[];}catch(e2){console.warn('cobros:',e2);}
   }catch(e){console.warn('Init:',e);}
   showS('s-login');
 }
@@ -506,7 +508,8 @@ function goHome(){if(CU)showTab('d');else showS('s-login');}
 function openM(id){const el=$(id);if(el)el.classList.add('on');}
 function closeM(id){const el=$(id);if(el)el.classList.remove('on');}
 document.querySelectorAll('.overlay').forEach(function(ov){ov.addEventListener('click',function(e){if(e.target===ov)ov.classList.remove('on');});});
-const NAVS=[{id:'d',icon:'&#9632;',label:'Inicio',roles:['admin','coach']},{id:'a',icon:'&#128101;',label:'Alumnos',roles:['admin','coach']},{id:'p',icon:'&#128179;',label:'Pagos',roles:['admin','coach']},{id:'o',icon:'&#127760;',label:'Online',roles:['admin','coach']},{id:'pt',icon:'&#128764;',label:'Patin',roles:['admin','coach']},{id:'v',icon:'&#127991;',label:'Ventas',roles:['admin','coach']},{id:'m',icon:'&#128226;',label:'Mkt',roles:['admin']},{id:'f',icon:'&#128200;',label:'Finanzas',roles:['admin']},{id:'c',icon:'&#9881;',label:'Config',roles:['admin']}];
+const NAVS=[{id:'d',icon:'&#9632;',label:'Inicio',roles:['admin','coach']},{id:'a',icon:'&#128101;',label:'Alumnos',roles:['admin','coach']},{id:'p',icon:'&#128179;',label:'Pagos',roles:['admin','coach']},
+    {id:'cb',icon:'&#9203;',label:'Cobros',roles:['admin']},{id:'o',icon:'&#127760;',label:'Online',roles:['admin','coach']},{id:'pt',icon:'&#128764;',label:'Patin',roles:['admin','coach']},{id:'v',icon:'&#127991;',label:'Ventas',roles:['admin','coach']},{id:'m',icon:'&#128226;',label:'Mkt',roles:['admin']},{id:'f',icon:'&#128200;',label:'Finanzas',roles:['admin']},{id:'c',icon:'&#9881;',label:'Config',roles:['admin']}];
 function buildNav(){
   const nb=$('bnav');nb.innerHTML='';
   NAVS.filter(function(t){return t.roles.includes(CU.rol);}).forEach(function(t){
@@ -521,7 +524,7 @@ function showTab(id){
   document.querySelectorAll('.nb').forEach(function(b){b.classList.toggle('on',b.dataset.id===id);});
   const tab=$('tab-'+id);if(tab)tab.classList.add('on');
   $('content').scrollTop=0;
-  ({d:renderDash,a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline,c:renderConfig,pt:renderPatin}[id]||function(){})();
+  ({d:renderDash,a:renderAlumnos,p:renderPagos,f:renderFinanzas,v:renderPromos,m:renderMkt,o:renderOnline,c:renderConfig,pt:renderPatin,cb:renderCobros}[id]||function(){})();
 }
 function renderDash(){
   // Mes seleccionado
@@ -1280,6 +1283,7 @@ function pagarPatin(id){
 // ── AHORROS ──
 var ahorros=[];
 var sueldos=[];
+var cobrosPend=[];
 var tarifasCoach={n1:0,n2:0,n3:0,n4:0};
 var tipoCambio={blue:1000,oficial:1000,mep:1000};
 
@@ -1559,6 +1563,131 @@ function renderRetencion(){
       +(noRenH?'<div class="sec" style="color:var(--orange)">Sin renovar / Bajas ('+(enGracia.length+fueraGracia.length+churnReal.length)+')</div><div class="card"><div class="card-body">'+noRenH+'</div></div>':'')
       +(renH?'<div class="sec" style="color:var(--green)">Renovaron ('+renovaron.length+')</div><div class="card"><div class="card-body">'+renH+'</div></div>':''))
     ;
+}
+
+function renderCobros(){
+  var panel=$('tab-cb');
+  if(!panel)return;
+  var hoy=new Date().toISOString().split('T')[0];
+  var pendientes=cobrosPend.filter(function(c){return !c.pagado;}).sort(function(a,b){return a.fecha_venc.localeCompare(b.fecha_venc);});
+  var cobrados=cobrosPend.filter(function(c){return c.pagado;});
+  var totalPend=pendientes.reduce(function(s,c){return s+Number(c.monto);},0);
+  var vencidos=pendientes.filter(function(c){return c.fecha_venc<hoy;});
+
+  function buildRow(c,isPend){
+    var a=alumnos.find(function(x){return x.id===c.aid;});
+    var nombre=a?a.nombre:'Alumno';
+    var diasFaltantes=Math.ceil((new Date(c.fecha_venc)-new Date(hoy))/(1000*60*60*24));
+    var color=isPend?(c.fecha_venc<hoy?'var(--red)':diasFaltantes<=7?'var(--orange)':'var(--green)'):'var(--text3)';
+    var label=isPend?(c.fecha_venc<hoy?'Vencido hace '+Math.abs(diasFaltantes)+' dias':diasFaltantes===0?'Vence HOY':'Vence en '+diasFaltantes+' dias'):'Cobrado '+fd(c.fecha_pago||'');
+    return '<div class="pgc">'
+      +'<div class="pg-i">'
+      +'<div class="pg-n">'+nombre+'</div>'
+      +'<div class="pg-s">'+(c.descripcion||'Cuota pendiente')+' - '+fd(c.fecha_venc)+'</div>'
+      +'<div style="font-size:11px;color:'+color+';font-weight:600;margin-top:2px">'+label+'</div>'
+      +'</div>'
+      +'<div class="pg-r">'
+      +'<div class="pg-m">'+fmtM(c.monto)+'</div>'
+      +(isPend?'<button class="btn xs grn" id="cob-pay-'+c.id+'">Cobrar</button>':'')
+      +'<button class="btn xs red" id="cob-del-'+c.id+'">x</button>'
+      +'</div></div>';
+  }
+
+  var pendH=pendientes.length?pendientes.map(function(c){return buildRow(c,true);}).join(''):'<div class="empty" style="padding:14px">Sin cobros pendientes</div>';
+  var cobH=cobrados.length?cobrados.map(function(c){return buildRow(c,false);}).join(''):'';
+
+  panel.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">'
+    +'<div class="stat g-red"><div class="sl">Por cobrar</div><div class="sv c-red" style="font-size:18px">'+fmtM(totalPend)+'</div><div style="font-size:10px;color:var(--text3)">'+pendientes.length+' cuotas</div></div>'
+    +'<div class="stat '+(vencidos.length?'g-red':'')+'"><div class="sl">Vencidas</div><div class="sv '+(vencidos.length?'c-red':'c-text3')+'">'+vencidos.length+'</div><div style="font-size:10px;color:var(--text3)">requieren contacto</div></div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    +'<div class="sec" style="margin:0">Cobros pendientes</div>'
+    +'<button class="btn sm pri" id="btn-add-cobro">+ Agregar</button>'
+    +'</div>'
+    +pendH
+    +(cobrados.length?'<div class="sec" style="margin-top:12px">Cobrados</div>'+cobH:'');
+
+  // Events
+  var btnAdd=document.getElementById('btn-add-cobro');
+  if(btnAdd)btnAdd.onclick=abrirNuevoCobro;
+
+  pendientes.forEach(function(c){
+    var btnPay=document.getElementById('cob-pay-'+c.id);
+    if(btnPay)btnPay.onclick=async function(){
+      var hoyDate=new Date().toISOString().split('T')[0];
+      try{
+        await sbU('cobros_pendientes',c.id,{pagado:true,fecha_pago:hoyDate});
+        c.pagado=true;c.fecha_pago=hoyDate;
+        // Register as payment
+        var a=alumnos.find(function(x){return x.id===c.aid;});
+        if(a){await sbP('pagos',{aid:c.aid,monto:c.monto,fecha:hoyDate,concepto:c.descripcion||'Cuota programa',tipo:'gym'});}
+        renderCobros();renderDash();
+        toast('Cobro registrado y pago guardado');
+      }catch(e){toast('Error','err');}
+    };
+    var btnDel=document.getElementById('cob-del-'+c.id);
+    if(btnDel)btnDel.onclick=async function(){
+      if(!confirm('Eliminar este cobro pendiente?'))return;
+      try{
+        await sbD('cobros_pendientes',c.id);
+        cobrosPend=cobrosPend.filter(function(x){return x.id!==c.id;});
+        renderCobros();toast('Eliminado');
+      }catch(e){toast('Error','err');}
+    };
+  });
+  cobrados.forEach(function(c){
+    var btnDel=document.getElementById('cob-del-'+c.id);
+    if(btnDel)btnDel.onclick=async function(){
+      if(!confirm('Eliminar?'))return;
+      try{
+        await sbD('cobros_pendientes',c.id);
+        cobrosPend=cobrosPend.filter(function(x){return x.id!==c.id;});
+        renderCobros();toast('Eliminado');
+      }catch(e){toast('Error','err');}
+    };
+  });
+}
+
+function abrirNuevoCobro(){
+  var existing=document.getElementById('m-cobro');
+  if(existing)existing.remove();
+  var hoy=new Date();
+  var def30=new Date(hoy);def30.setDate(def30.getDate()+30);
+  var defStr=def30.toISOString().split('T')[0];
+  var alumnosOpts=alumnos.filter(function(a){return a.estado==='activo';}).map(function(a){
+    return '<option value="'+a.id+'">'+a.nombre+'</option>';
+  }).join('');
+  var div=document.createElement('div');
+  div.className='overlay on';
+  div.id='m-cobro';
+  div.innerHTML='<div class="modal">'
+    +'<div class="mh"><h2>Nuevo cobro pendiente</h2><button class="btn sm sec" id="cobro-x">&#x2715;</button></div>'
+    +'<div class="mb s1">'
+    +'<div class="field"><label>Alumno *</label><select id="cobro-aid"><option value="">Seleccionar...</option>'+alumnosOpts+'</select></div>'
+    +'<div class="field"><label>Descripcion</label><input id="cobro-desc" type="text" placeholder="2da cuota programa 3 meses"></div>'
+    +'<div class="field"><label>Monto ($) *</label><input id="cobro-monto" type="number" inputmode="numeric" placeholder="50000"></div>'
+    +'<div class="field"><label>Fecha de vencimiento *</label><input id="cobro-fecha" type="date" value="'+defStr+'"></div>'
+    +'</div>'
+    +'<div class="mf"><button class="btn sm sec" id="cobro-cancel">Cancelar</button><button class="btn sm pri" id="cobro-save">Guardar</button></div>'
+    +'</div>';
+  document.body.appendChild(div);
+  document.getElementById('cobro-x').onclick=function(){div.remove();};
+  document.getElementById('cobro-cancel').onclick=function(){div.remove();};
+  document.getElementById('cobro-save').onclick=async function(){
+    var aid=parseInt($('cobro-aid').value)||null;
+    var monto=parseFloat($('cobro-monto').value)||0;
+    var fecha=$('cobro-fecha').value;
+    var desc=($('cobro-desc').value||'').trim();
+    if(!aid||!monto||!fecha){toast('Completa todos los campos obligatorios','err');return;}
+    try{
+      var res=await sbP('cobros_pendientes',{aid:aid,descripcion:desc,monto:monto,fecha_venc:fecha,pagado:false});
+      cobrosPend.push(res[0]);
+      div.remove();renderCobros();
+      toast('Cobro pendiente guardado');
+    }catch(e){toast('Error al guardar','err');}
+  };
+  div.onclick=function(e){if(e.target===div)div.remove();};
 }
 
 function renderProyeccion(){

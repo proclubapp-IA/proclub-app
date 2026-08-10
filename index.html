@@ -685,7 +685,7 @@ function renderAlumnos(){
       var lk=waLink(a.tel,waMsg(a));
       var edad=a.nac?(new Date().getFullYear()-parseInt(a.nac.slice(0,4))):null;
       var extra=[edad?edad+'a':null,a.peso?a.peso+'kg':null,a.altura?a.altura+'cm':null,a.sexo].filter(Boolean).join(' - ');
-      listH+='<div class="ac"><div class="ac-top"><div class="ac-av">'+ini(a.nombre)+'</div><div class="ac-i"><div class="ac-n">'+a.nombre+'</div><div class="ac-s">'+a.plan+(extra?' - '+extra:'')+'</div><div class="ac-s">Ingreso: '+fd(a.inicio)+'</div></div></div><div class="ac-b">'+mBadge(a.modal)+' '+eBadge(a.estado)+' '+nBadge(a.nivel)+' '+vBadge(a)+'</div><div class="ac-a"><button class="btn xs" onclick="editAlumno('+a.id+')">Editar</button><button class="btn xs '+(a.estado==='activo'?'red':'grn')+'" onclick="toggleEs('+a.id+')">'+(a.estado==='activo'?'Inactivar':'Activar')+'</button>'+(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')+'</div></div>';
+      listH+='<div class="ac"><div class="ac-top"><div class="ac-av">'+ini(a.nombre)+'</div><div class="ac-i"><div class="ac-n">'+a.nombre+'</div><div class="ac-s">'+a.plan+(extra?' - '+extra:'')+'</div><div class="ac-s">Ingreso: '+fd(a.inicio)+'</div></div></div><div class="ac-b">'+mBadge(a.modal)+' '+eBadge(a.estado)+' '+nBadge(a.nivel)+' '+vBadge(a)+'</div><div class="ac-a"><button class="btn xs" onclick="editAlumno('+a.id+')">Editar</button><button class="btn xs '+(a.estado==='activo'?'red':'grn')+'" onclick="toggleEs('+a.id+')">'+(a.estado==='activo'?'Inactivar':'Activar')+'</button>'+(lk?'<a href="'+lk+'" target="_blank" class="btn xs wa2">WA</a>':'')+'</div></div>';+(a.modal==='transformacion'&&cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;}).length?'<div style="background:rgba(255,159,10,.1);border:1px solid rgba(255,159,10,.25);border-radius:8px;padding:5px 10px;margin-bottom:4px;font-size:12px"><span style="color:var(--orange);font-weight:700">Debe: '+fmtM(cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;}).reduce(function(s,c){return s+Number(c.monto);},0))+'</span><span style="color:var(--text3)"> vence '+fd(cobrosPend.filter(function(c){return c.aid===a.id&&!c.pagado;})[0].fecha_venc)+'</span></div>':'')
     });
   } else {listH='<div class="empty">Sin alumnos</div>';}
 
@@ -1580,7 +1580,7 @@ function renderCobros(){
     var diasFaltantes=Math.ceil((new Date(c.fecha_venc)-new Date(hoy))/(1000*60*60*24));
     var color=isPend?(c.fecha_venc<hoy?'var(--red)':diasFaltantes<=7?'var(--orange)':'var(--green)'):'var(--text3)';
     var label=isPend?(c.fecha_venc<hoy?'Vencido hace '+Math.abs(diasFaltantes)+' dias':diasFaltantes===0?'Vence HOY':'Vence en '+diasFaltantes+' dias'):'Cobrado '+fd(c.fecha_pago||'');
-    return '<div class="pgc">'
+    return '<div class="pgc" data-nombre="'+(a?a.nombre:'').toLowerCase()+'">' 
       +'<div class="pg-i">'
       +'<div class="pg-n">'+nombre+'</div>'
       +'<div class="pg-s">'+(c.descripcion||'Cuota pendiente')+' - '+fd(c.fecha_venc)+'</div>'
@@ -1605,6 +1605,7 @@ function renderCobros(){
     +'<div class="sec" style="margin:0">Cobros pendientes</div>'
     +'<button class="btn sm pri" id="btn-add-cobro">+ Agregar</button>'
     +'</div>'
+    +'<input id="srch-cobros" type="text" placeholder="🔍 Buscar alumno..." oninput="filtrarCobros()" style="width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;margin-bottom:8px">'
     +pendH
     +(cobrados.length?'<div class="sec" style="margin-top:12px">Cobrados</div>'+cobH:'');
 
@@ -1646,6 +1647,14 @@ function renderCobros(){
         renderCobros();toast('Eliminado');
       }catch(e){toast('Error','err');}
     };
+  });
+}
+
+function filtrarCobros(){
+  var q=(document.getElementById('srch-cobros').value||'').toLowerCase();
+  document.querySelectorAll('#tab-cb .pgc[data-nombre]').forEach(function(card){
+    var nombre=card.getAttribute('data-nombre')||'';
+    card.style.display=(!q||nombre.includes(q))?'':'none';
   });
 }
 

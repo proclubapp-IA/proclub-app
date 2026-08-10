@@ -1297,19 +1297,22 @@ function loadAhorros(){try{var x=localStorage.getItem('pc_ahorros');if(x){var d=
 
 function exportarInformeContable(){
   var hoy=new Date();
-  var mesActual=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
-  var mesNom=hoy.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  var mesActualHoy=hoy.getFullYear()+'-'+(String(hoy.getMonth()+1).padStart(2,'0'));
+  var finMesEl=document.getElementById('fin-mes-sel');
+  var mesActual=finMesEl&&finMesEl.value?finMesEl.value:mesActualHoy;
+  var partes=mesActual.split('-');
+  var mesNom=new Date(parseInt(partes[0]),parseInt(partes[1])-1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
 
-  // Data
+  // Data filtrada por mes seleccionado
   var pagosMes=pagos.filter(function(p){return p.fecha&&p.fecha.slice(0,7)===mesActual;});
   var cobradoPre=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='presencial';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoOnl=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='online';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoTra=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='transformacion';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoPer=pagosMes.filter(function(pg){var a=alumnos.find(function(x){return x.id===pg.aid;});return a&&a.modal==='personal';}).reduce(function(s,p){return s+Number(p.monto);},0);
   var cobradoTotal=cobradoPre+cobradoOnl+cobradoTra+cobradoPer;
-  var costosFijos=costos.filter(function(c){return c.tipo==='fijo';}).reduce(function(s,c){return s+Number(c.valor);},0);
-  var costosVar=costos.filter(function(c){return c.tipo==='variable';}).reduce(function(s,c){return s+Number(c.valor);},0);
-  var sueldosMes=sueldos.filter(function(s){return s.mes===mesActual;}).reduce(function(s,x){return s+Number(x.monto);},0);
+  var costosFijos=costos.filter(function(c){return c.tipo==='fijo'&&(!c.fecha||c.fecha.slice(0,7)===mesActual);}).reduce(function(s,c){return s+Number(c.valor);},0);
+  var costosVar=costos.filter(function(c){return c.tipo==='variable'&&(!c.fecha||c.fecha.slice(0,7)===mesActual);}).reduce(function(s,c){return s+Number(c.valor);},0);
+  var sueldosMes=sueldos.filter(function(x){return x.mes===mesActual;}).reduce(function(s,x){return s+Number(x.monto);},0);
   var totalCostos=costosFijos+costosVar+sueldosMes;
   var neto=cobradoTotal-totalCostos;
   var margen=cobradoTotal>0?Math.round(neto/cobradoTotal*100):0;
@@ -1320,13 +1323,13 @@ function exportarInformeContable(){
   function fmt(n){return '$'+Number(n||0).toLocaleString('es-AR');}
 
   // Build PDF rows for costos
-  var cfRows=costos.filter(function(c){return c.tipo==='fijo';}).map(function(c){
+  var cfRows=costos.filter(function(c){return c.tipo==='fijo'&&(!c.fecha||c.fecha.slice(0,7)===mesActual);}).map(function(c){
     return '<tr><td>'+c.descripcion+'</td><td>'+c.categoria+'</td><td style="text-align:right;color:#e74c3c">'+fmt(c.valor)+'</td></tr>';
   }).join('');
-  var cvRows=costos.filter(function(c){return c.tipo==='variable';}).map(function(c){
+  var cvRows=costos.filter(function(c){return c.tipo==='variable'&&(!c.fecha||c.fecha.slice(0,7)===mesActual);}).map(function(c){
     return '<tr><td>'+c.descripcion+'</td><td>'+c.categoria+'</td><td style="text-align:right;color:#e67e22">'+fmt(c.valor)+'</td></tr>';
   }).join('');
-  var sueRows=sueldos.filter(function(s){return s.mes===mesActual;}).map(function(s){
+  var sueRows=sueldos.filter(function(x){return x.mes===mesActual;}).map(function(s){
     return '<tr><td>'+s.coach+'</td><td>'+s.rol+'</td><td style="text-align:right;color:#e74c3c">'+fmt(s.monto)+(s.horasExtra>0?' <small>(+'+s.horasExtra+'hs extra)</small>':'')+'</td></tr>';
   }).join('');
   var pagosRows=pagosMes.map(function(pg){

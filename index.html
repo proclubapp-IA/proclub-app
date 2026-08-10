@@ -1655,7 +1655,7 @@ function abrirNuevoCobro(){
   var hoy=new Date();
   var def30=new Date(hoy);def30.setDate(def30.getDate()+30);
   var defStr=def30.toISOString().split('T')[0];
-  var alumnosOpts=alumnos.filter(function(a){return a.estado==='activo';}).map(function(a){
+  var alumnosOpts=alumnos.filter(function(a){return a.estado==='activo'&&a.modal==='transformacion';}).map(function(a){
     return '<option value="'+a.id+'">'+a.nombre+'</option>';
   }).join('');
   var div=document.createElement('div');

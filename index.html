@@ -735,6 +735,9 @@ function renovarAlumno(id){
     +'<div class="mb s1">'
     +'<div style="font-size:13px;color:var(--text2);margin-bottom:10px">'+a.plan+'</div>'
     +'<div class="field"><label>Nuevo vencimiento *</label><input id="ren-venc" type="date" value="'+defVenc+'"></div>'
+    +'<div class="field"><label>Dia del pago</label><input id="ren-dia" type="number" min="1" max="31" inputmode="numeric" placeholder="'+hoy.getDate()+'" style="width:70px;padding:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;font-family:inherit;outline:none"></div>'
+    +'<div class="field"><label>Mes del pago</label><select id="ren-mes"><option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option><option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option><option value="7">Julio</option><option value="8">Agosto</option><option value="9" '+(hoy.getMonth()===8?'selected':'')+'>Septiembre</option><option value="10" '+(hoy.getMonth()===9?'selected':'')+'>Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option></select></div>'
+    +'<div class="field"><label>Año del pago</label><select id="ren-ano"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select></div>'
     +'<div class="field"><label>Monto cobrado ($)</label><input id="ren-monto" type="number" value="'+(a.precio||'')+'" inputmode="numeric"></div>'
     +'<div class="field"><label>Concepto</label><input id="ren-conc" type="text" value="Renovacion '+a.plan+'"></div>'
     +'</div>'
@@ -747,16 +750,18 @@ function renovarAlumno(id){
   document.getElementById('ren-cancel').onclick=function(){div.remove();};
   document.getElementById('ren-save').onclick=async function(){
     var venc=document.getElementById('ren-venc').value;
+    var dia=parseInt(document.getElementById('ren-dia').value)||hoy.getDate();
+    var mes=parseInt(document.getElementById('ren-mes').value)||hoy.getMonth()+1;
+    var ano=parseInt(document.getElementById('ren-ano').value)||hoy.getFullYear();
+    var fechaPago=ano+'-'+String(mes).padStart(2,'0')+'-'+String(dia).padStart(2,'0');
     var monto=parseFloat(document.getElementById('ren-monto').value)||0;
     var conc=document.getElementById('ren-conc').value||'Renovacion';
-    if(!venc){toast('Ingresa la fecha de vencimiento','err');return;}
+    if(!venc){toast('Ingresá el nuevo vencimiento','err');return;}
     try{
-      // Update vencimiento
       await sbU('alumnos',id,{venc:venc,estado:'activo'});
       a.venc=venc;a.estado='activo';
-      // Register payment if monto entered
       if(monto>0){
-        var res=await sbP('pagos',{aid:id,monto:monto,fecha:new Date().toISOString().split('T')[0],concepto:conc,tipo:'gym'});
+        var res=await sbP('pagos',{aid:id,monto:monto,fecha:fechaPago,concepto:conc,tipo:'gym'});
         pagos.unshift(res[0]);
       }
       div.remove();
@@ -765,7 +770,6 @@ function renovarAlumno(id){
     }catch(e){toast('Error al renovar','err');}
   };
   div.onclick=function(e){if(e.target===div)div.remove();};
-  setTimeout(function(){var el=document.getElementById('ren-venc');if(el)el.focus();},100);
 }
 
 function abrirSinSexo(){
